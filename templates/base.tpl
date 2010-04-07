@@ -7,7 +7,7 @@
   </head>
   <body>
 <div id="header"{% if header_color is defined %} style="background-color:#{{header_color}};"{% endif %}>
-<div><a href="/sendung" alt="Archiv" id="archiv">Archiv</a></div>
+<div><a href="/archiv" alt="Archiv" id="archiv">Archiv</a></div>
 <div class="buttons">
 <div class="button"><a href="/radio" alt="Pentaradio"><img src="/s/pentaradio.png" alt="Pentaradio" /></a></div>
 <div class="button"><a href="/cast" alt="Pentacast"><img src="/s/pentacast.png" alt="Pentacast" /></a></div>
