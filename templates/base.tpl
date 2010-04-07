@@ -17,6 +17,7 @@
 <div class="links">some links</div>
 <div class="content">
 {% block body %}
+{{lipsum()}}
 {% endblock %}
 </div>
   </body>
