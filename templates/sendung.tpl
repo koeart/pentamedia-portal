@@ -6,5 +6,8 @@
   <p class="">{{long_text|d("long text")}}</p>
 </div>
 </div>
+<div class="comments">
+{% for comment in comments|d([]) %}<div class="comment">comment here</div>{% endfor %}
+</div>
 {% endblock %}
 
