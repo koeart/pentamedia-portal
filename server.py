@@ -12,21 +12,13 @@ head_colors = {'radio':"ffc8b4", 'cast':"b4c8ff", 'music':"c8ffc8"}
 
 autotemplate("/","start.html", css="start")
 
-@route("radio")
-def radio(web):
-  return template("radio.tpl",header_color=head_colors['radio'])
-  
-@route("cast")
-def cast(web):
-  return template("cast.tpl",header_color=head_colors['cast'])
-  
-@route("music")
-def music(web):
-  return template("music.tpl",header_color=head_colors['music'])
+@route("/(?P<site>radio|cast|music)")
+def main(web,site):
+  return template(site+".tpl",header_color=head_colors[site])
 
 
 
-@route("/:star/sendung")
+@route("/(?P<star>radio|cast|music)/sendung")
 def sendung(web,star):
   return template("sendung.tpl",header_color=head_colors[star],css="sendung")
 
