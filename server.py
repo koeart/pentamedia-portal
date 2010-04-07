@@ -38,8 +38,8 @@ def sendung(web,star,id):
 def main(web,site):
   episodes = Episode.find().filter_by(category=site).order_by(Episode.date).limit(20).all()
   episodes.reverse()
-  return template(site+".tpl",header_color=head_colors[site], css="sendung", \
-                  episodepage=episodes)
+  return template("episodes.tpl",header_color=head_colors[site], css="sendung", \
+                  episodepage=episodes, site=site)
 
 
 # example content
