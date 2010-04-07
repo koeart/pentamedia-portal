@@ -7,15 +7,16 @@ is written in python3.
   Juno - light webframework (http://github.com/dodo/juno)
   Jinja2 - tmeplate engine (http://jinja.pocoo.org/2/)
   SQLAlchemy - database framework (http://www.sqlalchemy.org/)
+  lesscss - css compiler (http://lesscss.org/)
   
 === Install
 
-  get setuptools from http://code.google.com/p/python-incompatibility/
-  install all denpendies
-  use py3k branch from juno
-  convert jinja2 with 2to3
-  run sa2to3.py in sqlalchemy
-  apply patches on your python3 library
+  · get setuptools from http://code.google.com/p/python-incompatibility/
+  · install all denpendies
+  · use py3k branch from juno
+  · convert jinja2 with 2to3
+  · run sa2to3.py in sqlalchemy
+  · apply patches on your python3 library
   
 === Use
 

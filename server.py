@@ -37,12 +37,12 @@ def new_comment(web,site,id):
 
 
 @route("/(?P<star>radio|cast|music)/:id")
-def sendung(web,star,id):
+def episode(web,star,id):
   try:
     episode = Episode.find().filter_by(link=id).one()
     comments = Comment.find().filter_by(episode=episode.id).order_by(Comment.date).all()
   except: return redirect("/"+star)
-  return template("sendung.tpl",header_color=head_colors[star],css="sendung",
+  return template("episode.tpl",header_color=head_colors[star],css="episode",
                   episode=episode, site=star, comments=comments)
 
 
@@ -50,7 +50,7 @@ def sendung(web,star,id):
 def main(web,site):
   episodes = Episode.find().filter_by(category=site).order_by(Episode.date).limit(20).all()
   episodes.reverse()
-  return template("episodes.tpl",header_color=head_colors[site], css="sendung", \
+  return template("episodes.tpl",header_color=head_colors[site], css="episode", \
                   episodepage=episodes, site=site)
 
 
