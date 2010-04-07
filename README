@@ -15,6 +15,7 @@ is written in python3.
   use py3k branch from juno
   convert jinja2 with 2to3
   run sa2to3.py in sqlalchemy
+  apply patches on your python3 library
   
 === Use
 

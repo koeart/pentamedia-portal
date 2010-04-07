@@ -1,0 +1,11 @@
+--- Lib/cgi.py	(official buggy version)
++++ Lib/cgi.py	(working copy)
+@@ -581,7 +581,7 @@ class FieldStorage:
+ 
+     def read_urlencoded(self):
+         """Internal: read data in query string format."""
+-        qs = self.fp.read(self.length)
++        qs = str(self.fp.read(self.length), 'utf-8')
+         if self.qs_on_post:
+             qs += '&' + self.qs_on_post
+         self.list = list = []
