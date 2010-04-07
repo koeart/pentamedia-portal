@@ -18,7 +18,11 @@ Comment = model('Comment', episode='integer', author='string', date='datetime', 
 
 # routes
 
-autotemplate("/","start.html", css="start")
+autotemplate("/","start.html", css="start", episodes = 
+  {'radio':lambda:reversed(Episode.find().filter_by(category='radio').order_by(Episode.date).limit(13).all()),
+   'music':lambda:reversed(Episode.find().filter_by(category='music').order_by(Episode.date).limit(13).all()),
+   'cast' :lambda:reversed(Episode.find().filter_by(category='cast' ).order_by(Episode.date).limit(13).all()),
+  })
 
 
 @route("/(?P<star>radio|cast|music)/:id")
