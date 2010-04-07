@@ -1,0 +1,44 @@
+html, body { height: 100%; }
+a { text-decoration: none; }
+img { border: 0; }
+body {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+#header {
+  display: table;
+  height: 100px;
+  width: 100%;
+  background-color: #0c3d20;
+}
+#header .buttons {
+  display: table-row;
+  height: 100px;
+}
+#header .buttons .button {
+  display: table-cell;
+  vertical-align: bottom;
+  text-align: center;
+}
+#header .buttons .button a {
+  padding: 13px 20px 0px 20px;
+  background-color: white;
+}
+#header #archiv {
+  font-family: "Sans Serif";
+  position: absolute;
+  padding: 6px;
+  top: 0px;
+  right: 0px;
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #666666;
+}
+#header #archiv:hover { background-color: white; }
+.content {
+  margin: 10px;
+  text-align: left;
+  font-family: "Verdana";
+  font-size: 0.8em;
+}

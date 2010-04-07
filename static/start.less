@@ -1,0 +1,64 @@
+
+@import "rounded_corners";
+
+html, body {
+  height: 100%;
+}
+
+a {text-decoration:none;}
+img {border:0;}
+
+body {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  min-height: 400px; // For Mozilla/Opera/Safari
+  background: #0c3d20; // hell yaeh!!1!
+}
+
+#Container {
+  position: relative;
+  margin: 0 auto;
+  width: 666px;
+  height: 100%;
+  display:table;
+}
+
+#Splash {
+  .rounded_corners(5px);
+  padding:5px;
+  position: absolute;
+  width: 666px;
+  top: 30%;
+  background-color:white;
+  display:table-row;
+} 
+
+.pentastar {
+  display:table-cell;
+  text-align:left;
+  width:222px;
+  //border:1px solid red;
+  
+  .title {
+    text-align:center;
+    width:100%;
+    margin:5px 0px 8px 0px;
+  }
+  
+  .file {
+    padding:2px;
+    font-size:0.8em;
+    a {
+      color:#666;
+      :hover {
+        text-decoration:underline;
+      }
+    }
+    :hover {
+      background-color:#eee;
+    }
+  }
+
+}
+
