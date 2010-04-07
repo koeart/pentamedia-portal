@@ -7,7 +7,32 @@
 </div>
 </div>
 <div class="comments">
-{% for comment in comments|d([]) %}<div class="comment">comment here</div>{% endfor %}
+{% for comment in comments|d([]) %}<div class="comment">{{comment.text}}<br/>{{comment.author}} @ {{comment.date}}</div>{% endfor %}
+
+<form action="/{{site}}/{{episode.link}}/comment/new" method="post" id="commentform">
+
+	<p>
+	  <input type="text" name="author" id="author" class="textarea" value="" size="15" tabindex="1" />
+	   <label for="author">Name</label> (required)
+	</p>
+
+	<p>
+	  <input type="text" name="email" id="email" value="" size="15" tabindex="2" />
+	   <label for="email">E-mail</label> (required)	</p>
+
+	<p>
+	  <label for="comment">Your Comment</label>
+	<br />
+	  <textarea name="comment" style="border: 1px solid #000;" id="comment" cols="50" rows="6" tabindex="4"></textarea>
+	</p>
+
+	<p>
+
+	  <input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" />
+	</p>
+	</form>
+
+
 </div>
 {% endblock %}
 

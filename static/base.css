@@ -11,6 +11,7 @@ body {
   height: 100px;
   width: 100%;
   background-color: #0c3d20;
+  background-image: url(/s/background.png);
 }
 #header .buttons {
   display: table-row;

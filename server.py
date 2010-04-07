@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.0
+from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
 from juno import init, redirect, route, run, get, \
-                 model, \
+                 model, post, \
                  subdirect, template, autotemplate
 init({'static_url':'/s/*:file', '500_traceback':True, 'use_templates':True, 'bind_address':'',
   'use_db':True,
@@ -14,7 +15,7 @@ head_colors = {'radio':"ffc8b4", 'cast':"b4c8ff", 'music':"c8ffc8"}
 
 File = model('File', episode='integer', name='string', filename='string', link='string')
 Episode = model('Episode', name='string', link='string', category='string', author='string', date='datetime', short='text', long='text')
-Comment = model('Comment', episode='integer', author='string', date='datetime', text='text')
+Comment = model('Comment', episode='integer', author='string', email='string', date='datetime', text='text')
 
 # routes
 
@@ -25,13 +26,24 @@ autotemplate("/","start.html", css="start", episodes =
   })
 
 
+
+@post("/(?P<site>radio|cast|music)/:id/comment/new")
+def new_comment(web,site,id):
+  try:
+    episode = Episode.find().filter_by(link=id).one()
+  except: return redirect("/"+stite)
+  if web.input('author') is not None and web.input('email') is not None and web.input('comment') is not None and web.input('comment') != "": Comment(episode=episode.id,author=web.input('author'),email=web.input('email'),text=web.input('comment'),date=datetime.now()).save()
+  return redirect("/%s/%s"%(site,id))
+
+
 @route("/(?P<star>radio|cast|music)/:id")
 def sendung(web,star,id):
   try:
     episode = Episode.find().filter_by(link=id).one()
+    comments = Comment.find().filter_by(episode=episode.id).order_by(Comment.date).all()
   except: return redirect("/"+star)
   return template("sendung.tpl",header_color=head_colors[star],css="sendung",
-                  episode=episode, site=star)
+                  episode=episode, site=star, comments=comments)
 
 
 @route("/(?P<site>radio|cast|music)/")
@@ -43,8 +55,6 @@ def main(web,site):
 
 
 # example content
-
-from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
 
 short = "Die Bundesrepublik - unendliche Bürokratie. Dies ist der Versuch des Pentacast etwas Licht ins Dunkel zu bringen."
 long = "In dieser überaus spannenden und hitzigen Episode werden grundlegende Strukturen und Begriffe erklärt, die man für das Verständnis eines Rechtsstaates benötigt. Accuso, ein Volljurist aus dem Vereinsumfeld, steht Rede und Antwort und gibt ein paar aufschlussreiche Tips die dem Laien das Dickicht der Bürokratie und Juristerei algorithmisch zu durchdringen."
