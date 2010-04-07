@@ -2,5 +2,6 @@
 
 {% block body %}
 pentaradio
+{{lipsum()}}
 {% endblock %}
 

@@ -2,5 +2,6 @@
 
 {% block body %}
 pentamusic
+{{lipsum()}}
 {% endblock %}
 

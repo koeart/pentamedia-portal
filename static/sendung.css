@@ -1,0 +1,37 @@
+.sendung {
+  line-height: 1.3em;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 0.9em;
+  font-size-adjust: none;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+}
+.sendung .news_summary {
+  border-bottom: 3px solid #ebc63c;
+  line-height: 1.1em;
+  margin-bottom: 0;
+  padding: 0;
+  color: #555555;
+  font-size: 130%;
+  margin-top: 30px;
+  background-color: transparent;
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin: 0;
+}
+.sendung .news_summary .url {
+  border: medium none;
+  color: #555555;
+  text-decoration: none;
+  line-height: 1.1em;
+  font-size: 130%;
+  font-weight: bold;
+  letter-spacing: 3px;
+}
+.sendung .news_author {
+  font-size: small;
+  font-style: italic;
+  font-weight: bold;
+  margin-left: 1em;
+}

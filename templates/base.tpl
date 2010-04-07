@@ -14,10 +14,10 @@
 <div class="button"><a href="/music" alt="Pentamusic"><img src="/s/pentamusic.png" alt="Pentamusic" /></a></div>
 </div>
 </div>
+<div class="links">some links</div>
 <div class="content">
 {% block body %}
 {% endblock %}
-{{lipsum()}}
 </div>
   </body>
 </html>

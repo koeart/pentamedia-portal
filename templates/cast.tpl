@@ -2,5 +2,6 @@
 
 {% block body %}
 pentacast
+{{lipsum()}}
 {% endblock %}
 
