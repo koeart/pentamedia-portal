@@ -1,4 +1,4 @@
-.sendung {
+.episode {
   line-height: 1.3em;
   font-family: Verdana, Arial, sans-serif;
   font-size: 0.9em;
@@ -8,7 +8,7 @@
   font-weight: normal;
   margin-bottom: 42px;
 }
-.sendung .news_summary {
+.summary {
   border-bottom: 3px solid #ebc63c;
   line-height: 1.1em;
   margin-bottom: 0;
@@ -21,7 +21,7 @@
   letter-spacing: 3px;
   margin: 0;
 }
-.sendung .news_summary .url {
+.summary .url {
   border: medium none;
   color: #555555;
   text-decoration: none;
@@ -30,9 +30,13 @@
   font-weight: bold;
   letter-spacing: 3px;
 }
-.sendung .news_author {
+.author {
   font-size: small;
   font-style: italic;
   font-weight: bold;
   margin-left: 1em;
+}
+.comment {
+  font-size: 0.9em;
+  margin-bottom: 1em;
 }
