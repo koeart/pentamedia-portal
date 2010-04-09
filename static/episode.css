@@ -8,6 +8,13 @@
   font-weight: normal;
   margin-bottom: 42px;
 }
+.episode ul {
+  list-style-image: url(/s/bullet.png);
+  list-style-type: square;
+}
+.episode li { margin-top: 0.5em; }
+.episode a { border-bottom: 1px solid #ebc63c; }
+.episode a:hover { border-bottom: 2px solid #ebc63c; }
 .summary {
   border-bottom: 3px solid #ebc63c;
   line-height: 1.1em;
@@ -30,6 +37,7 @@
   font-weight: bold;
   letter-spacing: 3px;
 }
+.summary .url:hover { border: medium none; }
 .author {
   font-size: small;
   font-style: italic;

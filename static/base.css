@@ -1,6 +1,9 @@
 html, body { height: 100%; }
-a { text-decoration: none; }
 img { border: 0; }
+a {
+  color: #555555;
+  text-decoration: none;
+}
 body {
   margin: 0;
   padding: 0;

@@ -13,7 +13,7 @@ head_colors = {'radio':"ffc8b4", 'cast':"b4c8ff", 'music':"c8ffc8"}
 
 # models
 
-File = model('File', episode='integer', name='string', filename='string', link='string')
+File = model('File', episode='integer', info='string', name='string', link='string')
 Episode = model('Episode', name='string', link='string', category='string', author='string', date='datetime', short='text', long='text')
 Comment = model('Comment', episode='integer', author='string', email='string', date='datetime', text='text')
 
@@ -40,10 +40,12 @@ def new_comment(web,site,id):
 def episode(web,star,id):
   try:
     episode = Episode.find().filter_by(link=id).one()
+    files = File.find().filter_by(episode=episode.id).all()
     comments = Comment.find().filter_by(episode=episode.id).order_by(Comment.date).all()
+    print(files)
   except: return redirect("/"+star)
   return template("episode.tpl",header_color=head_colors[star],css="episode",
-                  episode=episode, site=star, comments=comments)
+                  episode=episode, site=star, comments=comments, files=files)
 
 
 @route("/(?P<site>radio|cast|music)/")
@@ -58,19 +60,31 @@ def main(web,site):
 
 short = "Die Bundesrepublik - unendliche Bürokratie. Dies ist der Versuch des Pentacast etwas Licht ins Dunkel zu bringen."
 long = "In dieser überaus spannenden und hitzigen Episode werden grundlegende Strukturen und Begriffe erklärt, die man für das Verständnis eines Rechtsstaates benötigt. Accuso, ein Volljurist aus dem Vereinsumfeld, steht Rede und Antwort und gibt ein paar aufschlussreiche Tips die dem Laien das Dickicht der Bürokratie und Juristerei algorithmisch zu durchdringen."
-Episode(name="Rechtsstaat", category="cast", link="10", author="kl0bs", date=datetime(2010,4,4,16,14), short=short, long=long).save()
+e = Episode(name="Rechtsstaat", category="cast", link="10", author="kl0bs", date=datetime(2010,4,4,16,14), short=short, long=long)
+e.save()
+File(episode=e.id, info="(Ogg Vorbis, 94.1 MB)", name="Pentacast 10: Rechtsstaat", link="http://ftp.c3d2.de/pentacast/pentacast-10-rechtsstaat.ogg").save()
+File(episode=e.id, info="(MPEG-Audio, 190.8 MB)", name="Pentacast 10: Rechtsstaat", link="http://ftp.c3d2.de/pentacast/pentacast-10-rechtsstaat.mp3").save()
 
 short = "Datenbanken sind die Leitz-Ordner der Rechenmaschinen. In ihnen wird versenkt, was man evtl. noch mal brauchen könnte. Daraus leiten sich zwei Probleme ab: Wie findet man diese Daten wieder und wie schnell kommt man wieder heran? Diese Probleme zu lösen haben relationale Datenbanksysteme über Jahrzehnte optimiert."
 long = "Im Scope des Internets wird gleich ein 3. Problem offensichtlich: Wie viele Clients kommen quasi gleichzeitig an diese Daten ran? Wie schnell puhlt z. B. eine Suchmaschine die URL aus dem herunter geladenen Internet? <br/> Neue Lösungen sind also für die Datenhalden unserer Zeit gefragt. Wir reden mal etwas darüber, welche Ansätze es da so gibt, wie die Entwicklungen sind und geben Tipps, was Ihr auch mal in der eigenen Küche ausprobieren könnt. <br/> Ihr seid herzlich eingeladen anzurufen (0351/32 05 47 11) oder im c3d2 Channel mit uns zu chatten."
-Episode(name="No, No, NoSQL, oder doch?", category="radio", link="032010", author="a8", date=datetime(2010,3,23,13,28), short=short, long=long).save()
+e = Episode(name="No, No, NoSQL, oder doch?", category="radio", link="032010", author="a8", date=datetime(2010,3,23,13,28), short=short, long=long)  
+e.save()
+File(episode=e.id, info="(Ogg Vorbis, 111.2 MB)", name="pentaradio24 vom 23. März 2010", link="http://ftp.c3d2.de/pentaradio/pentaradio-2010-03-23.ogg").save()
+File(episode=e.id, info="(MPEG-Audio, 94.9 MB)", name="pentaradio24 vom 23. März 2010", link="http://ftp.c3d2.de/pentaradio/pentaradio-2010-03-23.mp3").save()
 
 short = "Im Studio begrüßen dürfen wir diesmal die wunderbare Zoe.Leela. Mit im Gepäck waren ihr DJ und Produzent DJ Skywax so wie Ihr Manager Tompigs."
 long = "Themen der Sendung waren u.a. Zoe's durchstarten in der Musikwelt, die Freude am Musikvideo drehen und natürlich ihre aktuelle \"Queendom Come\"-Tour - die Zoe auch nach Dresden geführt hat - zur Erdbeerdisco. <br/> Ein Dank geht an Zoe.LeelA's Labelchef Marco Medkour von rec72.net"
-Episode(name="Zoe.LeelA", category="music", link="0x003", author="koeart", date=datetime(2010,3,18), short=short, long=long).save()
+e = Episode(name="Zoe.LeelA", category="music", link="0x003", author="koeart", date=datetime(2010,3,18), short=short, long=long)
+e.save()
+File(episode=e.id, info="(Ogg Vorbis, 68.2 MB)", name="pentaMusic0x003", link="http://ftp.c3d2.de/pentacast/pentamusic0x003.ogg").save()
+File(episode=e.id, info="(MPEG-Audio, 91.7 MB)", name="pentaMusic0x003", link="http://ftp.c3d2.de/pentacast/pentamusic0x003.mp3").save()
 
 short = "Was in den 1990er Jahren noch eine teure Zusatzerweiterung für den heimischen PC war, ist heute eine Selbstverständlichkeit: Sound."
 long = "In diesem Podcast besprechen wir die Aufgaben und Funktionsweise einer Soundkarte, verschiedene Realisierungen von Soundsubsystemen in verschiedenen Betriebsystemen und gehen grundsätzlich auf Probleme aus dem Audiobereich im Zusammenhang mit dem Computer ein."
-Episode(name="Echtzeit-Audio", category="cast", link="9", author="kl0bs", date=datetime(2010,3,3,22,23), short=short, long=long).save()
+e = Episode(name="Echtzeit-Audio", category="cast", link="9", author="kl0bs", date=datetime(2010,3,3,22,23), short=short, long=long)
+e.save()
+File(episode=e.id, info="(Ogg Vorbis, 62.6 MB)", name="Pentacast 9: Echtzeit-Audio", link="http://ftp.c3d2.de/pentacast/pentacast-9-rtaudio.ogg").save()
+File(episode=e.id, info="(MPEG-Audio, 123.5 MB)", name="Pentacast 9: Echtzeit-Audio", link="http://ftp.c3d2.de/pentacast/pentacast-9-rtaudio.mp3").save()
 
 
 # run
