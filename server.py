@@ -4,7 +4,7 @@ from juno import init, redirect, route, run, get, model, post, \
                  open_nutshell, close_nutshell, getHub, subdirect,\
                  subdirect, template, autotemplate
 init({'static_url':'/s/*:file', '500_traceback':True, 'use_templates':True, 'bind_address':'',
-  'use_db':True,
+  'use_db':True, 'use_sessions':True,
   'template_kwargs':{'extensions':["jinja2.ext.do","jinja2.ext.loopcontrols"]}})
 
 #import submitter

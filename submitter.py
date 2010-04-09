@@ -4,14 +4,14 @@ from juno import init, redirect, route, run, get, \
                  model, post, \
                  subdirect, template, autotemplate
 init({'static_url':'/s/*:file', '500_traceback':True, 'use_templates':True,
-  'use_db':True,
+  'use_db':True, 'use_sessions':True,
   'template_kwargs':{'extensions':["jinja2.ext.do","jinja2.ext.loopcontrols"]}})
 
 # routes
 
 @route('/')
 def index(web):
-  print(web)
+  print(web.session)
   return template("submitter.tpl", header_color="ffc8b4",
            sections=[("Episodes","/radio"),
                      ("Login",pjoin(web.location,"login")),
