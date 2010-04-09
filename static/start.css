@@ -31,11 +31,13 @@ body {
   display: table-cell;
   text-align: left;
   width: 222px;
+  vertical-align: bottom;
+  padding-top: 4px;
 }
 .pentastar .title {
   text-align: center;
   width: 100%;
-  margin: 5px 0px 8px 0px;
+  margin: 8px 0px 5px 0px;
 }
 .pentastar .file {
   padding: 2px;
@@ -44,3 +46,15 @@ body {
 .pentastar .file a { color: #666666; }
 .pentastar .file a:hover { text-decoration: underline; }
 .pentastar .file:hover { background-color: #eeeeee; }
+#logo {
+  -khtml-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px 21px 5px 21px;
+  position: absolute;
+  background-color: white;
+  margin-top: -30px;
+  left: 50%;
+  margin-left: -80px;
+}
