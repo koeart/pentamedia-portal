@@ -29,17 +29,19 @@ body {
   padding: 13px 20px 0px 20px;
   background-color: white;
 }
-#header #archiv {
-  font-family: "Sans Serif";
+#header .header_link {
   position: absolute;
-  padding: 6px;
   top: 0px;
-  right: 0px;
+  left: 0px;
+}
+#header .header_link a {
+  font-family: "Sans Serif";
+  padding: 6px;
   font-weight: bold;
   font-size: 0.9em;
   color: #666666;
 }
-#header #archiv:hover { background-color: white; }
+#header .header_link a:hover { background-color: white; }
 .content {
   margin: 10px;
   text-align: left;
