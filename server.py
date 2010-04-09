@@ -1,15 +1,23 @@
 #!/usr/bin/env python3.0
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
-from juno import init, redirect, route, run, get, \
-                 model, post, \
+from juno import init, redirect, route, run, get, model, post, \
+                 open_nutshell, close_nutshell, getHub, subdirect,\
                  subdirect, template, autotemplate
 init({'static_url':'/s/*:file', '500_traceback':True, 'use_templates':True, 'bind_address':'',
   'use_db':True,
   'template_kwargs':{'extensions':["jinja2.ext.do","jinja2.ext.loopcontrols"]}})
 
+#import submitter
+
+open_nutshell()
+import submitter
+submitter = getHub()
+close_nutshell()
+
 #constants
 
 head_colors = {'radio':"ffc8b4", 'cast':"b4c8ff", 'music':"c8ffc8"}
+sections = {'radio':[("Pentasubmitter","/radio/submitter")], 'cast':[], 'music':[]}
 
 # models
 
@@ -26,7 +34,6 @@ autotemplate("/","start.html", css="start", episodes =
   })
 
 
-
 @post("/(?P<site>radio|cast|music)/:id/comment/new")
 def new_comment(web,site,id):
   try:
@@ -34,6 +41,11 @@ def new_comment(web,site,id):
   except: return redirect("/"+stite)
   if web.input('author') is not None and web.input('email') is not None and web.input('comment') is not None and web.input('comment') != "": Comment(episode=episode.id,author=web.input('author'),email=web.input('email'),text=web.input('comment'),date=datetime.now()).save()
   return redirect("/%s/%s"%(site,id))
+
+
+@route(['radio/submitter','radio/submitter/:rest'])
+def submitter_site(web, rest=""):
+  return subdirect(web, submitter, rest)
 
 
 @route("/(?P<star>radio|cast|music)/:id")
@@ -45,7 +57,8 @@ def episode(web,star,id):
     print(files)
   except: return redirect("/"+star)
   return template("episode.tpl",header_color=head_colors[star],css="episode",
-                  episode=episode, site=star, comments=comments, files=files)
+                  episode=episode, site=star, comments=comments, files=files,
+                  sections=sections[star])
 
 
 @route("/(?P<site>radio|cast|music)/")
@@ -53,7 +66,7 @@ def main(web,site):
   episodes = Episode.find().filter_by(category=site).order_by(Episode.date).limit(20).all()
   episodes.reverse()
   return template("episodes.tpl",header_color=head_colors[site], css="episode", \
-                  episodepage=episodes, site=site)
+                  episodepage=episodes, site=site, sections=sections[site])
 
 
 # example content
