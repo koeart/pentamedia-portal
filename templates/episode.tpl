@@ -10,7 +10,8 @@
 </div>
 </div>
 <div class="comments">
-{% for comment in comments|d([]) %}<div class="comment">{{comment.text}}<br/><small class="author">{{comment.author}}</small><small class="date"> added these pithy words on {{comment.date}}</small></div>{% endfor %}
+<p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
+{% for comment in comments %}<div class="comment">{{comment.text}}<br/><small class="author">{{comment.author}}</small><small class="date"> added these pithy words on {{comment.date}}</small></div>{% endfor %}
 
 <form action="/{{site}}/{{episode.link}}/comment/new" method="post" id="commentform">
 <input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" style="position:absolute;margin-left:29em;" />

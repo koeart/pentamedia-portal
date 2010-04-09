@@ -54,7 +54,6 @@ def episode(web,star,id):
     episode = Episode.find().filter_by(link=id).one()
     files = File.find().filter_by(episode=episode.id).all()
     comments = Comment.find().filter_by(episode=episode.id).order_by(Comment.date).all()
-    print(files)
   except: return redirect("/"+star)
   return template("episode.tpl",header_color=head_colors[star],css="episode",
                   episode=episode, site=star, comments=comments, files=files,
@@ -65,8 +64,10 @@ def episode(web,star,id):
 def main(web,site):
   episodes = Episode.find().filter_by(category=site).order_by(Episode.date).limit(20).all()
   episodes.reverse()
+  comments_count = [ Comment.find().filter_by(episode=e.id).count() for e in episodes ]
   return template("episodes.tpl",header_color=head_colors[site], css="episode", \
-                  episodepage=episodes, site=site, sections=sections[site])
+                  episodepage=zip(episodes, comments_count),
+                  site=site, sections=sections[site])
 
 
 # example content

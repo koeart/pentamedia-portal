@@ -15,7 +15,7 @@
 <div class="button"><a href="/music" alt="Pentamusic"><img src="/s/pentamusic.png" alt="Pentamusic" /></a></div>
 </div>
 </div>
-<div class="links">{% for link,url in sections|d([]) %}<a href="{{url}}" class="section">{{link}}</a>{% endfor %}</div>
+<div class="links">{% set sections = sections|d([]) %}{{sections|count == 0 and "&nbsp;" or ""}}{% for link,url in sections %}<a href="{{url}}" class="section">{{link}}</a>{% endfor %}</div>
 <div class="content">
 {% block body %}
 {{lipsum()}}
