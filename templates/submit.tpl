@@ -1,7 +1,7 @@
 {% extends "base.tpl" %}
 
 {% block body %}
-<form action="login" method="post" id="loginform">
+<form action="add" method="post" id="loginform">
 	<p><input type="text" name="title" id="title" class="textarea" value="{{url_title|d('')}}" size="42" tabindex="1" />
 	   <label for="title">Title</label></p>
 	<p><input type="text" name="url" id="url" class="textarea" value="{{url|d('')}}" size="42" tabindex="2" />

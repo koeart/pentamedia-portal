@@ -8,5 +8,5 @@
 	</form>
 </div>
 <br/>
-{% for entry in entries() %}<div class="entry"><a href="{{entry.url}}">{{entry.title}}</a><br/><small>{{entry.description}}</small><p>{{entry.excerpt}}</p></div>{% endfor %}
+{% for entry in entries() %}<div class="entry"><a href="{{entry.url}}">{{entry.title|e}}</a><br/><small>{{entry.description|e}}</small><p>{{entry.excerpt|e}}</p></div>{% endfor %}
 {% endblock %}

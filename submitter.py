@@ -1,8 +1,9 @@
 #!/usr/bin/env python3.0
 import re
 import http.client
+from datetime import datetime
 from juno import init, redirect, route, run, get, \
-                 model, post, get, \
+                 model, post, get, find, \
                  subdirect, template, autotemplate
 init({'static_url':'/s/*:file', '500_traceback':True, 'use_templates':True,
   'use_db':True, 'use_sessions':True,
@@ -24,7 +25,7 @@ Category = model('Category', name='string')
 
 # routes
 
-autotemplate('/', "submitter.tpl",
+autotemplate(['/','news'], "submitter.tpl",
   entries=lambda:reversed(Entry.find().order_by(Entry.date).limit(30).all()),
   **default)
 
@@ -35,6 +36,18 @@ def login(web):
 @post('login')
 def check(web):
   return template("login.tpl", **default)
+
+@post('add')
+def add_news(web):
+  params = dict([ (key,web.input(key)) for key in ['title','url','description','excerpt'] ])
+  params['date'], T = datetime.now(), find(Tag.id)
+  params['tags'] = " ".join(map(str,[
+         T.filter_by(title=tagtitle).scalar() or
+         Tag(title=tagtitle, category="").save().id
+           for tagtitle in web.input('tags').split() ]))
+  Entry(**params).save()
+  return redirect("news")
+  #Entry()
 
 @route('submit')
 def submit(web):
@@ -62,7 +75,7 @@ def submit(web):
 
 # examples
 
-Entry(title="test",url="http://localhost:8000/",description="yay! a test ..").save()
+Entry(title="test",url="http://localhost:8000/",description="yay! a test ..", expcert="", tags="").save()
 
 # run
 
