@@ -27,7 +27,7 @@ Category = model('Category', name='string')
 
 autotemplate(['/','news'], "submitter.tpl",
   entries=lambda:reversed(Entry.find().order_by(Entry.date).limit(30).all()),
-  **default)
+  css="submitter", **default)
 
 @get('login')
 def login(web):
@@ -75,7 +75,7 @@ def submit(web):
 
 # examples
 
-Entry(title="test",url="http://localhost:8000/",description="yay! a test ..", expcert="", tags="").save()
+Entry(title="test",url="http://localhost:8000/",description="yay! a test ..", excerpt="blub", tags="").save()
 
 # run
 
