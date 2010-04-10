@@ -11,7 +11,7 @@
 </div>
 <div class="comments">
 <p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
-{% for comment in comments %}<div class="comment">{{comment.text}}<br/><small class="author">{{comment.author}}</small><small class="date"> added these pithy words on {{comment.date}}</small></div>{% endfor %}
+{% for comment in comments %}<div class="comment">{{comment.text|trim|e|replace("\n","<br/>")}}<br/><small class="author">{{comment.author|trim|e}}</small><small class="date"> added these pithy words on {{comment.date}}</small></div>{% endfor %}
 
 <form action="/{{site}}/{{episode.link}}/comment/new" method="post" id="commentform">
 <input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" style="position:absolute;margin-left:29em;" />
