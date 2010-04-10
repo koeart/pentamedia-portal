@@ -17,7 +17,7 @@ close_nutshell()
 #constants
 
 head_colors = {'radio':"ffc8b4", 'cast':"b4c8ff", 'music':"c8ffc8"}
-sections = {'radio':[("Pentasubmitter","/radio/submitter")], 'cast':[], 'music':[]}
+sections = {'radio':[("Pentasubmitter","/radio/submitter/")], 'cast':[], 'music':[]}
 
 # models
 
