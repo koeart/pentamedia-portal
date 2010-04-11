@@ -2,6 +2,7 @@
 import re
 import http.client
 from datetime import datetime
+from xml.sax.saxutils import escape
 from juno import init, redirect, route, run, get, \
                  model, post, get, find, session, \
                  subdirect, template, autotemplate
@@ -22,17 +23,19 @@ default = {'sections':sections, 'header_color':header_color}
 
 Entry = model('Entry',title='string',url='string',
                       description='text',excerpt='text',
-                      tags='string',date='datetime',
-                      score='integer')# tags is a list of ids as string
+                      date='datetime',score='integer'
+             )# tags is a list of ids as string
 Tag = model('Tag', title='string', category='integer')
+Linker = model('Linker', entry='integer', tag='integer')#links between entries and tags
 Category = model('Category', name='string')
 
 # routes
 
 autotemplate(['/','news'], "submitter.tpl",
-  entries=lambda:[ (entry, entry.tags != "" and Tag.find().filter(
-                    Tag.id.in_(list(map(int,entry.tags.split())))).all()
-                    or []) for entry in reversed(Entry.find().order_by(
+  entries=lambda:[ (entry, Tag.find().filter(
+                    Tag.id.in_(list(map(lambda t:t[0],
+                    find(Linker.tag).filter_by(entry=entry.id).all() )))).all())
+                    for entry in reversed(Entry.find().order_by(
                     Entry.date).limit(30).all()) ],
   css="submitter", **default)
 
@@ -46,18 +49,23 @@ def check(web):
 
 @post('add')
 def add_news(web):
-  params = dict([ (key,web.input(key)) for key in ['title','url','description'] ])
-  params['date'], T = datetime.now(), find(Tag.id)
-  params['tags'] = " ".join(map(str,[
-         T.filter_by(title=tagtitle).scalar() or
-         Tag(title=tagtitle, category="").save().id
-           for tagtitle in web.input('tags').split() ]))
+  params = dict([ (key,escape(web.input(key).strip())) for key in ['title','url','description'] ])
+  params['date'] = datetime.now()
   params['excerpt'] = re.sub(re_url,
          lambda x: '<a href="%s" class="link"><span class="domain">%s</span>%s</a>' % _parse_url(x.group()),
-         web.input('excerpt'))
-  Entry(score=0, **params).save()
+         escape(web.input('excerpt').strip()).replace("\n","<br/>"))
+  entry = Entry(score=0, **params).save()
+  tags = web.input('tags').split()
+  if tags:
+    known_tags = Tag.find().filter(Tag.title.in_(tags)).all()
+    for tag in known_tags:
+      tags.remove(tag.title)
+      Linker(entry=entry.id, tag=tag.id).add()
+    for tagtitle in tags:
+      tag = Tag(title=tagtitle, category="").save()
+      Linker(entry=entry.id, tag=tag.id).add()
+    session().commit()
   return redirect("news")
-  #Entry()
 
 @get('like')
 def like_it(web):
@@ -114,7 +122,7 @@ def _parse_url(url):
 
 # examples
 
-Entry(title="test",url="http://localhost:8000/",description="yay! a test ..", excerpt="blub", tags="", score=0).save()
+Entry(title="test",url="http://localhost:8000/",description="yay! a test ..", excerpt="blub", score=0).save()
 
 # run
 

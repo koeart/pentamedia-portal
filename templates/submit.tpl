@@ -11,7 +11,7 @@
 	<p><textarea name="excerpt" id="excerpt" cols="42" rows="6" tabindex="4">{{excerpt|d("")}}</textarea>
 	   <label for="excerpt">Excerpt</label></p>	   
 	<p><input type="text" name="tags" id="tags" class="textarea" value="" size="42" tabindex="5" />
-	   <label for="tags">Tags</label></p>	   
+	   <label for="tags">Tags</label> (separated by spaces)</p>
 	<p>
     <input name="submit" id="submit" type="submit" tabindex="6" value="Do it!" />
   </p>
