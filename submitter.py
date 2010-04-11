@@ -11,6 +11,7 @@ init({'static_url':'/s/*:file', '500_traceback':True, 'use_templates':True,
 
 #constants
 
+re_url = r'(?<!")((https?|ftp|gopher|file)://(\w|\.|/|\?|=|%|&|:|#|_|-)+)'
 sections = [("Episodes","/radio"),
             ("Login","login"),
             ("Add a News","submit")]
@@ -42,12 +43,15 @@ def check(web):
 
 @post('add')
 def add_news(web):
-  params = dict([ (key,web.input(key)) for key in ['title','url','description','excerpt'] ])
+  params = dict([ (key,web.input(key)) for key in ['title','url','description'] ])
   params['date'], T = datetime.now(), find(Tag.id)
   params['tags'] = " ".join(map(str,[
          T.filter_by(title=tagtitle).scalar() or
          Tag(title=tagtitle, category="").save().id
            for tagtitle in web.input('tags').split() ]))
+  params['excerpt'] = re.sub(re_url,
+         lambda x: '<a href="%s" class="link"><span class="domain">%s</span>%s</a>' % _parse_url(x.group()),
+         web.input('excerpt'))
   Entry(score=0, **params).save()
   return redirect("news")
   #Entry()
@@ -75,7 +79,7 @@ def submit(web):
   kwargs = dict(default)
   if web.input('blob') is not None:
     blob = web.input('blob').strip()
-    m = re.match(r'(?<!")((https?|ftp|gopher|file)://(\w|\.|/|\?|=|%|&|:|_|-)+)',blob)
+    m = re.search(re_url,blob)
     if m:
       url = kwargs['url'] = m.group(0)
       if url.startswith("http:"):
@@ -93,6 +97,17 @@ def submit(web):
     if 'url' not in kwargs or 'url' in kwargs and kwargs['url'] != blob:
       kwargs['excerpt'] = blob
   return template("submit.tpl", **kwargs)
+
+#helper
+
+def _parse_url(url):
+    domain = url.split(':',1)[1][2:].split('/',1)
+    if len(domain) == 1: domain, rest = domain[0], ""
+    else:
+        domain, rest = domain
+        if not rest == "": rest = '/'+rest
+    if domain.startswith('www.'): domain = domain[4:]
+    return (url, domain, rest)
 
 # examples
 

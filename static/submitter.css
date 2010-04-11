@@ -60,6 +60,10 @@
   font-size: 0.9em;
   padding: 4px;
 }
+.news_table .news_row .news .entry .excerpt .link { color: #555555; }
+.news_table .news_row .news .entry .excerpt .link .domain { font-weight: bold; }
+.news_table .news_row .news .entry .excerpt .link:hover { text-decoration: none; }
+.news_table .news_row .news .entry .excerpt .link:hover .domain { text-decoration: underline; }
 .news_table .news_row .tagcloud {
   display: table-cell;
   width: 30%;
