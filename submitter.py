@@ -37,6 +37,7 @@ autotemplate(['/','news'], "submitter.tpl",
                     find(Linker.tag).filter_by(entry=entry.id).all() )))).all())
                     for entry in reversed(Entry.find().order_by(
                     Entry.date).limit(30).all()) ],
+  cloud=lambda:Tag.find().limit(99).all(), # FIXME sort by tag using count
   css="submitter", **default)
 
 @get('login')
@@ -100,6 +101,7 @@ def filter_by_tag(web):
                     Tag.id.in_(list(map(lambda t:t[0],
                     find(Linker.tag).filter_by(entry=entry.id).all() )))).all())
                     for entry in reversed(entries) ],
+                cloud=lambda:Tag.find().limit(99).all(), # FIXME sort by tag using count
                 **default)
   return redirect('news')
 
