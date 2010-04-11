@@ -3,7 +3,7 @@ import re
 import http.client
 from datetime import datetime
 from juno import init, redirect, route, run, get, \
-                 model, post, get, find, \
+                 model, post, get, find, session, \
                  subdirect, template, autotemplate
 init({'static_url':'/s/*:file', '500_traceback':True, 'use_templates':True,
   'use_db':True, 'use_sessions':True,
@@ -19,7 +19,10 @@ default = {'sections':sections, 'header_color':header_color}
 
 #models
 
-Entry = model('Entry',title='string',url='string',description='text',excerpt='text',tags='string',date='datetime')# tags is a list of ids as string
+Entry = model('Entry',title='string',url='string',
+                      description='text',excerpt='text',
+                      tags='string',date='datetime',
+                      score='integer')# tags is a list of ids as string
 Tag = model('Tag', title='string', category='integer')
 Category = model('Category', name='string')
 
@@ -45,9 +48,27 @@ def add_news(web):
          T.filter_by(title=tagtitle).scalar() or
          Tag(title=tagtitle, category="").save().id
            for tagtitle in web.input('tags').split() ]))
-  Entry(**params).save()
+  Entry(score=0, **params).save()
   return redirect("news")
   #Entry()
+
+@get('like')
+def like_it(web):
+  try: id = int(web['QUERY_STRING'])
+  except: id = None
+  if id is not None:
+    Entry.find().filter_by(id=id).update({Entry.score: Entry.score+1})
+    session().commit()
+  return redirect('news')
+
+@get('hate')
+def like_it(web):
+  try: id = int(web['QUERY_STRING'])
+  except: id = None
+  if id is not None:
+    Entry.find().filter_by(id=id).update({Entry.score: Entry.score-1})
+    session().commit()
+  return redirect('news')
 
 @route('submit')
 def submit(web):
@@ -75,7 +96,7 @@ def submit(web):
 
 # examples
 
-Entry(title="test",url="http://localhost:8000/",description="yay! a test ..", excerpt="blub", tags="").save()
+Entry(title="test",url="http://localhost:8000/",description="yay! a test ..", excerpt="blub", tags="", score=0).save()
 
 # run
 

@@ -1,4 +1,5 @@
 
+@import "rounded_corners";
 
 .submitarea {
   text-align:center;
@@ -28,11 +29,52 @@
           border-bottom:3px solid #EBC63C;
           line-height:1.1em;
           a:hover {text-decoration:none;}
+          
+          .entry_head {
+            display:table;
+              width:100%;
+          
+            .buttons {
+              display:table-row;
+            
+              .link {
+                display:table-cell;
+                width:94%;
+              }
+              
+              .button {
+                width:2%;
+                display:table-cell;
+                text-align:center;
+                padding-left:4px;
+                padding-right:4px;
+                
+                .info {
+                  .rounded_corners(4px);
+                  position:absolute;
+                  margin-top:0.3em;
+                  margin-left:-2em;
+                  padding:4px;
+                  color:white;
+                  background-color:black;
+                  opacity:0.6;
+                  visibility:hidden;
+                }
+                
+                :hover {
+                  .info {
+                    visibility:visible;
+                  }
+                }
+              }
+            }
+          }
         }
         
         .description {
           font-size:0.85em;
           margin-left:1em;
+          margin-right:1em;
         }
         
         .excerpt {
