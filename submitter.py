@@ -85,6 +85,24 @@ def like_it(web):
     session().commit()
   return redirect('news')
 
+@route('tag')
+def filter_by_tag(web):
+  query_string, tag = web['QUERY_STRING'], None
+  if query_string:
+    try: tag = Tag.find().filter_by(title=query_string).one()
+    except: pass
+    if tag:
+      tags = list(map(lambda e:e[0],find(Linker.entry).filter_by(tag=tag.id).all()))
+      entries = Entry.find().filter(Entry.id.in_(tags)).order_by(Entry.date).all()
+
+      return template("submitter.tpl", css="submitter",
+                entries=lambda:[ (entry, Tag.find().filter(
+                    Tag.id.in_(list(map(lambda t:t[0],
+                    find(Linker.tag).filter_by(entry=entry.id).all() )))).all())
+                    for entry in reversed(entries) ],
+                **default)
+  return redirect('news')
+
 @route('submit')
 def submit(web):
   kwargs = dict(default)
