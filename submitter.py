@@ -30,7 +30,10 @@ Category = model('Category', name='string')
 # routes
 
 autotemplate(['/','news'], "submitter.tpl",
-  entries=lambda:reversed(Entry.find().order_by(Entry.date).limit(30).all()),
+  entries=lambda:[ (entry, entry.tags != "" and Tag.find().filter(
+                    Tag.id.in_(list(map(int,entry.tags.split())))).all()
+                    or []) for entry in reversed(Entry.find().order_by(
+                    Entry.date).limit(30).all()) ],
   css="submitter", **default)
 
 @get('login')
