@@ -17,11 +17,19 @@
         <h3 class="title">
           <div class="entry_head">
             <div class="buttons">
-              <a href="{{entry.url}}" class="link">{{entry.title}}</a>
-              <small class="button">{{entry.score}}<div class="info">Score</div></small>
-              <a href="like?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">♥<div class="info">like it</div></a>
-              <a href="hate?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">↯<div class="info">hate it</div></a>
-              <a href="edit?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">✐<div class="info">edit it</div></a>
+              <div class="link"><a href="{{entry.url}}">{{entry.title}}</a></div>
+              <div class="cell">
+                <small class="button">{{entry.score}}<div class="info">Score</div></small>
+              </div>
+              <div class="cell">
+                <a href="like?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">♥<div class="info">like it</div></a>
+              </div>
+              <div class="cell">
+                <a href="hate?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">↯<div class="info">hate it</div></a>
+              </div>
+              <div class="cell">
+                <a href="edit?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">✐<div class="info">edit it</div></a>
+              </div>
             </div>
           </div>
         </h3>

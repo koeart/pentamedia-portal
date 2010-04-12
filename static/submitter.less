@@ -43,29 +43,28 @@
                 width:92%;
               }
               
-              .button {
+              .cell {
                 width:2%;
                 display:table-cell;
                 text-align:center;
-                padding-left:4px;
-                padding-right:4px;
-                
-                .info {
-                  .rounded_corners(4px);
-                  position:absolute;
-                  margin-top:0.3em;
-                  margin-left:-2em;
-                  padding:4px;
-                  color:white;
-                  background-color:black;
-                  opacity:0.6;
-                  visibility:hidden;
-                }
-                
-                :hover {
+              
+                .button {
+                  padding-left:4px;
+                  padding-right:4px;
+                  
                   .info {
-                    visibility:visible;
+                    .rounded_corners(4px);
+                    position:absolute;
+                    margin-top:0.3em;
+                    margin-left:-2em;
+                    padding:4px;
+                    color:white;
+                    background-color:black;
+                    opacity:0.6;
+                    visibility:hidden;
                   }
+                  
+                  :hover {.info {visibility:visible;}}
                 }
               }
             }
