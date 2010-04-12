@@ -21,6 +21,7 @@
               <small class="button">{{entry.score}}<div class="info">Score</div></small>
               <a href="like?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">♥<div class="info">like it</div></a>
               <a href="hate?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">↯<div class="info">hate it</div></a>
+              <a href="edit?{{tag and 'id=%d&tag=%s'|format(entry.id,tag.title) or entry.id}}" class="button">✐<div class="info">edit it</div></a>
             </div>
           </div>
         </h3>

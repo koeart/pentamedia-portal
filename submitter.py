@@ -2,7 +2,7 @@
 import re
 import http.client
 from datetime import datetime
-from xml.sax.saxutils import escape
+from xml.sax.saxutils import escape, unescape
 from juno import init, redirect, route, run, get, \
                  model, post, get, find, session, \
                  subdirect, template, autotemplate
@@ -21,6 +21,7 @@ init({'static_url':      '/s/*:file',
 # constants
 
 re_url       = r'(?<!")((https?|ftp|gopher|file)://(\w|\.|/|\?|=|%|&|:|#|_|-)+)'
+re_anchor    = r'''<\s*a[^<>]*?href\s*=\s*["'](?P<url>[^"'>]*)["'](.(?!<\s*/\s*a\s*>))*.<\s*/\s*a\s*>'''
 sections     = [("Episodes",   "/radio"),
                 ("News",       "news"),
                 ("Login",      "login"),
@@ -85,13 +86,10 @@ def check(web):
 
 @post('add')
 def add_news(web):
-  def iter_parse_url(x):
-    return '<a href="{0}" class="link"><span class="domain">{1}</span>{2}</a>'.\
-             format(*_parse_url(x.group()))
   params = dict([ ( key , escape(web.input(key).strip()) )
                   for key in ['title', 'url', 'description'] ])
   params['date']    = datetime.now()
-  params['excerpt'] = re.sub(re_url, iter_parse_url,
+  params['excerpt'] = re.sub(re_url, _iter_parse_url,
                              escape(web.input('excerpt').strip()).\
                              replace("\n","<br/>"))
   entry = Entry(score = 0, **params).save()
@@ -108,9 +106,37 @@ def add_news(web):
   return redirect("news")
 
 
+@post('update')
+def update_news(web):
+  id = web.input('id')
+  if id is not None:
+    params = dict([ ( key , escape(web.input(key).strip()) )
+                    for key in ['title', 'url', 'description'] ])
+    params['date']    = datetime.now()
+    params['excerpt'] = re.sub(re_url, _iter_parse_url,
+                               escape(web.input('excerpt').strip()).\
+                               replace("\n","<br/>"))
+    entry = Entry.find().filter_by(id = id).update(params)
+    tags  = web.input('tags').split()
+    if tags:
+      # FIXME remove unused tags
+      Linker.find().filter_by(entry = id).delete()
+      known_tags = Tag.find().filter(Tag.title.in_(tags)).all()
+      for tag in known_tags:
+        tags.remove(tag.title)
+        Linker(entry = entry.id, tag = tag.id).add()
+      for tagtitle in tags:
+        tag = Tag(title = tagtitle, category = "").save()
+        Linker(entry = id, tag = tag.id).add()
+    session().commit()
+  tag = web.input('tag')
+  return redirect(tag and 'tag?{0}'.format(tag) or 'news')
+
+
 @get('like')
 def like_it(web):
   return __it(web, {Entry.score: Entry.score + 1})
+
 
 @get('hate')
 def like_it(web):
@@ -166,9 +192,44 @@ def submit(web):
           if m: kwargs['url_title'] = m.group('title')
     if 'url' not in kwargs or 'url' in kwargs and kwargs['url'] != blob:
       kwargs['excerpt'] = blob
-  return template("submit.tpl", **kwargs)
+  return template("submit.tpl",
+                  action = "add",
+                 **kwargs)
+
+
+@route('edit')
+def edit(web):
+  try:    id, tag = int(web['QUERY_STRING']), None
+  except: id, tag = web.input('id'), web.input('tag')
+  if id is not None:
+    try:    entry = Entry.find().filter_by(id = id).one()
+    except: entry = None
+    if entry is not None:
+      tags = find(Linker.tag).filter_by(entry = entry.id).all()
+      if tags:
+        tags = list(map(lambda t:t[0], tags))
+        tags = find(Tag.title).filter(Tag.id.in_(tags)).all()
+        tags = list(map(lambda t:t[0], tags))
+      else: tags = []
+      kwargs = dict(default)
+      kwargs["tags"] = " ".join(tags)
+      kwargs["url_title"]   = unescape(entry.title)
+      kwargs["url"]         = unescape(entry.url)
+      kwargs["description"] = unescape(entry.description)
+      kwargs["excerpt"]     = re.sub(re_anchor, lambda x: x.group('url'), entry.excerpt)
+      return template("submit.tpl",
+                      action   = "update",
+                      entry_id = id,
+                      tag      = tag,
+                     **kwargs)
+  return redirect(tag and 'tag?{0}'.format(tag) or 'news')
 
 # helper
+
+
+def _iter_parse_url(x):
+  return '<a href="{0}" class="link"><span class="domain">{1}</span>{2}</a>'.\
+           format(*_parse_url(x.group()))
 
 def _parse_url(url):
     domain = url.split(':',1)[1][2:].split('/',1)

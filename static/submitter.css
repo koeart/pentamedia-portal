@@ -12,7 +12,10 @@
   display: table-cell;
   width: 70%;
 }
-.news_table .news_row .news .entry { margin-bottom: 30px; }
+.news_table .news_row .news .entry {
+  margin-bottom: 30px;
+  border-bottom: 1px solid #ebc63c;
+}
 .news_table .news_row .news .entry .title {
   margin: 0;
   padding: 0;
@@ -27,7 +30,7 @@
 .news_table .news_row .news .entry .title .entry_head .buttons { display: table-row; }
 .news_table .news_row .news .entry .title .entry_head .buttons .link {
   display: table-cell;
-  width: 94%;
+  width: 92%;
 }
 .news_table .news_row .news .entry .title .entry_head .buttons .button {
   width: 2%;
@@ -68,4 +71,5 @@
   display: table-cell;
   width: 30%;
   text-align: right;
+  margin-left: 20px;
 }
