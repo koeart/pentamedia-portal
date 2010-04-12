@@ -1,73 +1,134 @@
 #!/usr/bin/env python3.0
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
-from juno import init, redirect, route, run, get, model, post, \
-                 open_nutshell, close_nutshell, getHub, subdirect,\
-                 subdirect, template, autotemplate
-init({'static_url':'/s/*:file', '500_traceback':True, 'use_templates':True, 'bind_address':'',
-  'use_db':True, 'use_sessions':True,
-  'template_kwargs':{'extensions':["jinja2.ext.do","jinja2.ext.loopcontrols"]}})
+from juno import init, redirect, route, run, model, post, template, \
+                 open_nutshell, close_nutshell, getHub, subdirect
 
-#import submitter
+# init
+
+init({'static_url':      '/s/*:file',
+      '500_traceback':   True,
+      'use_templates':   True,
+      'bind_address':    '',
+      'use_db':          True,
+      'use_sessions':    True,
+      'template_kwargs':
+         {'extensions':  ["jinja2.ext.do","jinja2.ext.loopcontrols"]}
+     })
+
+# import submitter
 
 open_nutshell()
 import submitter
 submitter = getHub()
 close_nutshell()
 
-#constants
+# constants
 
-head_colors = {'radio':"ffc8b4", 'cast':"b4c8ff", 'music':"c8ffc8"}
-sections = {'radio':[("Pentasubmitter","/radio/submitter/")], 'cast':[], 'music':[]}
+head_colors = {'radio': "ffc8b4",
+               'cast':  "b4c8ff",
+               'music': "c8ffc8"
+              }
+sections = {'radio': [("Pentasubmitter","/radio/submitter/")],
+            'cast':  [],
+            'music': []
+           }
 
 # models
 
-File = model('File', episode='integer', info='string', name='string', link='string')
-Episode = model('Episode', name='string', link='string', category='string', author='string', date='datetime', short='text', long='text')
-Comment = model('Comment', episode='integer', author='string', email='string', date='datetime', text='text')
+File = model('File',
+             episode = 'integer',
+             info    = 'string',
+             name    = 'string',
+             link    = 'string'
+            )
+Episode = model('Episode',
+                name     = 'string',
+                link     = 'string',
+                category = 'string',
+                author   = 'string',
+                date     = 'datetime',
+                short    = 'text',
+                long     = 'text'
+               )
+Comment = model('Comment',
+                episode = 'integer',
+                author  = 'string',
+                email   = 'string',
+                date    = 'datetime',
+                text    = 'text'
+               )
 
 # routes
 
-autotemplate("/","start.html", css="start", episodes = 
-  {'radio':lambda:reversed(Episode.find().filter_by(category='radio').order_by(Episode.date).limit(13).all()),
-   'music':lambda:reversed(Episode.find().filter_by(category='music').order_by(Episode.date).limit(13).all()),
-   'cast' :lambda:reversed(Episode.find().filter_by(category='cast' ).order_by(Episode.date).limit(13).all()),
-  })
+@route("/")
+def start(web): # FIXME wrap db queries into one
+  episodes = dict([(c, reversed(Episode.find().\
+                    filter_by(category=c).\
+                    order_by(Episode.date).\
+                    limit(13).all()))
+                   for c in ['radio','music','cast'] ])
+  return template("start.html",
+                  episodes = episodes,
+                  css      = "start"
+                 )
 
 
 @post("/(?P<site>radio|cast|music)/:id/comment/new")
-def new_comment(web,site,id):
-  try:
-    episode = Episode.find().filter_by(link=id).one()
-  except: return redirect("/"+stite)
-  if web.input('author') is not None and web.input('email') is not None and web.input('comment') is not None and web.input('comment') != "": Comment(episode=episode.id,author=web.input('author'),email=web.input('email'),text=web.input('comment'),date=datetime.now()).save()
-  return redirect("/%s/%s"%(site,id))
+def new_comment(web, site, id):
+  try:    episode = Episode.find().filter_by(link = id).one()
+  except: return redirect("/{0}".format(site))
+  if web.input('author')  is not None and \
+     web.input('email')   is not None and \
+     web.input('comment') is not None and \
+     web.input('comment') != "":
+    Comment(episode = episode.id,
+            author  = web.input('author'),
+            email   = web.input('email'),
+            text    = web.input('comment'),
+            date    = datetime.now()
+           ).save()
+  return redirect("/{0}/{1}".format(site,id))
 
 
-@route(['radio/submitter','radio/submitter/:rest'])
-def submitter_site(web, rest=""):
+@route(['radio/submitter', 'radio/submitter/:rest'])
+def submitter_site(web, rest = ""):
   return subdirect(web, submitter, rest)
 
 
-@route("/(?P<star>radio|cast|music)/:id")
-def episode(web,star,id):
-  try:
-    episode = Episode.find().filter_by(link=id).one()
-    files = File.find().filter_by(episode=episode.id).all()
-    comments = Comment.find().filter_by(episode=episode.id).order_by(Comment.date).all()
-  except: return redirect("/"+star)
-  return template("episode.tpl",header_color=head_colors[star],css="episode",
-                  episode=episode, site=star, comments=comments, files=files,
-                  sections=sections[star])
+@route("/(?P<site>radio|cast|music)/:id")
+def episode(web, site, id):
+  try: # FIXME wrap db queries into one
+    episode  = Episode.find().filter_by(link = id).one()
+    files    = File.find().filter_by(episode = episode.id).all()
+    comments = Comment.find().filter_by(episode = episode.id).\
+                 order_by(Comment.date).all()
+  except: return redirect("/{0}".format(site))
+  return template("episode.tpl",
+                  header_color = head_colors[site],
+                  css          = "episode",
+                  episode      = episode,
+                  site         = site,
+                  comments     = comments,
+                  files        = files,
+                  sections     = sections[site]
+                 )
 
 
 @route("/(?P<site>radio|cast|music)/")
-def main(web,site):
-  episodes = Episode.find().filter_by(category=site).order_by(Episode.date).limit(20).all()
+def main(web, site):
+  episodes = Episode.find().filter_by(category=site).\
+               order_by(Episode.date).limit(20).all()
   episodes.reverse()
-  comments_count = [ Comment.find().filter_by(episode=e.id).count() for e in episodes ]
-  return template("episodes.tpl",header_color=head_colors[site], css="episode", \
-                  episodepage=zip(episodes, comments_count),
-                  site=site, sections=sections[site])
+  # FIXME wrap db queries into one
+  comments_count = [ Comment.find().filter_by(episode = e.id).count()
+                     for e in episodes ]
+  return template("episodes.tpl",
+                  header_color= head_colors[site],
+                  css         = "episode",
+                  episodepage = zip(episodes, comments_count),
+                  site        = site,
+                  sections    = sections[site]
+                 )
 
 
 # example content

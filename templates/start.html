@@ -4,7 +4,16 @@
   <head>
     <title>pentamedia{{title|default("")}}</title>
     <link rel="SHORTCUT ICON" href="/s/c3d2.ico" type="image/x-icon">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>{% set csss = csss|default([]) %}{% if css is defined %}{% if css not in csss %}{% do csss.append(css) %}{% endif %}{% endif %}{% for css_file in csss %}    <link rel="stylesheet" title="Default" type="text/css" href="/s/{{css_file}}.css" />{% endfor %}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+{% set csss = csss|default([]) %}
+{% if css is defined %}
+  {% if css not in csss %}
+    {% do csss.append(css) %}
+  {% endif %}
+{% endif %}
+{% for css_file in csss %}
+    <link rel="stylesheet" title="Default" type="text/css" href="/s/{{css_file}}.css" />
+{% endfor %}
   </head>
   <body>
   
@@ -14,16 +23,16 @@
 <div id="logo"><a href="/" alt="Pentamedia"><img src="/s/pentamedia.png" alt="Pentamedia" /></a></div> 
        
 <div class="pentastar">
-{% for episode in episodes.radio() %}<div class="file"><a href="/radio/{{episode.link}}">{{episode.name}}</div>{% endfor %}
+{% for episode in episodes.radio %}<div class="file"><a href="/radio/{{episode.link}}">{{episode.name}}</div>{% endfor %}
 <div class="title"><a href="/radio" alt="Pentaradio"><img src="/s/pentaradio.png" alt="Pentaradio" /></a></div>
 </div>
 <div class="pentastar">
-{% for episode in episodes.cast() %}<div class="file"><a href="/cast/{{episode.link}}">{{episode.name}}</div>{% endfor %}
+{% for episode in episodes.cast %}<div class="file"><a href="/cast/{{episode.link}}">{{episode.name}}</div>{% endfor %}
 <div class="title"><a href="/cast" alt="Pentacast"><img src="/s/pentacast.png" alt="Pentacast" /></a></div>
 
 </div>
 <div class="pentastar">
-{% for episode in episodes.music() %}<div class="file"><a href="/music/{{episode.link}}">{{episode.name}}</div>{% endfor %}
+{% for episode in episodes.music %}<div class="file"><a href="/music/{{episode.link}}">{{episode.name}}</div>{% endfor %}
 <div class="title"><a href="/music" alt="Pentamusic"><img src="/s/pentamusic.png" alt="Pentamusic" /></a></div>
 
 </div>

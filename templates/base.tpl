@@ -4,7 +4,19 @@
   <head>
     <title>pentamedia{{title|default("")}}</title>
     <link rel="SHORTCUT ICON" href="/s/c3d2.ico" type="image/x-icon">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>{% set csss = csss|default([]) %}{% if "base" not in csss %}{% do csss.append("base") %}{% endif %}{% if css is defined %}{% if css not in csss %}{% do csss.append(css) %}{% endif %}{% endif %}{% for css_file in csss %}    <link rel="stylesheet" title="Default" type="text/css" href="/s/{{css_file}}.css" />{% endfor %}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+{% set csss = csss|default([]) %}
+{% if "base" not in csss %}
+  {% do csss.append("base") %}
+{% endif %}
+{% if css is defined %}
+  {% if css not in csss %}
+    {% do csss.append(css) %}
+  {% endif %}
+{% endif %}
+{% for css_file in csss %}
+    <link rel="stylesheet" title="Default" type="text/css" href="/s/{{css_file}}.css" />
+{% endfor %}
   </head>
   <body>
 <div id="header"{% if header_color is defined %} style="background-color:#{{header_color}};"{% endif %}>
@@ -15,7 +27,13 @@
 <div class="button"><a href="/music" alt="Pentamusic"><img src="/s/pentamusic.png" alt="Pentamusic" /></a></div>
 </div>
 </div>
-<div class="links">{% set sections = sections|d([]) %}{{sections|count == 0 and "&nbsp;" or ""}}{% for link,url in sections %}<a href="{{url}}" class="section">{{link}}</a>{% endfor %}</div>
+<div class="links">
+  {% set sections = sections|d([]) %}
+  {{sections|count == 0 and "&nbsp;" or ""}}
+  {% for link,url in sections %}
+    <a href="{{url}}" class="section">{{link}}</a>
+  {% endfor %}
+</div>
 <div class="content">
 {% block body %}
 {{lipsum()}}
