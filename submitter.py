@@ -22,6 +22,7 @@ init({'static_url':      '/s/*:file',
 
 re_url       = r'(?<!")((https?|ftp|gopher|file)://(\w|\.|/|\?|=|%|&|:|#|_|-)+)'
 sections     = [("Episodes",   "/radio"),
+                ("News",       "news"),
                 ("Login",      "login"),
                 ("Add a News", "submit")
                ]
@@ -138,6 +139,7 @@ def filter_by_tag(web):
                       news  = news,
                       cloud = cloud,
                       css   = "submitter",
+                      tag   = tag,
                      **default)
   return redirect('news')
 
@@ -179,12 +181,12 @@ def _parse_url(url):
 
 
 def __it(web, operator):
-  try: id = int(web['QUERY_STRING'])
-  except: id = None
+  try:    id, tag = int(web['QUERY_STRING']), None
+  except: id, tag = web.input('id'), web.input('tag')
   if id is not None:
     Entry.find().filter_by(id = id).update(operator)
     session().commit()
-  return redirect('news')
+  return redirect(tag and 'tag?{0}'.format(tag) or 'news')
 
 # examples
 
