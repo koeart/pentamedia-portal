@@ -91,7 +91,7 @@ def new_comment(web, site, id):
       found = comment_hashes[hash][1] == captcha
       del comment_hashes[hash]
   for comment_try in list(comment_hashes.keys()):
-    if now - comment_hashes[comment_try][0] > 600: # FIXME ten minutes !? puh .. thats very dirty ...
+    if now - comment_hashes[comment_try][0] > 10400: # 12 hours
       del comment_hashes[comment_try]
   if found and \
      web.input('author')  is not None and \
@@ -110,8 +110,8 @@ def submitter_site(web, rest = ""):
   return subdirect(web, submitter, rest)
 
 
-@route("/(?P<site>radio|cast|music)/:id")
-def episode(web, site, id):
+@route("/(?P<site>radio|cast|music)/(?P<id>[^/]*)(?P<cmnt>/comment)?")
+def episode(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
     files    = File.find().filter_by(episode = episode.id).all()
@@ -120,9 +120,10 @@ def episode(web, site, id):
   except: return redirect("/{0}".format(site))
   a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
   hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
-  comment_hashes[hash] = (time(), a + b + c)
+  if cmnt: comment_hashes[hash] = (time(), a + b + c)
   return template("episode.tpl",
                   header_color = head_colors[site],
+                  comment_form = cmnt is not None,
                   css          = "episode",
                   episode      = episode,
                   site         = site,

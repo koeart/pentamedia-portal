@@ -23,7 +23,7 @@
     <small class="date"> added these pithy words on {{comment.date}}</small>
   </div>
 {% endfor %}
-
+{% if comment_form %}
 <form action="/{{site}}/{{episode.link}}/comment/new" method="post" id="commentform">
 <input type="hidden" name="hash" value="{{hash}}" />
 <input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" style="position:absolute;margin-left:29em;" />
@@ -43,8 +43,9 @@
 	</p>
 	  
 	</form>
-
-
+{% else %}
+<a href="/{{site}}/{{episode.link}}/comment" class="add_comment">new Comment …</a>
+{% endif %}
 </div>
 {% endblock %}
 
