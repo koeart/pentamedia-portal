@@ -20,8 +20,11 @@ init({'static_url':      '/s/*:file',
 
 # constants
 
-re_url       = r'(?<!")((https?|ftp|gopher|file)://(\w|\.|/|\?|=|%|&|:|#|_|-)+)'
+re_url       = r'(?<!")((https?|ftp|gopher|file)://(\w|\.|/|\?|=|%|&|:|#|_|-|\+)+)'
 re_anchor    = r'''<\s*a[^<>]*?href\s*=\s*["'](?P<url>[^"'>]*)["'](.(?!<\s*/\s*a\s*>))*.<\s*/\s*a\s*>'''
+re_url       = re.compile(re_url)
+re_anchor    = re.compile(re_anchor)
+
 sections     = [("Episodes",   "/radio"),
                 ("News",       "news"),
                 ("Login",      "login"),
@@ -89,7 +92,7 @@ def add_news(web):
   params = dict([ ( key , escape(web.input(key).strip()) )
                   for key in ['title', 'url', 'description'] ])
   params['date']    = datetime.now()
-  params['excerpt'] = re.sub(re_url, _iter_parse_url,
+  params['excerpt'] = re_url.sub(_iter_parse_url,
                              escape(web.input('excerpt').strip()).\
                              replace("\n","<br/>"))
   entry = Entry(score = 0, **params).save()
@@ -113,7 +116,7 @@ def update_news(web):
     params = dict([ ( key , escape(web.input(key).strip()) )
                     for key in ['title', 'url', 'description'] ])
     params['date']    = datetime.now()
-    params['excerpt'] = re.sub(re_url, _iter_parse_url,
+    params['excerpt'] = re_url.sub(_iter_parse_url,
                                escape(web.input('excerpt').strip()).\
                                replace("\n","<br/>"))
     entry = Entry.find().filter_by(id = id).update(params)
@@ -175,7 +178,7 @@ def submit(web):
   kwargs = dict(default)
   if web.input('blob') is not None:
     blob = web.input('blob').strip()
-    m    = re.search(re_url, blob)
+    m    = re_url.search(blob)
     if m:
       url = kwargs['url'] = m.group(0)
       if url.startswith("http:"):
@@ -216,7 +219,7 @@ def edit(web):
       kwargs["url_title"]   = unescape(entry.title)
       kwargs["url"]         = unescape(entry.url)
       kwargs["description"] = unescape(entry.description)
-      kwargs["excerpt"]     = re.sub(re_anchor, lambda x: x.group('url'), entry.excerpt)
+      kwargs["excerpt"]     = re_anchor.sub(lambda x: x.group('url'), entry.excerpt)
       return template("submit.tpl",
                       action   = "update",
                       entry_id = id,
