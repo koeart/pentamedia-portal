@@ -25,6 +25,7 @@
 {% endfor %}
 
 <form action="/{{site}}/{{episode.link}}/comment/new" method="post" id="commentform">
+<input type="hidden" name="hash" value="{{hash}}" />
 <input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" style="position:absolute;margin-left:29em;" />
 	<p>
 	  <input type="text" name="author" id="author" class="textarea" value="" size="15" tabindex="1" />
@@ -32,8 +33,9 @@
 	</p>
 
 	<p>
-	  <input type="text" name="email" id="email" value="" size="15" tabindex="2" />
-	   <label for="email">E-mail</label> (required)	</p>
+	  Enter the sum of {{a}}, {{b}} and {{c}}:
+	  <input type="text" name="captcha" id="captcha" value="" size="3" tabindex="2" />
+	   <label for="email">SumCaptcha</label> (required)	</p>
 	<p>
 	  <label for="comment">Your Comment</label>
 	<br />

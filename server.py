@@ -1,4 +1,7 @@
 #!/usr/bin/env python3.0
+from time import time
+from hashlib import sha1
+from random import randint, random
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
 from juno import init, redirect, route, run, model, post, template, \
                  open_nutshell, close_nutshell, getHub, subdirect
@@ -33,6 +36,10 @@ sections = {'radio': [("Pentasubmitter","/radio/submitter/")],
             'music': []
            }
 
+# cache
+
+comment_hashes = {}
+
 # models
 
 File = model('File',
@@ -53,7 +60,6 @@ Episode = model('Episode',
 Comment = model('Comment',
                 episode = 'integer',
                 author  = 'string',
-                email   = 'string',
                 date    = 'datetime',
                 text    = 'text'
                )
@@ -77,13 +83,22 @@ def start(web): # FIXME wrap db queries into one
 def new_comment(web, site, id):
   try:    episode = Episode.find().filter_by(link = id).one()
   except: return redirect("/{0}".format(site))
-  if web.input('author')  is not None and \
-     web.input('email')   is not None and \
+  found, hash, captcha, now = False, web.input('hash'), web.input('captcha'), time()
+  try:    captcha = int(captcha)
+  except: captcha = None
+  if hash is not None and captcha is not None:
+    if hash in comment_hashes:
+      found = comment_hashes[hash][1] == captcha
+      del comment_hashes[hash]
+  for comment_try in list(comment_hashes.keys()):
+    if now - comment_hashes[comment_try][0] > 600: # FIXME ten minutes !? puh .. thats very dirty ...
+      del comment_hashes[comment_try]
+  if found and \
+     web.input('author')  is not None and \
      web.input('comment') is not None and \
      web.input('comment') != "":
     Comment(episode = episode.id,
             author  = web.input('author'),
-            email   = web.input('email'),
             text    = web.input('comment'),
             date    = datetime.now()
            ).save()
@@ -103,6 +118,9 @@ def episode(web, site, id):
     comments = Comment.find().filter_by(episode = episode.id).\
                  order_by(Comment.date).all()
   except: return redirect("/{0}".format(site))
+  a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
+  hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
+  comment_hashes[hash] = (time(), a + b + c)
   return template("episode.tpl",
                   header_color = head_colors[site],
                   css          = "episode",
@@ -110,7 +128,9 @@ def episode(web, site, id):
                   site         = site,
                   comments     = comments,
                   files        = files,
-                  sections     = sections[site]
+                  sections     = sections[site],
+                  hash         = hash,
+                  a = a, b = b, c = c
                  )
 
 
