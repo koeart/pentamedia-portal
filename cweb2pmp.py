@@ -12,10 +12,16 @@
 
 
 from pprint import *
+import re
 import xml.etree.ElementTree as etree
-import xml.dom.minidom as dom
 
 filename = "./pentamusic-0x001.xml"
+c = re.compile(r"\.\/penta(?P<type>\w*)-(?P<episode>\w*)")
+m = c.match(filename)
+typ = str(m.groupdict('type'))
+episode = str(m.groupdict('episode'))
+print("Type: " + typ + ", Episode: " + episode)
+print(typ)
 tree = etree.parse(filename)
 root = tree.getroot()
 
@@ -30,12 +36,25 @@ p = root.findall('p')
 short = ""
 for n in p:
     short += etree.tostring(n)
-print(short)
 
 # long: alle Absätze ab <addendum> bis </addendum>
 
 addendum = root.findall('addendum')
 lang = etree.tostring(addendum[0])
-print(lang)
+
+resource = root.findall('resource')
+l_ogg = resource[0].attrib
+ogg_url = l_ogg['url']
+ogg_size = int(l_ogg['size'])
+ogg_type = l_ogg['type']
+ogg_title = l_ogg['title']
+alternative = resource[0].findall('alternative')
+l_mp3 = alternative[0].attrib
+mp3_url = l_mp3['url']
+mp3_size = int(l_mp3['size'])
+mp3_type = l_mp3['type']
+
+
+
 
 
