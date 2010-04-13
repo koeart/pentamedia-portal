@@ -13,7 +13,6 @@ is written in python3.
   
 === Install
 
-  · get setuptools from http://code.google.com/p/python-incompatibility/
   · get all dependencies
   · use py3k branch from juno
   · convert jinja2, beaker and openid with 2to3
@@ -21,7 +20,23 @@ is written in python3.
   · run sa2to3.py in sqlalchemy
   · install all dependencies
   · apply other patches on your python3 library
+    (hint: smth like this ↓
+      sudo patch -p 1 -d /usr/lib/python3.1/ < cgi.patch
+      sudo patch -p 2 -d /usr/lib/python3.1/wsgiref/ < wsgiref.patch
+    )
+
+  note:
+  if dependencies can't be installed because of missing setuptools
+  cp distribute_setup.py to dep-dir and and this lines into the setup.py:
+
+    #before import setuptools
+    from distribute_setup import use_setuptools
+    use_setuptools()
+
+  than you can use setup.py normaly with:
   
+    sudo python3 setup.py install
+
 === Use
 
   start server.py  
