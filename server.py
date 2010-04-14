@@ -3,8 +3,8 @@ from time import time
 from hashlib import sha1
 from random import randint, random
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
-from juno import init, redirect, route, run, model, post, template, \
-                 open_nutshell, close_nutshell, getHub, subdirect
+from juno import init, redirect, route, run, model, post, template#, \
+#                 open_nutshell, close_nutshell, getHub, subdirect
 
 # init
 
@@ -13,17 +13,16 @@ init({'static_url':      '/s/*:file',
       'use_templates':   True,
       'bind_address':    '',
       'use_db':          True,
-      'use_sessions':    True,
       'template_kwargs':
          {'extensions':  ["jinja2.ext.do","jinja2.ext.loopcontrols"]}
      })
 
 # import submitter
 
-open_nutshell()
-import submitter
-submitter = getHub()
-close_nutshell()
+#open_nutshell()
+#import submitter
+#submitter = getHub()
+#close_nutshell()
 
 # constants
 
@@ -31,7 +30,7 @@ head_colors = {'radio': "ffc8b4",
                'cast':  "b4c8ff",
                'music': "c8ffc8"
               }
-sections = {'radio': [("Pentasubmitter","/radio/submitter/")],
+sections = {'radio': [],#[("Pentasubmitter","/radio/submitter/")],
             'cast':  [],
             'music': []
            }
@@ -105,9 +104,9 @@ def new_comment(web, site, id):
   return redirect("/{0}/{1}".format(site,id))
 
 
-@route(['radio/submitter', 'radio/submitter/:rest'])
-def submitter_site(web, rest = ""):
-  return subdirect(web, submitter, rest)
+#@route(['radio/submitter', 'radio/submitter/:rest'])
+#def submitter_site(web, rest = ""):
+#  return subdirect(web, submitter, rest)
 
 
 @route("/(?P<site>radio|cast|music)/(?P<id>[^/]*)(?P<cmnt>/comment)?")

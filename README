@@ -8,15 +8,12 @@ is written in python3.
   Jinja2 - tmeplate engine (http://jinja.pocoo.org/2/)
   SQLAlchemy - database framework (http://www.sqlalchemy.org/)
   lesscss - css compiler (http://lesscss.org/)
-  Beaker - sessions middleware (http://wiki.pylonshq.com/display/beaker/Home)
-  openid - login library (http://github.com/openid/python-openid)
   
 === Install
 
   · get all dependencies
   · use py3k branch from juno
-  · convert jinja2, beaker and openid with 2to3
-  · apply beaker.patch on the beaker source
+  · convert jinja2 with 2to3
   · run sa2to3.py in sqlalchemy
   · install all dependencies
   · apply other patches on your python3 library
