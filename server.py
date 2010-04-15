@@ -8,7 +8,7 @@ from juno import init, redirect, route, run, model, post, template#, \
 
 # init
 
-init({'static_url':      '/s/*:file',
+init({'static_url':      '/(s/)?(?P<file>(?<=s/).*|(css|img)/.*)',
       '500_traceback':   True,
       'use_templates':   True,
       'bind_address':    '',
