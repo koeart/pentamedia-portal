@@ -18,7 +18,7 @@
 <div class="comments">
 <p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
 {% for comment in comments %}
-  <div class="comment">{{comment.text|trim|e|replace("\n","<br/>")}}<br/>
+  <div class="comment">{{comment.text}}
     <small class="author">{{comment.author|trim|e}}</small>
     <small class="date"> added these pithy words on {{comment.date}}</small>
   </div>
@@ -40,6 +40,7 @@
 	  <label for="comment">Your Comment</label>
 	<br />
 	  <textarea name="comment" style="border: 1px solid #000;" id="comment" cols="50" rows="6" tabindex="4"></textarea>
+	  <br /><a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> enabled. (url to link preprocessor included.)
 	</p>
 	  
 	</form>

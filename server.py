@@ -1,7 +1,11 @@
 #!/usr/bin/env python3.0
+import re
 from time import time
 from hashlib import sha1
+from markdown import Markdown
 from random import randint, random
+from markdown.preprocessors import Preprocessor
+from markdown.postprocessors import Postprocessor
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
 from juno import init, redirect, route, run, model, post, template#, \
 #                 open_nutshell, close_nutshell, getHub, subdirect
@@ -26,6 +30,12 @@ init({'static_url':      '/(s/)?(?P<file>(?<=s/).*|(css|img)/.*)',
 
 # constants
 
+re_url      = re.compile(
+         r'(?<!"|\()((https?|ftp|gopher|file)://(\w|\.|/|\?|=|%|&|:|#|_|-|\+)+)'
+                        )
+re_anchor   = re.compile(
+r'(<\s*a[^<>]*)(>(?!(https?|ftp|gopher|file)://)(.(?!<\s*/\s*a\s*>))*.<\s*/\s*a\s*>)'
+                        )
 head_colors = {'radio': "ffc8b4",
                'cast':  "b4c8ff",
                'music': "c8ffc8"
@@ -38,6 +48,30 @@ sections = {'radio': [],#[("Pentasubmitter","/radio/submitter/")],
 # cache
 
 comment_hashes = {}
+
+# markdown stuff
+
+class LinkPreprocessor(Preprocessor):
+  def run(self, lines):
+    def parse(x): return "[{0}]({0})".format(x.group())
+    def sub(line): return re_url.sub(parse, line)
+    return list(map(sub, lines))
+
+class LinkPostprocessor(Postprocessor):
+  def run(self, text):
+    def parse(x): return '<span class="line">{1}</span>{2}'.\
+                         format(*_parse_url(x.group()))
+    def classify(x): return '{0} class="line"{1}'.format(*x.groups())
+    text = re_anchor.sub(classify, text)
+    return re_url.sub(parse, text)
+
+md = Markdown(
+              safe_mode     = 'escape',
+              output_format = 'xhtml1'
+             )
+
+md.preprocessors.add("url", LinkPreprocessor(md), "_begin")
+md.postprocessors.add("url", LinkPostprocessor(md), "_end")
 
 # models
 
@@ -98,7 +132,7 @@ def new_comment(web, site, id):
      web.input('comment') != "":
     Comment(episode = episode.id,
             author  = web.input('author'),
-            text    = web.input('comment'),
+            text    = md.convert(web.input('comment')),
             date    = datetime.now()
            ).save()
   return redirect("/{0}/{1}".format(site,id))
@@ -150,6 +184,16 @@ def main(web, site):
                   sections    = sections[site]
                  )
 
+# helper
+
+def _parse_url(url):
+    domain = url.split(':',1)[1][2:].split('/',1)
+    if len(domain) == 1: domain, rest = domain[0], ""
+    else:
+        domain, rest = domain
+        if not rest == "": rest = "/{0}".format(rest)
+    if domain.startswith('www.'): domain = domain[4:]
+    return (url, domain, rest)
 
 # example content
 

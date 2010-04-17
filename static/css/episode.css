@@ -48,5 +48,9 @@
   font-size: 0.9em;
   margin-bottom: 1em;
 }
+.comment a { color: #555555; }
+.comment a:hover { text-decoration: none; }
+.comment a:hover .line { text-decoration: underline; }
+.comment .line:hover { text-decoration: underline; }
 .add_comment { border-bottom: 1px solid #ebc63c; }
 .add_comment:hover { border-bottom: 2px solid #ebc63c; }
