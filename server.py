@@ -7,7 +7,7 @@ from random import randint, random
 from markdown.preprocessors import Preprocessor
 from markdown.postprocessors import Postprocessor
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
-from juno import init, redirect, route, run, model, post, template#, \
+from juno import init, redirect, route, run, model, post, template, find#, \
 #                 open_nutshell, close_nutshell, getHub, subdirect
 
 # init
@@ -30,6 +30,9 @@ init({'static_url':      '/(s/)?(?P<file>(?<=s/).*|(css|img)/.*)',
 
 # constants
 
+re_reply    = re.compile(
+                         r'@(\w+)'
+                        )
 re_url      = re.compile(
          r'(?<!"|\()((https?|ftp|gopher|file)://(\w|\.|/|\?|=|%|&|:|#|_|-|\+)+)'
                         )
@@ -93,6 +96,7 @@ Episode = model('Episode',
 Comment = model('Comment',
                 episode = 'integer',
                 author  = 'string',
+                reply   = 'integer',
                 date    = 'datetime',
                 text    = 'text'
                )
@@ -129,10 +133,24 @@ def new_comment(web, site, id):
   if found and \
      web.input('author')  is not None and \
      web.input('comment') is not None and \
+     web.input('reply')   is not None and \
      web.input('comment') != "":
+    text, reply = md.convert(web.input('comment')), []
+    def replyer(x):
+      a = x.group()[1:]
+      i = find(Comment.id).filter_by(author=a).order_by(Comment.date).all()
+      if i: reply.append(i[-1][0])
+      return i and '@<a href="/{0}/{1}/reply?{2}#new">{3}</a>'.\
+                   format(site, id, i[-1][0], a)\
+                or "@{0}".format(a)
+    text = re_reply.sub(replyer, text)
+    if reply: reply = reply[0]
+    else:     reply = -1
+    if web.input('reply') != -1: reply = web.input('reply')
     Comment(episode = episode.id,
             author  = web.input('author'),
-            text    = md.convert(web.input('comment')),
+            reply   = reply,
+            text    = text,
             date    = datetime.now()
            ).save()
   return redirect("/{0}/{1}".format(site,id))
@@ -143,7 +161,7 @@ def new_comment(web, site, id):
 #  return subdirect(web, submitter, rest)
 
 
-@route("/(?P<site>radio|cast|music)/(?P<id>[^/]*)(?P<cmnt>/comment)?")
+@route("/(?P<site>radio|cast|music)/(?P<id>[^/]*)(?P<cmnt>/(comment|reply))?")
 def episode(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
@@ -151,6 +169,27 @@ def episode(web, site, id, cmnt):
     comments = Comment.find().filter_by(episode = episode.id).\
                  order_by(Comment.date).all()
   except: return redirect("/{0}".format(site))
+  replying = {}
+  for comment in comments:
+    r = comment.reply
+    if r != -1:
+      comments.remove(comment)
+      if not r in replying:
+        replying[r] = []
+      replying[r].append(comment)
+  while replying: # ups .. what a crapy code
+    stash = []
+    for comment in comments:
+      stash.append(comment)
+      if comment.id in replying:
+        stash += replying[comment.id]
+        del replying[comment.id]
+    comments = stash
+  try:
+    reply = int(web['QUERY_STRING'])
+    author = find(Comment.author).filter_by(id = reply).one()[0]
+    author = "@{0} ".format(author)
+  except: reply, author = -1, ""
   a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
   hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
   if cmnt: comment_hashes[hash] = (time(), a + b + c)
@@ -163,6 +202,8 @@ def episode(web, site, id, cmnt):
                   comments     = comments,
                   files        = files,
                   sections     = sections[site],
+                  reply        = reply,
+                  at_author    = author,
                   hash         = hash,
                   a = a, b = b, c = c
                  )
