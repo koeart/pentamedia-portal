@@ -1,0 +1,165 @@
+
+@import "rounded_corners";
+
+a {
+  text-decoration: none;
+  border-bottom: #ebc63c 1px solid;
+  color: #555;
+}
+a:hover {
+  border-width: 2px;
+}
+body {
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    background-color: #071e3d;
+    background-image:url("/img/c3d2_blue.jpg");
+    font-family: "Verdana", "Arial", "sans-serif";
+}
+h1 {
+    color: #83a3ca;
+    padding: 0.5em 0.5em;
+    margin: 0;
+    :before {
+        content: url("/img/C3D2-white.png");
+        margin-right: -3em;
+        opacity: 0.2;
+    }
+}
+ul.headlinks {
+    float: right;
+    text-align: right;
+    margin: 0 1px;
+    font-size: 0.65em;
+    li {
+        list-style-type: none;
+        //display: inline;
+        margin: 0;
+        padding-left: 2em;
+        a {
+            border: none;
+            text-decoration: none;
+            color: #ccc;
+            font-weight: bold;
+            :hover {
+                color: white;
+            }
+        }
+    }
+}
+.categories {
+    margin: 0 0 0 1em;
+    padding: 0;
+    li {
+        background-color: white;
+        display: inline;
+        list-style-type: none;
+        padding: 0.2em 0.5em;
+        margin: 0 0 0.2em 0 0;
+        padding-bottom: 0;
+        border: 1px solid black;
+        border-bottom: none;
+        :hover {
+            background-color: #ebc63c;
+        }
+        a {
+            border: none;
+        }
+    }
+    li.selected {
+        padding-bottom: 0.1em;
+        //border-top: 3px solid black;
+        //border-right: 3px solid black;
+    }
+}
+div.content {
+    background-color: white;
+    margin: 0 0;
+    padding: 1em;
+    border-top: 1px solid #071e3d;
+    font-size:0.8em;
+    p {
+        max-width: 40em;
+    }
+}
+div.description {
+    clear: both;
+    p {
+        padding: 1em;
+    }
+}
+div.actions {
+    padding: 0;
+    margin: 0;
+}
+div.pane {
+    padding: 0.5em 1em;
+    .rounded_corners(0.5em);
+    background-color: #eee;
+    min-height: 8em;
+}
+div.listen {
+    float: left;
+    width: 45%;
+}
+div.download {
+    margin-left: 50%;
+    width: 45%;
+    ul li {
+        list-style-type: none;
+    }
+    dl dd {
+        font-size: 80%;
+        color: #666;
+        font-weight: bold;
+        margin-left: 20px;
+        margin-bottom: 0.2em;
+    }
+}
+.date {
+    float: right;
+    text-align: right;
+    padding-top: 0em;
+    font-size: 80%;
+    color: #ccc;
+}
+h2 {
+    margin: 0;
+    padding: 0;
+    padding-bottom: 1em;
+    font-size: 150%;
+}
+h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+    color: #999;
+}
+a.mime:before {
+    content: url("/img/audio.png");
+    padding: 1px 2px;
+}
+audio, video {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    margin: 2em;
+    padding: 1em;
+}
+div.listen h3:after {
+    padding:0.5em;
+    background-color:white;
+    .rounded_corners(0.5em);
+    float: right;
+    text-align: right;
+}
+
+div.listen#pentaradio h3:after {content: url("/img/pentaradio.png");}
+div.listen#pentacast  h3:after {content: url("/img/pentacast.png");}
+div.listen#pentamusic h3:after {content: url("/img/pentamusic.png");}
+
+ul.shownotes {
+    list-style-image:url("/img/bullet.png");
+    list-style-type:square;
+}

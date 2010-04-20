@@ -1,26 +1,56 @@
-{% extends "base.tpl" %}
+{% extends "astro.tpl" %}
 
 {% block body %}
-<div class="episode">
-  <h3 class="summary"{% if header_color is defined %} style="border-bottom:3px solid #{{header_color}};"{% endif %}>
-    <a class="url" href="/{{site|d("error")}}/{{episode.link|d('#')}}">{{episode.name|d("episode.name")}}</a>
-  </h3>
-  <small class="author">{{episode.author|d("episode.author")}}</small>
-  <small class="date"> @ {{episode.date|d("episode.date")}}</small>
-  <div class="news">
-    <p class="">{{episode.short|d("episode.short")}}</p>
-    <p class="">{{episode.long|d("episode.long")}}</p>
-    <ul class="">
-    {% for f in files|d([]) %}<li><a href="{{f.link}}">{{f.name}}</a> {{f.info}}</li>{% endfor %}
-    </ul>
-  </div>
-</div>
+      <p class="date">{{episode.author|d("episode.author")}} @ {{episode.date|d("episode.date")}}</p>
+      <h2>{{episode.name|d("episode.name")}}</h2>
+
+      <div class="actions">
+	<div class="listen pane" id="penta{{site}}">
+	  <h3>Hören</h3>
+	  <video controls="controls">  
+	    {% for f in files|d([]) %}
+	    <source src="{{f.link}}"
+		    type="audio/{{f.type}}"/>{% endfor %}
+	    Bitte Browser auf den neuesten Stand bringt. Hilft bei
+	    Multimedia und Sicherheit!
+	  </video>  
+	</div>
+	<div class="download pane">
+	  <h3>Download</h3>
+	  <dl>
+	    {% for f in files|d([]) %}
+	    <dh><a href="{{f.link}}"
+		   type="application/{{f.type}}" class="mime"
+		   rel="enclosure">{{f.name}}</a></dh>
+	    <dd>{{f.info}}</dd>{% endfor %}
+	  </dl>
+	</div>
+      </div>
+
+      <div class="description">
+	<p>{{episode.short|d("episode.short")}}</p>
+	<p>{{episode.long|d("episode.long")}}</p>
+	<p>
+	  Wir freuen uns über Feedback: bislang bitte
+	  an <a href="mailto:mail@c3d2.de">mail@c3d2.de</a> schicken
+	  oder <a href="http://twitter.com/pentaradio">@pentaradio</a>
+
+	  tweeten.
+	</p>
+      </div>
+      
+      <div class="shownotes pane">
+	<p>Shownotes:</p>
+	<ul class="shownotes">
+	  <li><a href="">link</a></li>
+	</ul>
+      </div>
 <div class="comments">
 <p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
 {% for comment in comments %}
   <div class="comment"{% if comment.reply != -1 %} style="padding-left:10px;border-left:4px solid #ddd;"{% endif %}>{{comment.text}}
     <small class="author"><a href="/{{site}}/{{episode.link}}/reply?{{comment.id}}#new" class="line">{{comment.author|trim|e}}</a></small>
-    <small class="date"> added these pithy words on {{comment.date}}</small>
+    <small> added these pithy words on {{comment.date}}</small>
   </div>
 {% endfor %}
 {% if comment_form %}
@@ -50,4 +80,3 @@
 {% endif %}
 </div>
 {% endblock %}
-
