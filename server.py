@@ -146,7 +146,9 @@ def new_comment(web, site, id):
     text = re_reply.sub(replyer, text)
     if reply: reply = reply[0]
     else:     reply = -1
-    if web.input('reply') != -1: reply = web.input('reply')
+    if web.input('reply') != "-1":
+      try: reply = int(web.input('reply'))
+      except: pass
     Comment(episode = episode.id,
             author  = web.input('author'),
             reply   = reply,
@@ -170,7 +172,7 @@ def episode(web, site, id, cmnt):
                  order_by(Comment.date).all()
   except: return redirect("/{0}".format(site))
   replying = {}
-  for comment in comments:
+  for comment in list(comments):
     r = comment.reply
     if r != -1:
       comments.remove(comment)
