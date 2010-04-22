@@ -51,12 +51,12 @@
 </div>
 	
       </div>
-     
+ {% if files|d([]) != [] %}
       <div class="actions">
 	<div class="download pane">
 	  <h3>Download</h3>
 	  <dl>
-	    {% for f in files|d([]) %}
+	    {% for f in files %}
 	    <dh><a href="{{f.link}}"
 		   type="application/{{f.type}}" class="mime"
 		   rel="enclosure">{{f.name}}</a></dh>
@@ -66,19 +66,21 @@
 	<div class="listen pane" id="penta{{site}}">
 	  <h3>Hören</h3>
 	  <video controls="controls">  
-	    {% for f in files|d([]) %}
+	    {% for f in files %}
 	    <source src="{{f.link}}"
 		    type="audio/{{f.type}}"/>{% endfor %}
 	    Bitte Browser auf den neuesten Stand bringt. Hilft bei
 	    Multimedia und Sicherheit!
 	  </video>  
 	</div>
-      </div>
- 
+      </div>{% endif %}
+ {% if links|d([]) != [] %}
       <div class="shownotes pane">
-	<p>Shownotes:</p>
-	<ul class="shownotes">
-	  <li><a href="">link</a></li>
-	</ul>
-      </div>
+	      <p>Shownotes:</p>
+	      <ul class="shownotes">
+	        {% for link in links %}
+	        <li><a href="{{link.url}}">{{url.title}}</a></li>{% endfor %}
+	      </ul>
+      </div>{% endif %}
+      
 {% endblock %}

@@ -85,6 +85,11 @@ File = model('File',
              type    = 'string',
              link    = 'string'
             )
+Link = model('Link',
+             episode = 'integer',
+             title   = 'string',
+             url     = 'string'
+            )
 Episode = model('Episode',
                 name     = 'string',
                 link     = 'string',
@@ -101,7 +106,6 @@ Comment = model('Comment',
                 date    = 'datetime',
                 text    = 'text'
                )
-
 # routes
 
 @route("/")
@@ -169,6 +173,7 @@ def episode(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
     files    = File.find().filter_by(episode = episode.id).all()
+    links    = Link.find().filter_by(episode = episode.id).all()
     comments = Comment.find().filter_by(episode = episode.id).\
                  order_by(Comment.date).all()
   except: return redirect("/{0}".format(site))
@@ -204,6 +209,7 @@ def episode(web, site, id, cmnt):
                   site         = site,
                   comments     = comments,
                   files        = files,
+                  links        = links,
                   sections     = sections[site],
                   reply        = reply,
                   at_author    = author,
