@@ -48,7 +48,14 @@
   font-size: 0.9em;
   margin-bottom: 1em;
 }
-.comment a { color: #555555; }
+.comment p {
+  margin: 0;
+  padding: 0;
+}
+.comment a {
+  border: none;
+  color: #555555;
+}
 .comment a:hover { text-decoration: none; }
 .comment a:hover .line { text-decoration: underline; }
 .comment .line:hover { text-decoration: underline; }

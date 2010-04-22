@@ -4,6 +4,7 @@ a {
   color: #555555;
 }
 a:hover { border-width: 2px; }
+html { background-color: white; }
 body {
   margin: 0;
   padding: 0;
@@ -20,6 +21,7 @@ h1:before {
   content: url("/img/C3D2-white.png");
   margin-right: -3em;
   opacity: 0.2;
+  z-index: 23;
 }
 ul.headlinks {
   float: right;
@@ -65,13 +67,14 @@ div.content {
   font-size: 0.8em;
 }
 div.content p { max-width: 40em; }
-div.description { clear: both; }
+div.description { float: left; }
 div.description p { padding: 1em; }
 div.actions {
   padding: 0;
   margin: 0;
 }
 div.pane {
+  margin: 0.75em;
   padding: 0.5em 1em;
   -khtml-border-radius: 0.5em;
   -moz-border-radius: 0.5em;
@@ -81,7 +84,7 @@ div.pane {
   min-height: 8em;
 }
 div.listen {
-  float: left;
+  margin-left: 50%;
   width: 45%;
 }
 div.download {
@@ -95,6 +98,10 @@ div.download dl dd {
   font-weight: bold;
   margin-left: 20px;
   margin-bottom: 0.2em;
+}
+div.shownotes {
+  margin-left: 50%;
+  width: 45%;
 }
 .date {
   float: right;

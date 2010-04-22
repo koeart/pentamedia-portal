@@ -6,9 +6,12 @@ a {
   text-decoration: none;
   border-bottom: #ebc63c 1px solid;
   color: #555;
+  :hover {
+    border-width: 2px;
+  }
 }
-a:hover {
-  border-width: 2px;
+html {
+    background-color: white;
 }
 body {
     margin: 0;
@@ -25,6 +28,7 @@ h1 {
         content: url("/img/C3D2-white.png");
         margin-right: -3em;
         opacity: 0.2;
+        z-index:23;
     }
 }
 ul.headlinks {
@@ -86,7 +90,7 @@ div.content {
     }
 }
 div.description {
-    clear: both;
+    float: left;
     p {
         padding: 1em;
     }
@@ -96,13 +100,14 @@ div.actions {
     margin: 0;
 }
 div.pane {
+    margin:0.75em;
     padding: 0.5em 1em;
     .rounded_corners(0.5em);
     background-color: #eee;
     min-height: 8em;
 }
 div.listen {
-    float: left;
+    margin-left: 50%;
     width: 45%;
 }
 div.download {
@@ -118,6 +123,10 @@ div.download {
         margin-left: 20px;
         margin-bottom: 0.2em;
     }
+}
+div.shownotes {
+    margin-left: 50%;
+    width: 45%;
 }
 .date {
     float: right;

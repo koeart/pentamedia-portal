@@ -4,29 +4,6 @@
       <p class="date">{{episode.author|d("episode.author")}} @ {{episode.date|d("episode.date")}}</p>
       <h2>{{episode.name|d("episode.name")}}</h2>
 
-      <div class="actions">
-	<div class="listen pane" id="penta{{site}}">
-	  <h3>Hören</h3>
-	  <video controls="controls">  
-	    {% for f in files|d([]) %}
-	    <source src="{{f.link}}"
-		    type="audio/{{f.type}}"/>{% endfor %}
-	    Bitte Browser auf den neuesten Stand bringt. Hilft bei
-	    Multimedia und Sicherheit!
-	  </video>  
-	</div>
-	<div class="download pane">
-	  <h3>Download</h3>
-	  <dl>
-	    {% for f in files|d([]) %}
-	    <dh><a href="{{f.link}}"
-		   type="application/{{f.type}}" class="mime"
-		   rel="enclosure">{{f.name}}</a></dh>
-	    <dd>{{f.info}}</dd>{% endfor %}
-	  </dl>
-	</div>
-      </div>
-
       <div class="description">
 	<p>{{episode.short|d("episode.short")}}</p>
 	<p>{{episode.long|d("episode.long")}}</p>
@@ -37,14 +14,7 @@
 
 	  tweeten.
 	</p>
-      </div>
-      
-      <div class="shownotes pane">
-	<p>Shownotes:</p>
-	<ul class="shownotes">
-	  <li><a href="">link</a></li>
-	</ul>
-      </div>
+	
 <div class="comments">
 <p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
 {% for comment in comments %}
@@ -79,4 +49,36 @@
 <a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment …</a>
 {% endif %}
 </div>
+	
+      </div>
+     
+      <div class="actions">
+	<div class="download pane">
+	  <h3>Download</h3>
+	  <dl>
+	    {% for f in files|d([]) %}
+	    <dh><a href="{{f.link}}"
+		   type="application/{{f.type}}" class="mime"
+		   rel="enclosure">{{f.name}}</a></dh>
+	    <dd>{{f.info}}</dd>{% endfor %}
+	  </dl>
+	</div>
+	<div class="listen pane" id="penta{{site}}">
+	  <h3>Hören</h3>
+	  <video controls="controls">  
+	    {% for f in files|d([]) %}
+	    <source src="{{f.link}}"
+		    type="audio/{{f.type}}"/>{% endfor %}
+	    Bitte Browser auf den neuesten Stand bringt. Hilft bei
+	    Multimedia und Sicherheit!
+	  </video>  
+	</div>
+      </div>
+ 
+      <div class="shownotes pane">
+	<p>Shownotes:</p>
+	<ul class="shownotes">
+	  <li><a href="">link</a></li>
+	</ul>
+      </div>
 {% endblock %}
