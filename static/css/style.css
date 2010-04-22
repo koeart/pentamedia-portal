@@ -5,11 +5,10 @@ a {
 }
 a:hover { border-width: 2px; }
 body {
-  background-color: white;
   margin: 0;
   padding: 0;
-  background-color: #071e3d;
-  background-image: url("/img/c3d2_blue.jpg");
+  background-color: white;
+  background: url("/img/c3d2_blue.jpg") repeat-x;
   font-family: "Verdana", "Arial", "sans-serif";
 }
 h1 {
@@ -58,8 +57,9 @@ ul.headlinks li a:hover { color: white; }
 .categories li a { border: none; }
 .categories li.selected { padding-bottom: 0.1em; }
 div.content {
+  min-height: 320px;
   background-color: white;
-  margin: 0 0;
+  margin: 0;
   padding: 1em;
   border-top: 1px solid #071e3d;
   font-size: 0.8em;
@@ -101,7 +101,7 @@ div.download dl dd {
   text-align: right;
   padding-top: 0em;
   font-size: 80%;
-  color: #cccccc;
+  color: #888888;
 }
 h2 {
   margin: 0;

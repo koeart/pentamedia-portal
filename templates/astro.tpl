@@ -25,7 +25,7 @@
       <li><a href="#">Statistiken</a></li>
       <li><a href="#">C3D2</a></li>
     </ul>
-    <h1>Pentamedia</h1>
+    <h1><a title="Alles" href="/" style="border:none;color:transparent;"><img src="/img/pentamedia_text.png"></a></h1>
     <ul class="categories">
       <li><a title="Alles" href="/">*</a></li>
       <li{% if site == "radio" %} class="selected"{% endif %}><a href="/radio">Pentaradio</a></li>
@@ -33,7 +33,6 @@
       <li{% if site == "music" %} class="selected"{% endif %}><a href="/music">Pentamusic</a></li>
       <li><a href="#">Misc</a></li>
     </ul>
-
     <div class="content">
 {% block body %}
 {{lipsum()}}
