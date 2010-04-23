@@ -96,6 +96,7 @@ Episode = model('Episode',
                 category = 'string',
                 author   = 'string',
                 date     = 'datetime',
+                fdate    = lambda self: _fdate(self.date),
                 short    = 'text',
                 long     = 'text'
                )
@@ -104,6 +105,7 @@ Comment = model('Comment',
                 author  = 'string',
                 reply   = 'integer',
                 date    = 'datetime',
+                fdate    = lambda self: _fdate(self.date),
                 text    = 'text'
                )
 # routes
@@ -244,6 +246,9 @@ def _parse_url(url):
         if not rest == "": rest = "/{0}".format(rest)
     if domain.startswith('www.'): domain = domain[4:]
     return (url, domain, rest)
+
+def _fdate(date:datetime):
+  return date.strftime("%A, %d. %B %Y um %H:%M")
 
 # example content
 

@@ -1,7 +1,7 @@
 {% extends "astro.tpl" %}
 
 {% block body %}
-      <p class="date">{{episode.author|d("episode.author")}} @ {{episode.date|d("episode.date")}}</p>
+      <p class="date">{{episode.author|d("episode.author")}} @ {{episode.fdate()|d("episode.date")}}</p>
       <h2>{{episode.name|d("episode.name")}}</h2>
 
       <div class="description">
@@ -20,7 +20,7 @@
 {% for comment in comments %}
   <div class="comment"{% if comment.reply != -1 %} style="padding-left:10px;border-left:4px solid #ddd;"{% endif %}>{{comment.text}}
     <small class="author"><a href="/{{site}}/{{episode.link}}/reply?{{comment.id}}#new" class="line">{{comment.author|trim|e}}</a></small>
-    <small> added these pithy words on {{comment.date}}</small>
+    <small> added these pithy words on {{comment.fdate()}}</small>
   </div>
 {% endfor %}
 {% if comment_form %}

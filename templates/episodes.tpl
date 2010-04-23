@@ -8,7 +8,7 @@
   </h3>
   <small class="date">
     {% if comment_count != 0 %}{{comment_count}} Comment{{comment_count != 1 and "s" or ""}} :: {% endif %}
-    <em>{{episode.author|d("episode.author")}}</em> @ {{episode.date|d("episode.date")}}
+    <em>{{episode.author|d("episode.author")}}</em> @ {{episode.fdate()|d("episode.date")}}
   </small>
   <div class="news">
     <p class="">{{episode.short|d("episode.short")}} <a class="url" href="/{{site}}/{{episode.link|d('#')}}">more…</a></p>
