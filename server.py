@@ -39,14 +39,14 @@ re_url      = re.compile(
 re_anchor   = re.compile(
 r'(<\s*a[^<>]*)(>(?!(https?|ftp|gopher|file)://)(.(?!<\s*/\s*a\s*>))*.<\s*/\s*a\s*>)'
                         )
-head_colors = {'radio': "ffc8b4",
-               'cast':  "b4c8ff",
-               'music': "c8ffc8"
-              }
-sections = {'radio': [],#[("Pentasubmitter","/radio/submitter/")],
-            'cast':  [],
-            'music': []
-           }
+#head_colors = {'radio': "ffc8b4",
+#               'cast':  "b4c8ff",
+#               'music': "c8ffc8"
+#              }
+#sections = {'radio': [],#[("Pentasubmitter","/radio/submitter/")],
+#            'cast':  [],
+#            'music': []
+#           }
 
 # cache
 
@@ -116,14 +116,14 @@ def start(web): # FIXME wrap db queries into one
                     filter_by(category=c).\
                     order_by(Episode.date).\
                     limit(13).all()))
-                   for c in ['radio','music','cast'] ])
+                   for c in ['pentaradio','pentamusic','pentacast'] ])
   return template("start.html",
                   episodes = episodes,
                   css      = "start"
                  )
 
 
-@post("/(?P<site>radio|cast|music)/:id/comment/new")
+@post("/(?P<site>pentaradio|pentacast|pentamusic)/:id/comment/new")
 def new_comment(web, site, id):
   try:    episode = Episode.find().filter_by(link = id).one()
   except: return redirect("/{0}".format(site))
@@ -170,7 +170,7 @@ def new_comment(web, site, id):
 #  return subdirect(web, submitter, rest)
 
 
-@route("/(?P<site>radio|cast|music)/(?P<id>[^/]*)(?P<cmnt>/(comment|reply))?")
+@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)(?P<cmnt>/(comment|reply))?")
 def episode(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
@@ -204,7 +204,7 @@ def episode(web, site, id, cmnt):
   hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
   if cmnt: comment_hashes[hash] = (time(), a + b + c)
   return template("episode.tpl",
-                  header_color = head_colors[site],
+                  #header_color = head_colors[site],
                   comment_form = cmnt is not None,
                   css          = "episode",
                   episode      = episode,
@@ -212,7 +212,7 @@ def episode(web, site, id, cmnt):
                   comments     = comments,
                   files        = files,
                   links        = links,
-                  sections     = sections[site],
+                  #sections     = sections[site],
                   reply        = reply,
                   at_author    = author,
                   hash         = hash,
@@ -220,7 +220,7 @@ def episode(web, site, id, cmnt):
                  )
 
 
-@route("/(?P<site>radio|cast|music)/")
+@route("/(?P<site>pentaradio|pentacast|pentamusic)/")
 def main(web, site):
   episodes = Episode.find().filter_by(category=site).\
                order_by(Episode.date).limit(20).all()
@@ -229,11 +229,11 @@ def main(web, site):
   comments_count = [ Comment.find().filter_by(episode = e.id).count()
                      for e in episodes ]
   return template("episodes.tpl",
-                  header_color= head_colors[site],
+                  #header_color= head_colors[site],
                   css         = "episode",
                   episodepage = zip(episodes, comments_count),
-                  site        = site,
-                  sections    = sections[site]
+                  site        = site#,
+                  #sections    = sections[site]
                  )
 
 # helper
@@ -254,28 +254,28 @@ def _fdate(date:datetime):
 
 short = "Die Bundesrepublik - unendliche Bürokratie. Dies ist der Versuch des Pentacast etwas Licht ins Dunkel zu bringen."
 long = "In dieser überaus spannenden und hitzigen Episode werden grundlegende Strukturen und Begriffe erklärt, die man für das Verständnis eines Rechtsstaates benötigt. Accuso, ein Volljurist aus dem Vereinsumfeld, steht Rede und Antwort und gibt ein paar aufschlussreiche Tips die dem Laien das Dickicht der Bürokratie und Juristerei algorithmisch zu durchdringen."
-e = Episode(name="Rechtsstaat", category="cast", link="10", author="kl0bs", date=datetime(2010,4,4,16,14), short=short, long=long)
+e = Episode(name="Rechtsstaat", category="pentacast", link="10", author="kl0bs", date=datetime(2010,4,4,16,14), short=short, long=long)
 e.save()
 File(episode=e.id, info="Ogg Vorbis, 94.1 MB", name="Pentacast 10: Rechtsstaat", link="http://ftp.c3d2.de/pentacast/pentacast-10-rechtsstaat.ogg", type="ogg").save()
 File(episode=e.id, info="MPEG-Audio, 190.8 MB", name="Pentacast 10: Rechtsstaat", link="http://ftp.c3d2.de/pentacast/pentacast-10-rechtsstaat.mp3", type="mp3").save()
 
 short = "Datenbanken sind die Leitz-Ordner der Rechenmaschinen. In ihnen wird versenkt, was man evtl. noch mal brauchen könnte. Daraus leiten sich zwei Probleme ab: Wie findet man diese Daten wieder und wie schnell kommt man wieder heran? Diese Probleme zu lösen haben relationale Datenbanksysteme über Jahrzehnte optimiert."
 long = "Im Scope des Internets wird gleich ein 3. Problem offensichtlich: Wie viele Clients kommen quasi gleichzeitig an diese Daten ran? Wie schnell puhlt z. B. eine Suchmaschine die URL aus dem herunter geladenen Internet? <br/> Neue Lösungen sind also für die Datenhalden unserer Zeit gefragt. Wir reden mal etwas darüber, welche Ansätze es da so gibt, wie die Entwicklungen sind und geben Tipps, was Ihr auch mal in der eigenen Küche ausprobieren könnt. <br/> Ihr seid herzlich eingeladen anzurufen (0351/32 05 47 11) oder im c3d2 Channel mit uns zu chatten."
-e = Episode(name="No, No, NoSQL, oder doch?", category="radio", link="032010", author="a8", date=datetime(2010,3,23,13,28), short=short, long=long)  
+e = Episode(name="No, No, NoSQL, oder doch?", category="pentaradio", link="032010", author="a8", date=datetime(2010,3,23,13,28), short=short, long=long)  
 e.save()
 File(episode=e.id, info="Ogg Vorbis, 111.2 MB", name="pentaradio24 vom 23. März 2010", link="http://ftp.c3d2.de/pentaradio/pentaradio-2010-03-23.ogg", type="ogg").save()
 File(episode=e.id, info="MPEG-Audio, 94.9 MB", name="pentaradio24 vom 23. März 2010", link="http://ftp.c3d2.de/pentaradio/pentaradio-2010-03-23.mp3", type="mp3").save()
 
 short = "Im Studio begrüßen dürfen wir diesmal die wunderbare Zoe.Leela. Mit im Gepäck waren ihr DJ und Produzent DJ Skywax so wie Ihr Manager Tompigs."
 long = "Themen der Sendung waren u.a. Zoe's durchstarten in der Musikwelt, die Freude am Musikvideo drehen und natürlich ihre aktuelle \"Queendom Come\"-Tour - die Zoe auch nach Dresden geführt hat - zur Erdbeerdisco. <br/> Ein Dank geht an Zoe.LeelA's Labelchef Marco Medkour von rec72.net"
-e = Episode(name="Zoe.LeelA", category="music", link="0x003", author="koeart", date=datetime(2010,3,18), short=short, long=long)
+e = Episode(name="Zoe.LeelA", category="pentamusic", link="0x003", author="koeart", date=datetime(2010,3,18), short=short, long=long)
 e.save()
 File(episode=e.id, info="Ogg Vorbis, 68.2 MB", name="pentaMusic0x003", link="http://ftp.c3d2.de/pentacast/pentamusic0x003.ogg", type="ogg").save()
 File(episode=e.id, info="MPEG-Audio, 91.7 MB", name="pentaMusic0x003", link="http://ftp.c3d2.de/pentacast/pentamusic0x003.mp3", type="mp3").save()
 
 short = "Was in den 1990er Jahren noch eine teure Zusatzerweiterung für den heimischen PC war, ist heute eine Selbstverständlichkeit: Sound."
 long = "In diesem Podcast besprechen wir die Aufgaben und Funktionsweise einer Soundkarte, verschiedene Realisierungen von Soundsubsystemen in verschiedenen Betriebsystemen und gehen grundsätzlich auf Probleme aus dem Audiobereich im Zusammenhang mit dem Computer ein."
-e = Episode(name="Echtzeit-Audio", category="cast", link="9", author="kl0bs", date=datetime(2010,3,3,22,23), short=short, long=long)
+e = Episode(name="Echtzeit-Audio", category="pentacast", link="9", author="kl0bs", date=datetime(2010,3,3,22,23), short=short, long=long)
 e.save()
 File(episode=e.id, info="Ogg Vorbis, 62.6 MB", name="Pentacast 9: Echtzeit-Audio", link="http://ftp.c3d2.de/pentacast/pentacast-9-rtaudio.ogg", type="ogg").save()
 File(episode=e.id, info="MPEG-Audio, 123.5 MB", name="Pentacast 9: Echtzeit-Audio", link="http://ftp.c3d2.de/pentacast/pentacast-9-rtaudio.mp3", type="mp3").save()

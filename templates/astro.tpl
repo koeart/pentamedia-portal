@@ -28,9 +28,9 @@
     <h1><a title="Alles" href="/" style="border:none;color:transparent;z-index:42;"><img src="/img/pentamedia_text.png"></a></h1>
     <ul class="categories">
       <li><a title="Alles" href="/">*</a></li>
-      <li{% if site == "radio" %} class="selected"{% endif %}><a href="/radio">Pentaradio</a></li>
-      <li{% if site == "cast" %} class="selected"{% endif %}><a href="/cast">Pentacast</a></li>
-      <li{% if site == "music" %} class="selected"{% endif %}><a href="/music">Pentamusic</a></li>
+      <li{% if site == "pentaradio" %} class="selected"{% endif %}><a href="/pentaradio">Pentaradio</a></li>
+      <li{% if site == "pentacast" %} class="selected"{% endif %}><a href="/pentacast">Pentacast</a></li>
+      <li{% if site == "pentamusic" %} class="selected"{% endif %}><a href="/pentamusic">Pentamusic</a></li>
       <li><a href="#">Misc</a></li>
     </ul>
     <div class="content">

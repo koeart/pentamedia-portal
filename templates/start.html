@@ -23,17 +23,17 @@
 <div id="logo"><a href="/" alt="Pentamedia"><img src="/img/pentamedia_text.png" alt="Pentamedia" /></a></div> 
        
 <div class="pentastar">
-{% for episode in episodes.radio %}<div class="file"><a href="/radio/{{episode.link}}">{{episode.name}}</div>{% endfor %}
-<div class="title"><a href="/radio" alt="Pentaradio"><img src="/img/pentaradio_text.png" alt="Pentaradio" /></a></div>
+{% for episode in episodes.pentaradio %}<div class="file"><a href="/pentaradio/{{episode.link}}">{{episode.name}}</div>{% endfor %}
+<div class="title"><a href="/pentaradio" alt="Pentaradio"><img src="/img/pentaradio_text.png" alt="Pentaradio" /></a></div>
 </div>
 <div class="pentastar">
-{% for episode in episodes.cast %}<div class="file"><a href="/cast/{{episode.link}}">{{episode.name}}</div>{% endfor %}
-<div class="title"><a href="/cast" alt="Pentacast"><img src="/img/pentacast_text.png" alt="Pentacast" /></a></div>
+{% for episode in episodes.pentacast %}<div class="file"><a href="/pentacast/{{episode.link}}">{{episode.name}}</div>{% endfor %}
+<div class="title"><a href="/pentacast" alt="Pentacast"><img src="/img/pentacast_text.png" alt="Pentacast" /></a></div>
 
 </div>
 <div class="pentastar">
-{% for episode in episodes.music %}<div class="file"><a href="/music/{{episode.link}}">{{episode.name}}</div>{% endfor %}
-<div class="title"><a href="/music" alt="Pentamusic"><img src="/img/pentamusic_text.png" alt="Pentamusic" /></a></div>
+{% for episode in episodes.pentamusic %}<div class="file"><a href="/pentamusic/{{episode.link}}">{{episode.name}}</div>{% endfor %}
+<div class="title"><a href="/pentamusic" alt="Pentamusic"><img src="/img/pentamusic_text.png" alt="Pentamusic" /></a></div>
 
 </div>
         
