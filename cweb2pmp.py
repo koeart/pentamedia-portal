@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 
 ## [c]3d2-[web]2[p]enta[m]edia[p]ortal konverter.. :)
-# Was muss ich auswerten?
-# > filename (regex: Anfang) ---> filename nach category=cast/music/radio + datum/Episode splitten
-# > item.attrib (author, title, date) --> Episode(name="$title", category="$category", id="$date", author="$author", date=datetime(yy, mm, dd, hh, mm)))
-# > Inhalt (<p>)bis <addendum> ---> "short description"
-# > Inhalt bis </addendum> ---> "long description"
-# > <resource></resource> ---> Download-link
 
 import re
 from datetime import datetime
@@ -22,11 +16,6 @@ FILETYPE = {'ogg': "Ogg Vorbis",
            }
 FILESIZE = ["KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] # ready for da future :P
 FILEBLOCK = 1024
-#m = c.match(filename)
-#typ = str(m.groupdict('type'))
-#episode = str(m.groupdict('episode'))
-#print("Type: " + typ + ", Episode: " + episode)
-#print(typ)
 
 
 def get_name(tag):
