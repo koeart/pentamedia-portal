@@ -7,13 +7,9 @@
 # > Inhalt (<p>)bis <addendum> ---> "short description"
 # > Inhalt bis </addendum> ---> "long description"
 # > <resource></resource> ---> Download-link
-# links = list(p); text = re.sub(r"(<(?!/)[^>]+>(.(?!</))*.</[^>]+>)",lambda x: "".join([ '<a{0}>{1}</a>'.format("".join([ ' {0}="{1}"'.format(*i) for i in _.attrib.items() ]),_.text) for _ in [links.pop(0)] ]),etree.tostring(p).strip()[2+len(p.tag):-3-len(p.tag)].strip()); print(text)
 
-
-
-
-from datetime import datetime
 import re
+from datetime import datetime
 import xml.etree.ElementTree as etree
 
 re_filename = re.compile(r"\.\/penta(?P<type>\w*).*-(?P<episode>\w*)\.xml")
@@ -149,18 +145,6 @@ def get_files(root):
     resources = root.findall('resource')
     return sum(map(get_audio,resources), [])
 
-#resource = root.findall('resource')
-#l_ogg = resource[0].attrib
-#ogg_url = l_ogg['url']
-#ogg_size = int(l_ogg['size'])
-#ogg_type = l_ogg['type']
-#ogg_title = l_ogg['title']
-#alternative = resource[0].findall('alternative')
-#l_mp3 = alternative[0].attrib
-#mp3_url = l_mp3['url']
-#mp3_size = int(l_mp3['size'])
-#mp3_type = l_mp3['type']
-
 
 
 def load_file(filename):
@@ -171,50 +155,6 @@ def load_file(filename):
             'files': get_files(root)
            }
 
-
-#author = root.attrib['author']
-#title = root.attrib['title']
-#date = root.attrib['date']
-#print("Autor: {0}, Titel: {1}, Datum: {2}".format(author, title, date))
-
-# short: Alle Absätze (<p></p>) bis <addendum>
-#p = root.findall('p')
-#links = list(p); text = re.sub(r"(<(?!/)[^>]+>(.(?!</))*.</[^>]+>)",lambda x: "".join([ '<a{0}>{1}</a>'.format("".join([ ' {0}="{1}"'.format(*i) for i in _.attrib.items() ]),_.text) for _ in [links.pop(0)] ]),etree.tostring(p).strip()[2+len(p.tag):-3-len(p.tag)].strip()); print(text)
-#for n in p:
-#short = "" + etree.tostring(p[0]).strip()[3:-4].strip().replace("<link", "<a").replace("</link>", "</a>")
-#print(short + "\n")
-
-# long: alle Absätze ab <addendum> bis </addendum>
-
-
-#lang =""
-#for n in p:
-#    lang += etree.tostring(n).strip()[3:-4].strip().replace("<link", "<a").replace("</link>", "</a>") + "\n"
-
-#addendum = root.findall('addendum')
-#p = addendum[0].findall('p')
-#for n in p:
-#    lang += etree.tostring(n).strip()[3:-4].strip().replace("<link", "<a").replace("</link>", "</a>") + "\n"
-
-#print(lang)
-
-
-
-
-#pprint(resource[0].attrib)
-# Wie solls weitergehn?
-#setup funktion basteln, die dict[] haben will
-#def setup(dict):
-#    asdf
-#    adsf
-#    asfd
-#    af
-
-#def import_xml(filename)
-#    werte = 
-#    wert2
-#    wert4
-#    dict['Episode']('wert1' 'wert2')
 
 def test():
     from pprint import pprint
