@@ -147,9 +147,14 @@ def load_file(filename):
 
 def test():
     from pprint import pprint
-    filename = "./pentamusic-0x001.xml"
-    pprint(load_file(filename))
-
+#    filename = "./pentamusic-0x001.xml"
+    filebase = "../c3d2-web/content/news/" #wo liegen dateien? RELATIV!!!
+    with open("pentafiles.txt", "r") as text:
+            for line in text:
+                  raw = filebase + line
+                  filename = raw.rstrip()
+                  pprint(load_file(filename))
+    
 if __name__ == "__main__":
     test()
 
