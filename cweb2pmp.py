@@ -6,11 +6,12 @@ import re
 from datetime import datetime
 import xml.etree.ElementTree as etree
 
-re_filename = re.compile(r"\.\/penta(?P<type>\w*).*-(?P<episode>\w*)\.xml")
+re_filename = re.compile(r".*(?P<type>penta(cast|radio|music)).*-(?P<episode>\w*)\.xml")
 
 
 # FIXME add more types (if needed)
 FILETYPE = {'ogg': "Ogg Vorbis",
+            'x-bittorrent': "BitTorrent-Metainformationen",
             'mpeg': "MPEG-Audio",
             'mp3': "MPEG-Audio"
            }
@@ -84,7 +85,7 @@ def get_title(litag):
 
 def get_url(litag):
     link = litag.findall('link')[0]
-    return link.attrib['href']
+    return link.attrib['href'] if 'href' in link.attrib else link.text
 
 def get_link(litag):
     return {'title': get_title(litag),
@@ -92,9 +93,12 @@ def get_link(litag):
            }
 
 def get_links(root):
-    addendum = root.findall('addendum')[0]
+    addendum = root.findall('addendum')
+    try: addendum = addendum[0]
+    except: return []
     ultags = addendum.findall('ul')
-    litags = sum([ ul.findall('li') for ul in ultags ],[])
+    litags = sum([ [ li for li in ul.findall('li') if li.findall('link') ]
+                for ul in ultags ],[])
     return list(map(get_link,litags))
 
 
@@ -124,12 +128,14 @@ def get_mp3(tag, title):
            }
 
 def get_audio(resource):
-    alternative = resource.findall('alternative')[0]
     ogg = get_ogg(resource)
+    alternative = resource.findall('alternative')
+    try: alternative = alternative[0]
+    except: return [ogg]
     mp3 = get_mp3(alternative, ogg['name'])
     return [ogg, mp3]
 
-    
+
 def get_files(root):
     resources = root.findall('resource')
     return sum(map(get_audio,resources), [])
@@ -147,14 +153,14 @@ def load_file(filename):
 
 def test():
     from pprint import pprint
-#    filename = "./pentamusic-0x001.xml"
-    filebase = "../c3d2-web/content/news/" #wo liegen dateien? RELATIV!!!
-    with open("pentafiles.txt", "r") as text:
-            for line in text:
-                  raw = filebase + line
-                  filename = raw.rstrip()
-                  pprint(load_file(filename))
-    
+    filename = "./pentamusic-0x001.xml"
+    #filebase = "../c3d2-web/content/news/" #wo liegen dateien? RELATIV!!!
+    #with open("pentafiles.txt", "r") as text:
+            #for line in text:
+                  #raw = filebase + line
+                  #filename = raw.rstrip()
+    pprint(load_file(filename))
+
 if __name__ == "__main__":
     test()
 
