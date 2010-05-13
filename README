@@ -9,7 +9,7 @@ is written in python3.
   SQLAlchemy - database framework (http://www.sqlalchemy.org/)
   lesscss - css compiler (http://lesscss.org/)
   markdown - format syntax (http://gitorious.org/python-markdown)
-  
+
 === Install
 
   · get all dependencies
@@ -32,10 +32,11 @@ is written in python3.
     use_setuptools()
 
   than you can use setup.py normaly with:
-  
+
     sudo python3 setup.py install
 
 === Use
 
-  start server.py  
-  
+  run cwebfetcher.py to feed the db
+  start server.py
+
