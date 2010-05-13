@@ -17,9 +17,12 @@ init({'static_url':      '/(s/)?(?P<file>(?<=s/).*|(css|img)/.*)',
       'use_templates':   True,
       'bind_address':    '',
       'use_db':          True,
+      'db_location':     "db.sqlite",
       'template_kwargs':
          {'extensions':  ["jinja2.ext.do","jinja2.ext.loopcontrols"]}
      })
+
+from db import *
 
 # import submitter
 
@@ -76,38 +79,6 @@ md = Markdown(
 md.preprocessors.add("url", LinkPreprocessor(md), "_begin")
 md.postprocessors.add("url", LinkPostprocessor(md), "_end")
 
-# models
-
-File = model('File',
-             episode = 'integer',
-             info    = 'string',
-             name    = 'string',
-             type    = 'string',
-             link    = 'string'
-            )
-Link = model('Link',
-             episode = 'integer',
-             title   = 'string',
-             url     = 'string'
-            )
-Episode = model('Episode',
-                name     = 'string',
-                link     = 'string',
-                category = 'string',
-                author   = 'string',
-                date     = 'datetime',
-                fdate    = lambda self: _fdate(self.date),
-                short    = 'text',
-                long     = 'text'
-               )
-Comment = model('Comment',
-                episode = 'integer',
-                author  = 'string',
-                reply   = 'integer',
-                date    = 'datetime',
-                fdate    = lambda self: _fdate(self.date),
-                text    = 'text'
-               )
 # routes
 
 @route("/")
@@ -246,40 +217,6 @@ def _parse_url(url):
         if not rest == "": rest = "/{0}".format(rest)
     if domain.startswith('www.'): domain = domain[4:]
     return (url, domain, rest)
-
-def _fdate(date:datetime):
-  return date.strftime("%A, %d. %B %Y um %H:%M")
-
-# example content
-
-short = "Die Bundesrepublik - unendliche Bürokratie. Dies ist der Versuch des Pentacast etwas Licht ins Dunkel zu bringen."
-long = "In dieser überaus spannenden und hitzigen Episode werden grundlegende Strukturen und Begriffe erklärt, die man für das Verständnis eines Rechtsstaates benötigt. Accuso, ein Volljurist aus dem Vereinsumfeld, steht Rede und Antwort und gibt ein paar aufschlussreiche Tips die dem Laien das Dickicht der Bürokratie und Juristerei algorithmisch zu durchdringen."
-e = Episode(name="Rechtsstaat", category="pentacast", link="10", author="kl0bs", date=datetime(2010,4,4,16,14), short=short, long=long)
-e.save()
-File(episode=e.id, info="Ogg Vorbis, 94.1 MB", name="Pentacast 10: Rechtsstaat", link="http://ftp.c3d2.de/pentacast/pentacast-10-rechtsstaat.ogg", type="ogg").save()
-File(episode=e.id, info="MPEG-Audio, 190.8 MB", name="Pentacast 10: Rechtsstaat", link="http://ftp.c3d2.de/pentacast/pentacast-10-rechtsstaat.mp3", type="mp3").save()
-
-short = "Datenbanken sind die Leitz-Ordner der Rechenmaschinen. In ihnen wird versenkt, was man evtl. noch mal brauchen könnte. Daraus leiten sich zwei Probleme ab: Wie findet man diese Daten wieder und wie schnell kommt man wieder heran? Diese Probleme zu lösen haben relationale Datenbanksysteme über Jahrzehnte optimiert."
-long = "Im Scope des Internets wird gleich ein 3. Problem offensichtlich: Wie viele Clients kommen quasi gleichzeitig an diese Daten ran? Wie schnell puhlt z. B. eine Suchmaschine die URL aus dem herunter geladenen Internet? <br/> Neue Lösungen sind also für die Datenhalden unserer Zeit gefragt. Wir reden mal etwas darüber, welche Ansätze es da so gibt, wie die Entwicklungen sind und geben Tipps, was Ihr auch mal in der eigenen Küche ausprobieren könnt. <br/> Ihr seid herzlich eingeladen anzurufen (0351/32 05 47 11) oder im c3d2 Channel mit uns zu chatten."
-e = Episode(name="No, No, NoSQL, oder doch?", category="pentaradio", link="032010", author="a8", date=datetime(2010,3,23,13,28), short=short, long=long)  
-e.save()
-File(episode=e.id, info="Ogg Vorbis, 111.2 MB", name="pentaradio24 vom 23. März 2010", link="http://ftp.c3d2.de/pentaradio/pentaradio-2010-03-23.ogg", type="ogg").save()
-File(episode=e.id, info="MPEG-Audio, 94.9 MB", name="pentaradio24 vom 23. März 2010", link="http://ftp.c3d2.de/pentaradio/pentaradio-2010-03-23.mp3", type="mp3").save()
-
-short = "Im Studio begrüßen dürfen wir diesmal die wunderbare Zoe.Leela. Mit im Gepäck waren ihr DJ und Produzent DJ Skywax so wie Ihr Manager Tompigs."
-long = "Themen der Sendung waren u.a. Zoe's durchstarten in der Musikwelt, die Freude am Musikvideo drehen und natürlich ihre aktuelle \"Queendom Come\"-Tour - die Zoe auch nach Dresden geführt hat - zur Erdbeerdisco. <br/> Ein Dank geht an Zoe.LeelA's Labelchef Marco Medkour von rec72.net"
-e = Episode(name="Zoe.LeelA", category="pentamusic", link="0x003", author="koeart", date=datetime(2010,3,18), short=short, long=long)
-e.save()
-File(episode=e.id, info="Ogg Vorbis, 68.2 MB", name="pentaMusic0x003", link="http://ftp.c3d2.de/pentacast/pentamusic0x003.ogg", type="ogg").save()
-File(episode=e.id, info="MPEG-Audio, 91.7 MB", name="pentaMusic0x003", link="http://ftp.c3d2.de/pentacast/pentamusic0x003.mp3", type="mp3").save()
-
-short = "Was in den 1990er Jahren noch eine teure Zusatzerweiterung für den heimischen PC war, ist heute eine Selbstverständlichkeit: Sound."
-long = "In diesem Podcast besprechen wir die Aufgaben und Funktionsweise einer Soundkarte, verschiedene Realisierungen von Soundsubsystemen in verschiedenen Betriebsystemen und gehen grundsätzlich auf Probleme aus dem Audiobereich im Zusammenhang mit dem Computer ein."
-e = Episode(name="Echtzeit-Audio", category="pentacast", link="9", author="kl0bs", date=datetime(2010,3,3,22,23), short=short, long=long)
-e.save()
-File(episode=e.id, info="Ogg Vorbis, 62.6 MB", name="Pentacast 9: Echtzeit-Audio", link="http://ftp.c3d2.de/pentacast/pentacast-9-rtaudio.ogg", type="ogg").save()
-File(episode=e.id, info="MPEG-Audio, 123.5 MB", name="Pentacast 9: Echtzeit-Audio", link="http://ftp.c3d2.de/pentacast/pentacast-9-rtaudio.mp3", type="mp3").save()
-
 
 # run
 
