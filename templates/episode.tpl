@@ -14,7 +14,7 @@
 
 	  tweeten.
 	</p>
-	
+
 <div class="comments">
 <p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
 {% for comment in comments %}
@@ -43,13 +43,13 @@
 	  <textarea name="comment" style="border: 1px solid #000;" id="comment" cols="50" rows="6" tabindex="4">{{at_author}}</textarea>
 	  <br /><a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> enabled. (url autolinking included.)
 	</p>
-	  
+
 	</form>
 {% else %}
 <a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment …</a>
 {% endif %}
 </div>
-	
+
       </div>
  {% if files|d([]) != [] %}
       <div class="actions">
@@ -65,13 +65,13 @@
 	</div>
 	<div class="listen pane" id="penta{{site}}">
 	  <h3>Hören</h3>
-	  <video controls="controls">  
+	  <video controls="controls">
 	    {% for f in files %}
 	    <source src="{{f.link}}"
 		    type="audio/{{f.type}}"/>{% endfor %}
 	    Bitte Browser auf den neuesten Stand bringt. Hilft bei
 	    Multimedia und Sicherheit!
-	  </video>  
+	  </video>
 	</div>
       </div>{% endif %}
  {% if links|d([]) != [] %}
@@ -79,8 +79,8 @@
 	      <p>Shownotes:</p>
 	      <ul class="shownotes">
 	        {% for link in links %}
-	        <li><a href="{{link.url}}">{{url.title}}</a></li>{% endfor %}
+	        <li><a href="{{link.url}}">{{link.title}}</a></li>{% endfor %}
 	      </ul>
       </div>{% endif %}
-      
+
 {% endblock %}
