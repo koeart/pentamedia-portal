@@ -83,11 +83,17 @@ md.postprocessors.add("url", LinkPostprocessor(md), "_end")
 
 @route("/")
 def start(web): # FIXME wrap db queries into one
-  episodes = dict([(c, reversed(Episode.find().\
-                    filter_by(category=c).\
-                    order_by(Episode.date).\
-                    limit(13).all()))
-                   for c in ['pentaradio','pentamusic','pentacast'] ])
+  episodes = {}
+  for category in ['pentaradio','pentamusic','pentacast']:
+    episode = list(reversed(Episode.find().\
+                   filter_by(category=category).\
+                   order_by(Episode.date).\
+                   all()
+                  ))
+    if len(episode) > 13:
+      episode = episode[:13]
+      episode.append({'name': "more …", 'link': ""})
+    episodes[category] = episode
   return template("start.html",
                   episodes = episodes,
                   css      = "start"
