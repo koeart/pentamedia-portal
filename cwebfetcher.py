@@ -26,6 +26,12 @@ git = "git --git-dir=cweb.git --work-tree=. "
 def main():
     log = ""
 
+    git_test = getoutput("git log --format=%n")
+    if "fatal" in git_test or "--format" in git_test:
+        print("ERROR: your git version is to old.")
+        os.system("git --version")
+        exit(1)
+
     if not os.path.exists("cweb.git"):
         print("* no c3d2-web git repository found")
         os.mkdir("cweb.git")
