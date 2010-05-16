@@ -7,7 +7,8 @@ from random import randint, random
 from markdown.preprocessors import Preprocessor
 from markdown.postprocessors import Postprocessor
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
-from juno import init, redirect, route, run, model, post, template, find#, \
+from juno import init, redirect, route, run, model, post, template, find, \
+                  get, yield_file#, \
 #                 open_nutshell, close_nutshell, getHub, subdirect
 
 # init
@@ -104,12 +105,20 @@ def start(web): # FIXME wrap db queries into one
 def new_comment(web, site, id):
   try:    episode = Episode.find().filter_by(link = id).one()
   except: return redirect("/{0}".format(site))
-  found, hash, captcha, now = False, web.input('hash'), web.input('captcha'), time()
-  try:    captcha = int(captcha)
-  except: captcha = None
-  if hash is not None and captcha is not None:
+  found, hash, now = False, web.input('hash'), time()
+  captcha, tip = web.input('tcha'), None
+  if captcha == "sum":
+    typ, tip = 1, web.input('sumtcha')
+    try:    tip = int(tip)
+    except: tip = None
+  elif captcha == "cat":
+    typ, tip = 2, web.input('cat')
+    print(tip)
+  else:
+    typ, tip = 0, -1
+  if hash is not None:
     if hash in comment_hashes:
-      found = comment_hashes[hash][1] == captcha
+      found = comment_hashes[hash][typ] == tip
       del comment_hashes[hash]
   for comment_try in list(comment_hashes.keys()):
     if now - comment_hashes[comment_try][0] > 10400: # 12 hours
@@ -140,6 +149,17 @@ def new_comment(web, site, id):
             date    = datetime.now()
            ).save()
   return redirect("/{0}/{1}".format(site,id))
+
+
+@get("/cat/(?P<type>A|B)")
+def cat_image(web, type):
+    try:
+      hash = web['QUERY_STRING']
+      field = comment_hashes[hash][2]
+    except: return
+    yield_file("static/img/{0}acat{1}.jpeg".\
+      format(type != field and "not" or "", randint(0,7)))
+
 
 
 #@route(['radio/submitter', 'radio/submitter/:rest'])
@@ -179,7 +199,7 @@ def episode(web, site, id, cmnt):
   except: reply, author = -1, ""
   a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
   hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
-  if cmnt: comment_hashes[hash] = (time(), a + b + c)
+  if cmnt: comment_hashes[hash] = (time(), a + b + c, chr(65+randint(0, 1)))
   return template("episode.tpl",
                   #header_color = head_colors[site],
                   comment_form = cmnt is not None,

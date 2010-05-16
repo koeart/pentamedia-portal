@@ -34,9 +34,16 @@
 	</p>
 
 	<p>
+	  <input type="radio" name="tcha" value="sum" />
 	  Enter the sum of {{a}}, {{b}} and {{c}}:
-	  <input type="text" name="captcha" id="captcha" value="" size="3" tabindex="2" />
-	   <label for="email">SumCaptcha</label> (required)	</p>
+	  <input type="text" name="sumtcha" id="sumtcha" value="" size="3" tabindex="2" />
+	   <label for="sumtcha">Sumtcha</label> (required)	</p>
+	<p>
+      <input type="radio" name="tcha" value="cat" checked="checked"/>
+      Or chose the cat: <br />
+      <input type="radio" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
+      <input type="radio" name="cat" value="B" /><img src="/cat/B?{{hash}}" />
+       <label for="cat">Cattcha</label> (required)  </p>
 	<p>
 	  <label for="comment">Your Comment</label>
 	<br />
