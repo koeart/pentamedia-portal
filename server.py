@@ -158,7 +158,7 @@ def cat_image(web, type):
       field = comment_hashes[hash][2]
     except: return
     yield_file("static/img/{0}acat{1}.jpeg".\
-      format(type != field and "not" or "", randint(0,7)))
+      format(type != field and "not" or "", randint(0,16)))
 
 
 
