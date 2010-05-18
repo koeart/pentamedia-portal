@@ -177,14 +177,16 @@ def episode(web, site, id, cmnt):
     comments = Comment.find().filter_by(episode = episode.id).\
                  order_by(Comment.date).all()
   except: return redirect("/{0}".format(site))
-  replying = {}
+  replying, idcomments = {}, {}
   for comment in list(comments):
+    comment.level, idcomments[comment.id] = 0, comment
     r = comment.reply
     if r != -1:
       comments.remove(comment)
       if not r in replying:
         replying[r] = []
       replying[r].append(comment)
+  level_replying = sum(replying.values(),[])
   while replying: # ups .. what a crapy code
     stash = []
     for comment in comments:
@@ -193,6 +195,11 @@ def episode(web, site, id, cmnt):
         stash += replying[comment.id]
         del replying[comment.id]
     comments = stash
+  for reply in level_replying:
+    cur = reply
+    while cur.reply != -1:
+      reply.level += 1
+      cur = idcomments[cur.reply]
   try:
     reply = int(web['QUERY_STRING'])
     author = find(Comment.author).filter_by(id = reply).one()[0]
