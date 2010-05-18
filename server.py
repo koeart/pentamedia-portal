@@ -3,7 +3,7 @@ import re
 from time import time
 from hashlib import sha1
 from markdown import Markdown
-from random import randint, random
+from random import randint, random, shuffle
 from markdown.preprocessors import Preprocessor
 from markdown.postprocessors import Postprocessor
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
@@ -113,7 +113,7 @@ def new_comment(web, site, id):
     except: tip = None
   elif captcha == "cat":
     typ, tip = 2, web.input('cat')
-    print(tip)
+    if not isinstance(tip, list): tip = [tip]
   else:
     typ, tip = 0, -1
   if hash is not None:
@@ -151,14 +151,15 @@ def new_comment(web, site, id):
   return redirect("/{0}/{1}".format(site,id))
 
 
-@get("/cat/(?P<type>A|B)")
-def cat_image(web, type):
+@get("/cat/(?P<typ>[A-Z])")
+def cat_image(web, typ):
     try:
       hash = web['QUERY_STRING']
-      field = comment_hashes[hash][2]
+      iscat = typ in comment_hashes[hash][2]
+      nr = comment_hashes[hash][3][ord(typ)-65]
     except: return
     yield_file("static/img/{0}acat{1}.jpeg".\
-      format(type != field and "not" or "", randint(0,16)))
+      format(not iscat and "not" or "", nr))
 
 
 
@@ -199,7 +200,12 @@ def episode(web, site, id, cmnt):
   except: reply, author = -1, ""
   a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
   hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
-  if cmnt: comment_hashes[hash] = (time(), a + b + c, chr(65+randint(0, 1)))
+  if cmnt:
+    cats = [ chr(65+i) for i in range(4) if randint(0, 1) ]
+    if not len(cats): cats = [chr(65+randint(0, 4))]
+    elif len(cats) == 4: cats.pop(randint(0, 4))
+    pics = list(range(16)); shuffle(pics); pics = pics[:4]
+    comment_hashes[hash] = (time(), a + b + c, cats, pics)
   return template("episode.tpl",
                   #header_color = head_colors[site],
                   comment_form = cmnt is not None,
