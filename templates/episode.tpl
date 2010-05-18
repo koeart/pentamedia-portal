@@ -41,8 +41,10 @@
 	<p>
       <input type="radio" name="tcha" value="cat" checked="checked"/>
       Or chose the cat: <br />
-      <input type="radio" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
-      <input type="radio" name="cat" value="B" /><img src="/cat/B?{{hash}}" />
+      <input type="checkbox" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
+      <input type="checkbox" name="cat" value="B" /><img src="/cat/B?{{hash}}" /><br />
+      <input type="checkbox" name="cat" value="C" /><img src="/cat/C?{{hash}}" />
+      <input type="checkbox" name="cat" value="D" /><img src="/cat/D?{{hash}}" />
        <label for="cat">Cattcha</label> (required)  </p>
 	<p>
 	  <label for="comment">Your Comment</label>
