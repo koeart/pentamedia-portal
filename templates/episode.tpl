@@ -27,7 +27,6 @@
 <form action="/{{site}}/{{episode.link}}/comment/new" method="post" id="new">
 <input type="hidden" name="hash" value="{{hash}}" />
 <input type="hidden" name="reply" value="{{reply}}" />
-<input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" style="position:absolute;margin-left:29em;" />
 	<p>
 	  <input type="text" name="author" id="author" class="textarea" value="" size="15" tabindex="1" />
 	   <label for="author">Name</label> (required)
@@ -52,6 +51,8 @@
 	  <textarea name="comment" style="border: 1px solid #000;" id="comment" cols="50" rows="6" tabindex="4">{{at_author}}</textarea>
 	  <br /><a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> enabled. (url autolinking included.)
 	</p>
+<input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" style="position:absolute;margin-left:29em;" />
+
 
 	</form>
 {% else %}
