@@ -28,29 +28,33 @@
 <input type="hidden" name="hash" value="{{hash}}" />
 <input type="hidden" name="reply" value="{{reply}}" />
 	<p>
+	   <label for="author">Name</label> (required)<br>
+
 	  <input type="text" name="author" id="author" class="textarea" value="" size="15" tabindex="1" />
-	   <label for="author">Name</label> (required)
-	</p>
+      
+     </p>
 
 	<p>
+<label for="sumtcha">Sumtcha</label> (required if catcha not checked)<br>
 	  <input type="radio" name="tcha" value="sum" />
 	  Enter the sum of {{a}}, {{b}} and {{c}}:
 	  <input type="text" name="sumtcha" id="sumtcha" value="" size="3" tabindex="2" />
-	   <label for="sumtcha">Sumtcha</label> (required)	</p>
+		</p>
 	<p>
+<label for="cat">Cattcha</label> (required if sumtcha not checked) <br>
       <input type="radio" name="tcha" value="cat" checked="checked"/>
-      Or chose the cat: <br />
+      Or checkz-ze-catz: <br />
       <input type="checkbox" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
       <input type="checkbox" name="cat" value="B" /><img src="/cat/B?{{hash}}" /><br />
       <input type="checkbox" name="cat" value="C" /><img src="/cat/C?{{hash}}" />
       <input type="checkbox" name="cat" value="D" /><img src="/cat/D?{{hash}}" />
-       <label for="cat">Cattcha</label> (required)  </p>
+  </p>
 	<p>
 	  <label for="comment">Your Comment</label>
 	<br />
 	  <textarea name="comment" style="border: 1px solid #000;" id="comment" cols="50" rows="6" tabindex="4">{{at_author}}</textarea>
 	  <br /><a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> enabled. (url autolinking included.)
-	</p>
+</p>
 <input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" style="position:absolute;margin-left:29em;" />
 
 
