@@ -2,6 +2,21 @@ Pentamedia Portal
 
 is written in python3.
 
+Websites:
+
+Project-Page: http://pentamedia.hq.c3d2.de
+Code: http://gitorious.hq.c3d2.de/pentamedia/
+Feature Requests, Bugs: https://wiki.c3d2.de/Pentamedia-Portal
+
+
+Related Websites:
+C3D2: https://c3d2.de
+Radio: https://c3d2.de/radio.html
+Podcast: https://c3d2.de/podcast.html
+Musik: https://c3d2.de/musik.html
+Pentasubmitter: http://pentamedia.c3d2.de/submit/
+
+
 === Dependencies
 
   Juno - light webframework (http://github.com/dodo/juno)
