@@ -20,11 +20,11 @@
 
   <body>
     <ul class="headlinks">
-      <li><a href="http://pentamedia.c3d2.de/submit/">Nachrichtendienst</a></li>
-      <li><a href="http://c3d2.de/muc.html">Chat</a></li>
-      <li><a href="http://twitter.com/pentaradio">@pentaradio</a></li>
+      <li><a href="http://pentamedia.c3d2.de/submit/">News Submitter</a></li>
       <li><a href="http://www.hq.c3d2.de/pentastats">Statistiken</a></li>
+      <li><a href="http://twitter.com/pentaradio">@pentaradio</a></li>
       <li><a href="http://c3d2.de">C3D2</a></li>
+      <li><a href="http://c3d2.de/muc.html">Chat</a></li>
     </ul>
     <h1><a title="Alles" href="/" style="border:none;color:transparent;z-index:42;"><img src="/img/pentamedia_text.png"></a></h1>
     <ul class="categories">
