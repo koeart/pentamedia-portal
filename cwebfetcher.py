@@ -49,7 +49,7 @@ def main():
         createbranch = "master" not in getoutput(git+"branch")
         if createbranch:
             print("* guessing error at initial fetch")
-            fulllog, old = False, 0
+            fulllog, old = False, ""
         else:
             fulllog, old = getstatusoutput(git+"log -1 --format=%h")
             fulllog = fulllog != 0
