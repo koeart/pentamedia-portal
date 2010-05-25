@@ -38,25 +38,33 @@ def main():
         os.system(git+"init")
         os.system(git+"remote add web git://194.77.75.60/c3d2-web/git.git")
         if os.system(git+"fetch web master") == 0:
+            os.system(git+"branch --track master FETCH_HEAD")
             print("* get filenames from log")
-            log = getoutput(git+"log --name-only --format=%n FETCH_HEAD")
+            log = getoutput(git+"log --name-only --format=%n")
         else:
             print("* an error occured during fetch")
             exit(1)
     else:
         print("* fetching updates")
-        fulllog, old = getstatusoutput(git+"log -1 --format=%h FETCH_HEAD")
-        fulllog = fulllog != 0
+        createbranch = "master" not in getoutput(git+"branch")
+        if createbranch:
+            print("* guessing error at initial fetch")
+            fulllog, old = False, 0
+        else:
+            fulllog, old = getstatusoutput(git+"log -1 --format=%h")
+            fulllog = fulllog != 0
         if not fulllog: print("* current revision is "+old)
         else: print("* no revisions available")
         if os.system(git+"fetch web master") != 0:
             print("* an error occured during fetch")
             exit(1)
-        new = getoutput(git+"log -1 --format=%h FETCH_HEAD")
-        if not fulllog: print("* fetched revision is "+old)
+        if createbranch: os.system(git+"branch --track master FETCH_HEAD")
+        os.system(git+"update-ref HEAD FETCH_HEAD")
+        new = getoutput(git+"log -1 --format=%h")
+        if not fulllog: print("* fetched revision is "+new)
         if old != new or fulllog:
             print("* get filenames from log")
-            if fulllog:log = getoutput(git+"log --name-only --format=%n FETCH_HEAD")
+            if fulllog:log = getoutput(git+"log --name-only --format=%n")
             else: log = getoutput(
                     "{0}log --name-only --format=%n {1}..{2}".\
                     format(git,old,new))
@@ -75,7 +83,7 @@ def main():
 
     if files:
         print("* load files from git")
-        os.system(git+"checkout --merge FETCH_HEAD -- "+" ".join(files))
+        os.system(git+"checkout --merge master -- "+" ".join(files))
     else:
         files = list(map(lambda fn:"content/news/"+fn, os.listdir("content/news/")))
 
