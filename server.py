@@ -177,42 +177,7 @@ def episode(web, site, id, cmnt):
     comments = Comment.find().filter_by(episode = episode.id).\
                  order_by(Comment.date).all()
   except: return redirect("/{0}".format(site))
-  replying, idcomments = {}, {}
-  for comment in list(comments):
-    comment.level, idcomments[comment.id] = 0, comment
-    r = comment.reply
-    if r != -1:
-      comments.remove(comment)
-      if not r in replying:
-        replying[r] = []
-      replying[r].append(comment)
-  level_replying = sum(replying.values(),[])
-  while replying: # ups .. what a crapy code
-    stash = []
-    for comment in comments:
-      stash.append(comment)
-      if comment.id in replying:
-        stash += replying[comment.id]
-        del replying[comment.id]
-    comments = stash
-  for reply in level_replying:
-    cur = reply
-    while cur.reply != -1:
-      reply.level += 1
-      cur = idcomments[cur.reply]
-  try:
-    reply = int(web['QUERY_STRING'])
-    author = find(Comment.author).filter_by(id = reply).one()[0]
-    author = "@{0} ".format(author)
-  except: reply, author = -1, ""
-  a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
-  hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
-  if cmnt:
-    cats = [ chr(65+i) for i in range(4) if randint(0, 1) ]
-    if not len(cats): cats = [chr(65+randint(0, 4))]
-    elif len(cats) == 4: cats.pop(randint(0, 4))
-    pics = list(range(16)); shuffle(pics); pics = pics[:4]
-    comment_hashes[hash] = (time(), a + b + c, cats, pics)
+  comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
   return template("episode.tpl",
                   #header_color = head_colors[site],
                   comment_form = cmnt is not None,
@@ -223,6 +188,28 @@ def episode(web, site, id, cmnt):
                   files        = files,
                   links        = links,
                   #sections     = sections[site],
+                  reply        = reply,
+                  at_author    = author,
+                  hash         = hash,
+                  a = a, b = b, c = c
+                 )
+
+
+@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)/comments(?P<cmnt>/(comment|reply))?")
+def comments(web, site, id, cmnt):
+  try: # FIXME wrap db queries into one
+    episode  = Episode.find().filter_by(link = id).one()
+    comments = Comment.find().filter_by(episode = episode.id).\
+                 order_by(Comment.date).all()
+  except: return template("comments.tpl", fail = True)
+  comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
+  return template("comments.tpl",
+                  #header_color = head_colors[site],
+                  comment_form = cmnt is not None,
+                  css          = "episode",
+                  episode      = episode,
+                  site         = site,
+                  comments     = comments,
                   reply        = reply,
                   at_author    = author,
                   hash         = hash,
@@ -256,6 +243,46 @@ def _parse_url(url):
         if not rest == "": rest = "/{0}".format(rest)
     if domain.startswith('www.'): domain = domain[4:]
     return (url, domain, rest)
+
+
+def do_the_comments(web, comments, mode):
+  replying, idcomments = {}, {}
+  for comment in list(comments):
+    comment.level, idcomments[comment.id] = 0, comment
+    r = comment.reply
+    if r != -1:
+      comments.remove(comment)
+      if not r in replying:
+        replying[r] = []
+      replying[r].append(comment)
+  level_replying = sum(replying.values(),[])
+  while replying: # ups .. what a crapy code
+    stash = []
+    for comment in comments:
+      stash.append(comment)
+      if comment.id in replying:
+        stash += replying[comment.id]
+        del replying[comment.id]
+    comments = stash
+  for reply in level_replying:
+    cur = reply
+    while cur.reply != -1:
+      reply.level += 1
+      cur = idcomments[cur.reply]
+  try:
+    reply = int(web['QUERY_STRING'])
+    author = find(Comment.author).filter_by(id = reply).one()[0]
+    author = "@{0} ".format(author)
+  except: reply, author = -1, ""
+  a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
+  hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
+  if mode:
+    cats = [ chr(65+i) for i in range(4) if randint(0, 1) ]
+    if not len(cats): cats = [chr(65+randint(0, 4))]
+    elif len(cats) == 4: cats.pop(randint(0, 4))
+    pics = list(range(16)); shuffle(pics); pics = pics[:4]
+    comment_hashes[hash] = (time(), a + b + c, cats, pics)
+  return comments, reply, author, hash, a, b, c
 
 # run
 
