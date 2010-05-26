@@ -202,27 +202,8 @@ def comments(web, site, id, cmnt):
     comments = Comment.find().filter_by(episode = episode.id).\
                  order_by(Comment.date).all()
   except: return template("comments.tpl", fail = True)
-  if cmnt is None: cmnt = ""
-  if len(cmnt): cmnt = cmnt[1:]
-  comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
-  if cmnt == "atom":
-    return template("atom.tpl",
-                    episode  = episode,
-                    site     = site,
-                    comments = comments
-                   )
-  return template("comments.tpl",
-                  #header_color = head_colors[site],
-                  comment_form = cmnt != "",
-                  css          = "episode",
-                  episode      = episode,
-                  site         = site,
-                  comments     = comments,
-                  reply        = reply,
-                  at_author    = author,
-                  hash         = hash,
-                  a = a, b = b, c = c
-                 )
+  return template_comments(web, site, episode, comments, cmnt)
+
 
 
 @route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>(/|\.)(comment|reply|atom))?")
@@ -237,27 +218,7 @@ def comments_by_filename(web, filename, cmnt):
     elif "music" in filename: site = "pentamusic"
     else: site = 42 / 0
   except: return template("comments.tpl", fail = True)
-  if cmnt is None: cmnt = ""
-  if len(cmnt): cmnt = cmnt[1:]
-  comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
-  if cmnt == "atom":
-    return template("atom.tpl",
-                    episode  = episode,
-                    site     = site,
-                    comments = comments
-                   )
-  return template("comments.tpl",
-                  #header_color = head_colors[site],
-                  comment_form = cmnt != "",
-                  css          = "episode",
-                  episode      = episode,
-                  site         = site,
-                  comments     = comments,
-                  reply        = reply,
-                  at_author    = author,
-                  hash         = hash,
-                  a = a, b = b, c = c
-                 )
+  return template_comments(web, site, episode, comments, cmnt)
 
 
 @route("/(?P<site>pentaradio|pentacast|pentamusic)/")
@@ -287,6 +248,29 @@ def _parse_url(url):
     if domain.startswith('www.'): domain = domain[4:]
     return (url, domain, rest)
 
+
+def template_comments(web, site, episode, comments, cmnt):
+  if cmnt is None: cmnt = ""
+  if len(cmnt): cmnt = cmnt[1:]
+  comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
+  if cmnt == "atom":
+    return template("atom.tpl",
+                    episode  = episode,
+                    site     = site,
+                    comments = comments
+                   )
+  return template("comments.tpl",
+                  #header_color = head_colors[site],
+                  comment_form = cmnt != "",
+                  css          = "episode",
+                  episode      = episode,
+                  site         = site,
+                  comments     = comments,
+                  reply        = reply,
+                  at_author    = author,
+                  hash         = hash,
+                  a = a, b = b, c = c
+                 )
 
 def do_the_comments(web, comments, mode):
   replying, idcomments = {}, {}
