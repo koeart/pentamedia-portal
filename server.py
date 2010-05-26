@@ -195,17 +195,25 @@ def episode(web, site, id, cmnt):
                  )
 
 
-@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)/comments(?P<cmnt>/(comment|reply))?")
+@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)/comments(?P<cmnt>(/|\.)(comment|reply|atom))?")
 def comments(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
     comments = Comment.find().filter_by(episode = episode.id).\
                  order_by(Comment.date).all()
   except: return template("comments.tpl", fail = True)
+  if cmnt is None: cmnt = ""
+  if len(cmnt): cmnt = cmnt[1:]
   comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
+  if cmnt == "atom":
+    return template("atom.tpl",
+                    episode  = episode,
+                    site     = site,
+                    comments = comments
+                   )
   return template("comments.tpl",
                   #header_color = head_colors[site],
-                  comment_form = cmnt is not None,
+                  comment_form = cmnt != "",
                   css          = "episode",
                   episode      = episode,
                   site         = site,
@@ -217,7 +225,7 @@ def comments(web, site, id, cmnt):
                  )
 
 
-@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>/(comment|reply))?")
+@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>(/|\.)(comment|reply|atom))?")
 def comments_by_filename(web, filename, cmnt):
   filename = "content/news/{0}.xml".format(filename)
   try: # FIXME wrap db queries into one
@@ -229,10 +237,18 @@ def comments_by_filename(web, filename, cmnt):
     elif "music" in filename: site = "pentamusic"
     else: site = 42 / 0
   except: return template("comments.tpl", fail = True)
+  if cmnt is None: cmnt = ""
+  if len(cmnt): cmnt = cmnt[1:]
   comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
+  if cmnt == "atom":
+    return template("atom.tpl",
+                    episode  = episode,
+                    site     = site,
+                    comments = comments
+                   )
   return template("comments.tpl",
                   #header_color = head_colors[site],
-                  comment_form = cmnt is not None,
+                  comment_form = cmnt != "",
                   css          = "episode",
                   episode      = episode,
                   site         = site,
@@ -303,7 +319,7 @@ def do_the_comments(web, comments, mode):
   except: reply, author = -1, ""
   a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
   hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
-  if mode:
+  if mode in ["comment", "reply"]:
     cats = [ chr(65+i) for i in range(4) if randint(0, 1) ]
     if not len(cats): cats = [chr(65+randint(0, 4))]
     elif len(cats) == 4: cats.pop(randint(0, 4))

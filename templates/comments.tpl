@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>pentamedia{{title|default("")}}</title>
+    <link href="/{{site}}/{{episode.link}}/comments.atom" type="application/atom+xml" rel="alternate" title="Comments Feed" />
     <link rel="SHORTCUT ICON" href="/img/c3d2.ico" type="image/x-icon">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 {% set csss = csss|default([]) %}
@@ -22,7 +23,8 @@
 <div class="content">
 {% block htmlcmts %}
 <div class="comments">
-<p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
+<p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}
+   <small> [ <a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a> ]</small></p>
 {% if not fail|d(False) %}
 {% for comment in comments %}
   <div class="comment"{% if comment.reply != -1 %} style="margin-left:{{comment.level}}em;border-left:4px solid #ddd;"{% endif %}>{{comment.text}}
@@ -30,7 +32,7 @@
     <small> added these pithy words on {{comment.fdate()}}</small>
   </div>
 {% endfor %}
-{% if comment_form %}
+{% if comment_form|d(False) %}
 <form action="/{{site}}/{{episode.link}}/comment/new" method="post" id="new">
 <input type="hidden" name="hash" value="{{hash}}" />
 <input type="hidden" name="reply" value="{{reply}}" />
