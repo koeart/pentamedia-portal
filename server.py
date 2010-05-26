@@ -233,7 +233,7 @@ def episode(web, site, id, cmnt):
 @route("/(?P<site>pentaradio|pentacast|pentamusic)/")
 def main(web, site):
   episodes = Episode.find().filter_by(category=site).\
-               order_by(Episode.date).limit(20).all()
+               order_by(Episode.date).all()
   episodes.reverse()
   # FIXME wrap db queries into one
   comments_count = [ Comment.find().filter_by(episode = e.id).count()
