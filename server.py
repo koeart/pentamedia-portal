@@ -217,6 +217,33 @@ def comments(web, site, id, cmnt):
                  )
 
 
+@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>/(comment|reply))?")
+def comments_by_filename(web, filename, cmnt):
+  filename = "content/news/{0}.xml".format(filename)
+  try: # FIXME wrap db queries into one
+    episode  = Episode.find().filter_by(filename = filename).one()
+    comments = Comment.find().filter_by(episode = episode.id).\
+                 order_by(Comment.date).all()
+    if   "radio" in filename: site = "pentaradio"
+    elif "cast"  in filename: site = "pentacast"
+    elif "music" in filename: site = "pentamusic"
+    else: site = 42 / 0
+  except: return template("comments.tpl", fail = True)
+  comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
+  return template("comments.tpl",
+                  #header_color = head_colors[site],
+                  comment_form = cmnt is not None,
+                  css          = "episode",
+                  episode      = episode,
+                  site         = site,
+                  comments     = comments,
+                  reply        = reply,
+                  at_author    = author,
+                  hash         = hash,
+                  a = a, b = b, c = c
+                 )
+
+
 @route("/(?P<site>pentaradio|pentacast|pentamusic)/")
 def main(web, site):
   episodes = Episode.find().filter_by(category=site).\
