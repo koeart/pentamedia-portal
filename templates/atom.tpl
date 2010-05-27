@@ -14,7 +14,7 @@
     <id>{{comment.id}}</id>
     <updated>{{comment.date}}</updated>
     <summary>{{comment.author}} added these pithy words on {{comment.fdate()}}</summary>
-    <content>{{comment.text}}</content>
+    <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">{{comment.text}}</div></content>
   </entry>
   {% endfor %}
 </feed>
