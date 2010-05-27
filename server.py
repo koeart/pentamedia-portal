@@ -162,7 +162,6 @@ def cat_image(web, typ):
       format(not iscat and "not" or "", nr))
 
 
-
 #@route(['radio/submitter', 'radio/submitter/:rest'])
 #def submitter_site(web, rest = ""):
 #  return subdirect(web, submitter, rest)
@@ -242,7 +241,6 @@ def main(web, site, mode):
     return template("atom.tpl",
                     title    = "Pentamedia-Portal // P{0} // Comments".format(site[1:]),
                     episodes = id_episodes,
-                    site     = site,
                     comments = comments
                    )
   comments_count = [ Comment.find().filter_by(episode = e.id).count()
@@ -254,6 +252,25 @@ def main(web, site, mode):
                   site        = site#,
                   #sections    = sections[site]
                  )
+
+
+@route("/comments(/|\.)(?P<mode>atom)")
+def all_comments(web, mode):
+  episodes = Episode.find().all()
+  comments = Comment.find().all()
+  # FIXME wrap db queries into one
+  if mode == "atom":
+    id_episodes = {}
+    for episode in episodes:
+      id_episodes[episode.id] = episode
+    comments.sort(key=lambda cmnt: cmnt.date)
+    comments.reverse()
+    return template("atom.tpl",
+                    title    = "Pentamedia-Portal // Comments",
+                    episodes = id_episodes,
+                    comments = comments
+                   )
+  return redirect("/")
 
 # helper
 
@@ -275,7 +292,6 @@ def template_comments(web, site, episode, comments, cmnt):
     return template("atom.tpl",
                     title    = "Pentamedia-Portal // {0} // Comments".format(episode.name),
                     episodes = {episode.id: episode},
-                    site     = site,
                     comments = comments
                    )
   return template("comments.tpl",
