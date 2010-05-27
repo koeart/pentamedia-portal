@@ -177,12 +177,15 @@ def episode(web, site, id, cmnt):
     comments = Comment.find().filter_by(episode = episode.id).\
                  order_by(Comment.date).all()
   except: return redirect("/{0}".format(site))
+  if cmnt is None: cmnt = ""
+  if len(cmnt): cmnt = cmnt[1:]
   comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
   return template("episode.tpl",
                   #header_color = head_colors[site],
-                  comment_form = cmnt is not None,
+                  comment_form = cmnt != "",
                   css          = "episode",
                   episode      = episode,
+                  episodes     = {episode.id: episode},
                   site         = site,
                   comments     = comments,
                   files        = files,
@@ -221,12 +224,27 @@ def comments_by_filename(web, filename, cmnt):
   return template_comments(web, site, episode, comments, cmnt)
 
 
-@route("/(?P<site>pentaradio|pentacast|pentamusic)/")
-def main(web, site):
+@route("/(?P<site>pentaradio|pentacast|pentamusic)(?P<mode>/comments(/|\.)atom)?")
+def main(web, site, mode):
+  if mode is None: mode = ""
+  if len(mode): mode = mode[10:]
   episodes = Episode.find().filter_by(category=site).\
                order_by(Episode.date).all()
   episodes.reverse()
   # FIXME wrap db queries into one
+  if mode == "atom":
+    comments, id_episodes = [], {}
+    for episode in episodes:
+      comments.extend(Comment.find().filter_by(episode = episode.id).all())
+      id_episodes[episode.id] = episode
+    comments.sort(key=lambda cmnt: cmnt.date)
+    comments.reverse()
+    return template("atom.tpl",
+                    title    = "Pentamedia-Portal // P{0} // Comments".format(site[1:]),
+                    episodes = id_episodes,
+                    site     = site,
+                    comments = comments
+                   )
   comments_count = [ Comment.find().filter_by(episode = e.id).count()
                      for e in episodes ]
   return template("episodes.tpl",
@@ -255,7 +273,8 @@ def template_comments(web, site, episode, comments, cmnt):
   comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
   if cmnt == "atom":
     return template("atom.tpl",
-                    episode  = episode,
+                    title    = "Pentamedia-Portal // {0} // Comments".format(episode.name),
+                    episodes = {episode.id: episode},
                     site     = site,
                     comments = comments
                    )
