@@ -5,7 +5,7 @@
   </author>
   <title>{{title}}</title>
   <id>averyuniqid:D</id>
-  {% if comments|d([]) != [] %}<updated>comments[-1].date</updated>{% endif %}
+  {% if comments|d([]) != [] %}<updated>{{comments[-1].date}}</updated>{% endif %}
 
   {% for comment in comments|d([]) %}
   <entry>
