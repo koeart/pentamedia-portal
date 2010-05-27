@@ -16,5 +16,7 @@
 </div>
 {% endfor %}
 
+<div style="position:absolute;right:3px;"><small><a href="/{{site}}/comments.atom">Atom</a></small></div>
+
 {% endblock %}
 

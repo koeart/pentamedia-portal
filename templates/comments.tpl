@@ -23,8 +23,7 @@
 <div class="content">
 {% block htmlcmts %}
 <div class="comments">
-<p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}
-   <small> [ <a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a> ]</small></p>
+<p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
 {% if not fail|d(False) %}
 {% for comment in comments %}
   <div class="comment"{% if comment.reply != -1 %} style="margin-left:{{comment.level}}em;border-left:4px solid #ddd;"{% endif %}>{{comment.text}}

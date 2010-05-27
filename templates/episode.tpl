@@ -51,4 +51,6 @@
 	      </ul>
       </div>{% endif %}
 
+<div style="position:absolute;right:3px;"><small><a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a></small></div>
+
 {% endblock %}

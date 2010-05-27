@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>pentamedia{{title|default("")}}</title>
-    {% if episode is defined %}<link href="/{{site}}/{{episode.link}}/comments.atom" type="application/atom+xml" rel="alternate" title="Comments Feed" />{% endif %}
+    <link href="/{{site}}/{% if episode is defined %}{{episode.link}}/{% endif %}comments.atom" type="application/atom+xml" rel="alternate" title="Comments Feed" />
     <link rel="SHORTCUT ICON" href="/img/c3d2.ico" type="image/x-icon">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 {% set csss = csss|default([]) %}

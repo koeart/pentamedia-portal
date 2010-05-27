@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de">
   <head>
     <title>pentamedia{{title|default("")}}</title>
+    <link href="/comments.atom" type="application/atom+xml" rel="alternate" title="Comments Feed" />
     <link rel="SHORTCUT ICON" href="/img/c3d2.ico" type="image/x-icon">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 {% set csss = csss|default([]) %}
@@ -16,12 +17,12 @@
 {% endfor %}
   </head>
   <body>
-  
+
     <div id="Container">
         <div id="Splash">
-   
-<div id="logo"><a href="/" alt="Pentamedia"><img src="/img/pentamedia_text.png" alt="Pentamedia" /></a></div> 
-       
+
+<div id="logo"><a href="/" alt="Pentamedia"><img src="/img/pentamedia_text.png" alt="Pentamedia" /></a></div>
+
 <div class="pentastar">
 {% for episode in episodes.pentaradio %}<div class="file"><a href="/pentaradio/{{episode.link}}">{{episode.name}}</div>{% endfor %}
 <div class="title"><a href="/pentaradio" alt="Pentaradio"><img src="/img/pentaradio_text.png" alt="Pentaradio" /></a></div>
@@ -36,9 +37,11 @@
 <div class="title"><a href="/pentamusic" alt="Pentamusic"><img src="/img/pentamusic_text.png" alt="Pentamusic" /></a></div>
 
 </div>
-        
+
         </div>
     </div>
-  
+
+<div style="position:absolute;right:3px;bottom:3px;"><small><a href="/comments.atom">Atom</a></small></div>
+
   </body>
 </html>
