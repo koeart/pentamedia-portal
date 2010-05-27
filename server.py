@@ -167,7 +167,7 @@ def cat_image(web, typ):
 #  return subdirect(web, submitter, rest)
 
 
-@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)(?P<cmnt>/(comment|reply))?")
+@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>([^/](?!atom))*)(?P<cmnt>/(comment|reply))?")
 def episode(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
