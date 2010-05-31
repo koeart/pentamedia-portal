@@ -168,7 +168,7 @@ def cat_image(web, typ):
 #  return subdirect(web, submitter, rest)
 
 
-@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>([^/](?!atom))*)(?P<cmnt>/(comment|reply))?")
+@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>([^/](?!(atom|json)))*)(?P<cmnt>/(comment|reply))?")
 def episode(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
@@ -198,7 +198,7 @@ def episode(web, site, id, cmnt):
                  )
 
 
-@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)/comments(?P<cmnt>(/|\.)(comment|reply|atom))?")
+@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)/comments(?P<cmnt>(/|\.)(comment|reply|atom|json))?")
 def comments(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
@@ -207,24 +207,8 @@ def comments(web, site, id, cmnt):
   except: return template("comments.tpl", fail = True)
   return template_comments(web, site, episode, comments, cmnt)
 
-@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments.json")
-def comments_by_filename_json(web, filename):
-  filename = "content/news/{0}.xml".format(filename)
-  episode  = Episode.find().filter_by(filename = filename).one()
-  comments = Comment.find().filter_by(episode = episode.id).\
-             order_by(Comment.date).all()
-  value = json.dumps({ "comments": [comment_to_json(comment) for comment in comments],
-                       "new_link": "/" + episode.category + "/" + episode.link + "/comment#new"})
-  if web.input('jsonp'):
-    value = web.input('jsonp') + "(" + value + ");\n"
-  return value
 
-def comment_to_json(comment):
-  return { "author": comment.author,
-           "date": comment.fdate(),
-           "text": comment.text }
-
-@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>(/|\.)(comment|reply|atom))?")
+@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>(/|\.)(comment|reply|atom|json))?")
 def comments_by_filename(web, filename, cmnt):
   filename = "content/news/{0}.xml".format(filename)
   try: # FIXME wrap db queries into one
@@ -239,7 +223,7 @@ def comments_by_filename(web, filename, cmnt):
   return template_comments(web, site, episode, comments, cmnt)
 
 
-@route("/(?P<site>pentaradio|pentacast|pentamusic)(?P<mode>/comments(/|\.)atom)?")
+@route("/(?P<site>pentaradio|pentacast|pentamusic)(?P<mode>/comments(/|\.)(atom|json))?")
 def main(web, site, mode):
   if mode is None: mode = ""
   if len(mode): mode = mode[10:]
@@ -247,18 +231,25 @@ def main(web, site, mode):
                order_by(Episode.date).all()
   episodes.reverse()
   # FIXME wrap db queries into one
-  if mode == "atom":
+  if mode in ["atom","json"]:
     comments, id_episodes = [], {}
     for episode in episodes:
       comments.extend(Comment.find().filter_by(episode = episode.id).all())
       id_episodes[episode.id] = episode
     comments.sort(key=lambda cmnt: cmnt.date)
     comments.reverse()
-    return template("atom.tpl",
+    if mode == "atom":
+      return template("atom.tpl",
                     title    = "Pentamedia-Portal // P{0} // Comments".format(site[1:]),
                     episodes = id_episodes,
                     comments = comments
                    )
+    elif mode == "json":
+      value = json.dumps({ "comments": [comment_to_json(comment) for comment in comments],
+                           "new_link": "/" + episode.category + "/" + episode.link + "/comment#new"})
+      if web.input('jsonp'):
+        value = web.input('jsonp') + "(" + value + ");\n"
+      return value
   comments_count = [ Comment.find().filter_by(episode = e.id).count()
                      for e in episodes ]
   return template("episodes.tpl",
@@ -270,7 +261,7 @@ def main(web, site, mode):
                  )
 
 
-@route("/comments[/\.](?P<mode>atom|json)")
+@route("/comments[/\.](?P<mode>(atom|json))")
 def all_comments(web, mode):
   # FIXME wrap db queries into one
   episodes = Episode.find().all()
@@ -290,7 +281,7 @@ def all_comments(web, mode):
     comments = {}
     for episode in episodes:
       label = episode.filename.split("/").pop()
-      comments[label] = len(Comment.find().filter(Comment.episode == episode.id).all())
+      comments[label] = len(Comment.find().filter_by(episode = episode.id).all())
     value = json.dumps(comments)
     if web.input('jsonp'):
       value = web.input('jsonp') + "(" + value + ");\n"
@@ -310,6 +301,12 @@ def _parse_url(url):
     return (url, domain, rest)
 
 
+def comment_to_json(comment):
+  return { "author": comment.author,
+           "date": comment.fdate(),
+           "text": comment.text }
+
+
 def template_comments(web, site, episode, comments, cmnt):
   if cmnt is None: cmnt = ""
   if len(cmnt): cmnt = cmnt[1:]
@@ -320,6 +317,12 @@ def template_comments(web, site, episode, comments, cmnt):
                     episodes = {episode.id: episode},
                     comments = comments
                    )
+  elif cmnt == "json":
+    value = json.dumps({ "comments": [comment_to_json(comment) for comment in comments],
+                         "new_link": "/" + episode.category + "/" + episode.link + "/comment#new"})
+    if web.input('jsonp'):
+      value = web.input('jsonp') + "(" + value + ");\n"
+    return value
   return template("comments.tpl",
                   #header_color = head_colors[site],
                   comment_form = cmnt != "",
