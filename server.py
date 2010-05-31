@@ -10,6 +10,7 @@ from datetime import datetime # year, month, day, hour=0, minute=0, second=0, mi
 from juno import init, redirect, route, run, model, post, template, find, \
                   get, yield_file#, \
 #                 open_nutshell, close_nutshell, getHub, subdirect
+import json
 
 # init
 
@@ -254,12 +255,12 @@ def main(web, site, mode):
                  )
 
 
-@route("/comments(/|\.)(?P<mode>atom)")
+@route("/comments[/\.](?P<mode>atom|json)")
 def all_comments(web, mode):
-  episodes = Episode.find().all()
-  comments = Comment.find().all()
   # FIXME wrap db queries into one
+  episodes = Episode.find().all()
   if mode == "atom":
+    comments = Comment.find().all()
     id_episodes = {}
     for episode in episodes:
       id_episodes[episode.id] = episode
@@ -270,7 +271,17 @@ def all_comments(web, mode):
                     episodes = id_episodes,
                     comments = comments
                    )
-  return redirect("/")
+  elif mode == "json":
+    comments = {}
+    for episode in episodes:
+      label = episode.filename.split("/").pop()
+      comments[label] = len(Comment.find().filter(Comment.episode == episode.id).all())
+    value = json.dumps(comments)
+    if web.input('jsonp'):
+      value = web.input('jsonp') + "(" + value + ");\n"
+    return value
+  else:
+    return redirect("/")
 
 # helper
 
