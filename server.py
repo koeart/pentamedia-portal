@@ -207,7 +207,22 @@ def comments(web, site, id, cmnt):
   except: return template("comments.tpl", fail = True)
   return template_comments(web, site, episode, comments, cmnt)
 
+@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments.json")
+def comments_by_filename_json(web, filename):
+  filename = "content/news/{0}.xml".format(filename)
+  episode  = Episode.find().filter_by(filename = filename).one()
+  comments = Comment.find().filter_by(episode = episode.id).\
+             order_by(Comment.date).all()
+  value = json.dumps({ "comments": [comment_to_json(comment) for comment in comments],
+                       "new_link": "/" + episode.category + "/" + episode.link + "/comment#new"})
+  if web.input('jsonp'):
+    value = web.input('jsonp') + "(" + value + ");\n"
+  return value
 
+def comment_to_json(comment):
+  return { "author": comment.author,
+           "date": comment.fdate(),
+           "text": comment.text }
 
 @route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>(/|\.)(comment|reply|atom))?")
 def comments_by_filename(web, filename, cmnt):
