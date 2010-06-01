@@ -344,6 +344,15 @@ def template_comments(web, site, episode, comments, cmnt):
     return value
   return template("comments.tpl",
                   #header_color = head_colors[site],
+                  comment_form = cmnt != "",
+                  css          = "episode",
+                  episode      = episode,
+                  site         = site,
+                  comments     = comments,
+                  reply        = reply,
+                  at_author    = author,
+                  hash         = hash,
+                  a = a, b = b, c = c
                  )
 
 def do_the_comments(web, comments, mode):
