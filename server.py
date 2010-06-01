@@ -261,33 +261,39 @@ def main(web, site, mode):
                  )
 
 
-@route("/comments[/\.](?P<mode>(atom|json))")
+@route("/comments[/.](?P<mode>(atom|json))")
 def all_comments(web, mode):
   # FIXME wrap db queries into one
   episodes = Episode.find().all()
+  comments = Comment.find().all()
+  comments.sort(key=lambda cmnt: cmnt.date)
+  comments.reverse()
   if mode == "atom":
-    comments = Comment.find().all()
     id_episodes = {}
     for episode in episodes:
       id_episodes[episode.id] = episode
-    comments.sort(key=lambda cmnt: cmnt.date)
-    comments.reverse()
     return template("atom.tpl",
                     title    = "Pentamedia-Portal // Comments",
                     episodes = id_episodes,
                     comments = comments
                    )
   elif mode == "json":
-    comments = {}
-    for episode in episodes:
-      label = episode.filename.split("/").pop()
-      comments[label] = len(Comment.find().filter_by(episode = episode.id).all())
-    value = json.dumps(comments)
-    if web.input('jsonp'):
-      value = web.input('jsonp') + "(" + value + ");\n"
-    return value
+    return json.dumps(list(map(comment_to_json, comments)))
   else:
     return redirect("/")
+
+
+@route("/comments/count[/.]json")
+def all_comments_counts(web):
+  episodes = Episode.find().all()
+  comments = {}
+  for episode in episodes:
+    label = episode.filename.split("/").pop()
+    comments[label] = len(Comment.find().filter_by(episode = episode.id).all())
+  value = json.dumps(comments)
+  if web.input('jsonp'):
+    value = web.input('jsonp') + "(" + value + ");\n"
+  return value
 
 # helper
 
@@ -318,7 +324,7 @@ def template_comments(web, site, episode, comments, cmnt):
                     comments = comments
                    )
   elif cmnt == "json":
-    value = json.dumps({ "comments": [comment_to_json(comment) for comment in comments],
+    value = json.dumps({ "comments": list(map(comment_to_json,comments)),
                          "new_link": "/" + episode.category + "/" + episode.link + "/comment#new"})
     if web.input('jsonp'):
       value = web.input('jsonp') + "(" + value + ");\n"
