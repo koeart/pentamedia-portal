@@ -324,6 +324,19 @@ def template_comments(web, site, episode, comments, cmnt):
                     comments = comments
                    )
   elif cmnt == "json":
+    if web.input("html"):
+      html = template("comments.inner_html.tpl",
+                      comment_form = cmnt != "",
+                      css          = "episode",
+                      episode      = episode,
+                      site         = site,
+                      comments     = comments,
+                      reply        = reply,
+                      at_author    = author,
+                      hash         = hash,
+                      a = a, b = b, c = c
+                     )
+      return json.dumps({"html": html.body})
     value = json.dumps({ "comments": list(map(comment_to_json,comments)),
                          "new_link": "/" + episode.category + "/" + episode.link + "/comment#new"})
     if web.input('jsonp'):
@@ -331,15 +344,6 @@ def template_comments(web, site, episode, comments, cmnt):
     return value
   return template("comments.tpl",
                   #header_color = head_colors[site],
-                  comment_form = cmnt != "",
-                  css          = "episode",
-                  episode      = episode,
-                  site         = site,
-                  comments     = comments,
-                  reply        = reply,
-                  at_author    = author,
-                  hash         = hash,
-                  a = a, b = b, c = c
                  )
 
 def do_the_comments(web, comments, mode):
