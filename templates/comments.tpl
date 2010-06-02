@@ -29,7 +29,7 @@
 {% if not fail|d(False) %}
 {% for comment in comments %}
   <div class="comment"{% if comment.reply != -1 %} style="margin-left:{{comment.level}}em;border-left:4px solid #ddd;"{% endif %}>{{comment.text}}
-    <small class="author"><a href="/{{site}}/{{episode.link}}{{''|d('/comments',isjson|d(False))}}/reply{{''|d('.json',isjson|d(False))}}?{{comment.id}}#new" class="line">{{comment.author|trim|e}}</a></small>
+    <small class="author"><a href="/{{site}}/{{episode.link}}{{''|d('/comments',isjson|d(False))}}/reply?{{comment.id}}#new" class="line">{{comment.author|trim|e}}</a></small>
     <small> added these pithy words on {{comment.fdate()}}</small>
   </div>
 {% endfor %}
@@ -70,7 +70,7 @@
 
     </form>
 {% else %}
-<a href="/{{site}}/{{episode.link}}{{''|d('/comments',isjson|d(False))}}/comment{{'#new'|d('.json',isjson|d(False))}}" class="add_comment">new Comment …</a>
+{% if isjson is not defined %}<a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment …</a>{% endif %}
 {% endif %}
 {% endif %}
 </div>

@@ -339,7 +339,9 @@ def template_comments(web, site, episode, comments, cmnt):
                       hash         = hash,
                       a = a, b = b, c = c
                      )
-      value = json.dumps({"html": html.body})
+      value = json.dumps({"html"    : html.body,
+                          "new_link": "/{0}/{1}/comments/comment#new".format(site, episode.link)
+                         })
     else:
       value = json.dumps({ "comments": list(map(comment_to_json,comments)),
                          "new_link": "/" + episode.category + "/" + episode.link + "/comment#new"})
