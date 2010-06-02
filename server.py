@@ -102,8 +102,8 @@ def start(web): # FIXME wrap db queries into one
                  )
 
 
-@post("/(?P<site>pentaradio|pentacast|pentamusic)/:id/comment/new")
-def new_comment(web, site, id):
+@post("/(?P<site>pentaradio|pentacast|pentamusic)/:id/comment/new(?P<isjson>\.json)?")
+def new_comment(web, site, id, isjson):
   try:    episode = Episode.find().filter_by(link = id).one()
   except: return redirect("/{0}".format(site))
   found, hash, now = False, web.input('hash'), time()
@@ -149,7 +149,9 @@ def new_comment(web, site, id):
             text    = text,
             date    = datetime.now()
            ).save()
-  return redirect("/{0}/{1}".format(site,id))
+  if isjson is None: isjson = ""
+  else: isjson = ".json?html=1"
+  return redirect("/{0}/{1}{2}".format(site,id,isjson))
 
 
 @get("/cat/(?P<typ>[A-Z])")
