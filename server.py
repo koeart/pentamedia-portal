@@ -198,7 +198,7 @@ def episode(web, site, id, cmnt):
                  )
 
 
-@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)/comments(?P<cmnt>(/|\.)(comment|reply|atom|json))?")
+@route("/(?P<site>pentaradio|pentacast|pentamusic)/(?P<id>[^/]*)/comments(?P<cmnt>(/|\.)(comment|reply|atom|((comment|reply)[/.])?json))?")
 def comments(web, site, id, cmnt):
   try: # FIXME wrap db queries into one
     episode  = Episode.find().filter_by(link = id).one()
@@ -208,7 +208,7 @@ def comments(web, site, id, cmnt):
   return template_comments(web, site, episode, comments, cmnt)
 
 
-@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>(/|\.)(comment|reply|atom|json))?")
+@route("/(?P<filename>(pentaradio24|pentacast|pentamusic)-.*)/comments(?P<cmnt>(/|\.)(comment|reply|atom|((comment|reply)[/.])?json))?")
 def comments_by_filename(web, filename, cmnt):
   filename = "content/news/{0}.xml".format(filename)
   try: # FIXME wrap db queries into one
@@ -323,10 +323,11 @@ def template_comments(web, site, episode, comments, cmnt):
                     episodes = {episode.id: episode},
                     comments = comments
                    )
-  elif cmnt == "json":
+  elif cmnt in ["json","comment.json","comment/json"]:
     if web.input("html"):
       html = template("comments.inner_html.tpl",
-                      comment_form = cmnt != "",
+                      comment_form = cmnt != "json",
+                      isjson       = True,
                       css          = "episode",
                       episode      = episode,
                       site         = site,
@@ -387,7 +388,7 @@ def do_the_comments(web, comments, mode):
   except: reply, author = -1, ""
   a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
   hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
-  if mode in ["comment", "reply"]:
+  if mode.startswith("comment") or mode.startswith("reply"):
     cats = [ chr(65+i) for i in range(4) if randint(0, 1) ]
     if not len(cats): cats = [chr(65+randint(0, 4))]
     elif len(cats) == 4: cats.pop(randint(0, 4))
