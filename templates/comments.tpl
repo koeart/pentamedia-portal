@@ -70,7 +70,7 @@
 
     </form>
 {% else %}
-<a href="/{{site}}/{{episode.link}}/comment{{''|d('.json',defined(isjson))}}#new" class="add_comment">new Comment …</a>
+<a href="/{{site}}/{{episode.link}}/comment{{''|d('.json',isjson|d(False))}}#new" class="add_comment">new Comment …</a>
 {% endif %}
 {% endif %}
 </div>
