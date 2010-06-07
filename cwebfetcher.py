@@ -17,11 +17,23 @@ init({'use_db':          True,
       'db_location':     "db.sqlite"
      })
 
-from db import *
+from db import File, Link, Episode, Comment
 
 
 re_news = re.compile(r"(?P<file>content/news/penta(cast|music|radio).*\.xml)")
-git = "git --git-dir=cweb.git --work-tree=. "
+gitcmd = "git --git-dir=cweb.git --work-tree=. "
+
+
+def git(options, verbose=0):
+    if   verbose == 0: # state
+        return os.system(gitcmd + options)
+    elif verbose == 1: # output
+        return getoutput(gitcmd + options)
+    elif verbose == 2: # status & output
+        return getstatusoutput(gitcmd + options)
+    else:
+        print("U doing it wrong.")
+
 
 def main():
     log = ""
@@ -35,39 +47,38 @@ def main():
     if not os.path.exists("cweb.git"):
         print("* no c3d2-web git repository found")
         os.mkdir("cweb.git")
-        os.system(git+"init")
-        os.system(git+"remote add web git://194.77.75.60/c3d2-web/git.git")
-        if os.system(git+"fetch web master") == 0:
-            os.system(git+"branch --track master FETCH_HEAD")
+        git("init")
+        git("remote add web git://194.77.75.60/c3d2-web/git.git")
+        if git("fetch web master") == 0:
+            git("branch --track master FETCH_HEAD")
             print("* get filenames from log")
-            log = getoutput(git+"log --name-only --format=%n")
+            log = git("log --name-only --format=%n",1)
         else:
             print("* an error occured during fetch")
             exit(1)
     else:
         print("* fetching updates")
-        createbranch = "master" not in getoutput(git+"branch")
+        createbranch = "master" not in git("branch",1)
         if createbranch:
             print("* guessing error at initial fetch")
             fulllog, old = False, ""
         else:
-            fulllog, old = getstatusoutput(git+"log -1 --format=%h")
+            fulllog, old = git("log -1 --format=%h",2)
             fulllog = fulllog != 0
-        if not fulllog: print("* current revision is "+old)
+        if not fulllog: print("* current revision is",old)
         else: print("* no revisions available")
-        if os.system(git+"fetch web master") != 0:
+        if git("fetch web master") != 0:
             print("* an error occured during fetch")
             exit(1)
-        if createbranch: os.system(git+"branch --track master FETCH_HEAD")
-        os.system(git+"update-ref HEAD FETCH_HEAD")
-        new = getoutput(git+"log -1 --format=%h")
-        if not fulllog: print("* fetched revision is "+new)
+        if createbranch: git("branch --track master FETCH_HEAD")
+        git("update-ref HEAD FETCH_HEAD")
+        new = git("log -1 --format=%h",1)
+        if not fulllog: print("* fetched revision is",new)
         if old != new or fulllog:
             print("* get filenames from log")
-            if fulllog:log = getoutput(git+"log --name-only --format=%n")
-            else: log = getoutput(
-                    "{0}log --name-only --format=%n {1}..{2}".\
-                    format(git,old,new))
+            if fulllog:log = git("log --name-only --format=%n",1)
+            else: log = git("log --name-only --format=%n {1}..{2}".\
+                            format(old,new),1)
         else:
             print("* no new updates")
             if not update_all: exit()
@@ -83,21 +94,21 @@ def main():
 
     if files:
         print("* load files from git")
-        os.system(git+"checkout --merge master -- "+" ".join(files))
+        git("checkout --merge master -- "+" ".join(files))
     else:
         files = list(map(lambda fn:"content/news/"+fn, os.listdir("content/news/")))
 
     for filename in files:
         if debug:
-            print("* try to add to db:  "+filename)
+            print("* try to add to db: ",filename)
             data = load_file(filename)
         else:
             try:
                 data = load_file(filename)
-                print("* add to db:  "+filename)
+                print("* add to db: ",filename)
             except:
                 data = None
-                print("\033[31m* errör during parsing:  "+filename+"\033[m")
+                print("\033[31m* errör during parsing: ",filename,"\033[m")
         if data:
             try:
                 old = Episode.find().filter_by(filename = filename).one()
