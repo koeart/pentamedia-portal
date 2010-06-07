@@ -50,7 +50,7 @@ def episode(web, site, id, cmnt):
         links    = Link.find().filter_by(episode = episode.id).all()
         comments = Comment.find().filter_by(episode = episode.id).\
                    order_by(Comment.date).all()
-    except: return redirect("/{0}".format(site)) # FIXME impl error
+    except: return notfound("Episode not found.")
     if cmnt is None: cmnt = ""
     if len(cmnt): cmnt = cmnt[1:]
     comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
@@ -91,7 +91,7 @@ def comments(web, site, id, mode):
         episode  = Episode.find().filter_by(link = id).one()
         comments = Comment.find().filter_by(episode = episode.id).\
                    order_by(Comment.date).all()
-    except: return template("comments.tpl", fail = True) # FIXME impl error
+    except: return notfound("Episode not found.")
     return template_comments(web, site, episode, comments, mode)
 
 
@@ -106,7 +106,7 @@ def comments_by_filename(web, filename, mode):
         elif "cast"  in filename: site = "pentacast"
         elif "music" in filename: site = "pentamusic"
         else: site = 42 / 0
-    except: return template("comments.tpl", fail = True) # FIXME impl error
+    except: return notfound("Episode not found.")
     return template_comments(web, site, episode, comments, mode)
 
 

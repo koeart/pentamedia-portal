@@ -1,6 +1,6 @@
 
 import json
-from juno import route, redirect, template, header, append
+from juno import route, redirect, template, header, append, notfound
 
 from inc.db import File, Link, Episode, Comment
 from inc.helper import build_comment_tree
@@ -25,7 +25,7 @@ def feed_all_comments(web, mode):
     elif mode == "json":
         return template_json(web, list(map(comment_to_json, comments)))
     else:
-        return redirect("/") # FIXME impl error
+        return notfound("Type not supported.")
 
 
 @route("/comments/count[/.]json")
@@ -62,7 +62,7 @@ def feed_comments_by_category(web, site, mode):
             "new_link": "/{0}/{1}/comment#new".format(episode.category,episode.link)
                                   })
     else:
-        return redirect("/") # FIXME impl error
+        return  notfound("Type not supported.")
 
 
 @route("/(?P<site>penta(radio|cast|music))/(?P<id>[^/]*)/comments[/.](?P<mode>(atom|json))")
@@ -71,7 +71,7 @@ def feed_comments_by_slug(web, site, id, mode):
         episode  = Episode.find().filter_by(link = id).one()
         comments = Comment.find().filter_by(episode = episode.id).\
                     order_by(Comment.date).all()
-    except: return template("comments.tpl", fail = True) # FIXME impl error
+    except: return notfound("Episode not found.")
     return comments_per_episode(web, episode, comments, site, mode)
 
 
@@ -86,7 +86,7 @@ def feed_comments_by_filename(web, filename, mode):
         elif "cast"  in filename: site = "pentacast"
         elif "music" in filename: site = "pentamusic"
         else: site = 42 / 0
-    except: return template("comments.tpl", fail = True) # FIXME impl error
+    except: return notfound("Episode not found.")
     return comments_per_episode(web, episode, comments, site, mode)
 
 # helper
@@ -116,7 +116,7 @@ def comments_per_episode(web, episode, comments, site, mode):
             "new_link": "/{0}/{1}/comments/comment#new".format(episode.category, episode.link)
                             })
     else:
-        return redirect("/") # FIXME impl error
+        return notfound("Type not supported.")
 
 
 def comment_to_json(comment):
