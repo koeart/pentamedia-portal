@@ -27,6 +27,17 @@
 <div class="comments">
 <p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
 {% if not fail|d(False) %}
+{% if isjson|d(False) %}
+<style type="text/css">
+.comment a {
+  border: none;
+  color: #555555;
+}
+.comment a:hover { text-decoration: none; }
+.comment a:hover .line { text-decoration: underline; }
+.comment .line:hover { text-decoration: underline; }
+</style>
+{%endif%}
 {% for comment in comments %}
   <div class="comment" style="border:none;background:none{% if comment.reply != -1 %};margin-left:{{comment.level}}em;border-left:4px solid #ddd{% endif %};">{{comment.text}}
     <small class="author"><a href="/{{site}}/{{episode.link}}{{''|d('/comments',isjson|d(False))}}/reply?{{comment.id}}#new" class="line">{{comment.author|trim|e}}</a></small>
