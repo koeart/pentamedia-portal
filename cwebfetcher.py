@@ -10,14 +10,14 @@ import re
 import os
 import os.path as ospath
 from subprocess import getoutput, getstatusoutput
-from cweb2pmp import load_file
+from inc.cwebparser import load_file
 from juno import init, session
 
 init({'use_db':          True,
       'db_location':     "db.sqlite"
      })
 
-from db import File, Link, Episode, Comment
+from inc.db import File, Link, Episode, Comment
 
 
 re_news = re.compile(r"(?P<file>content/news/penta(cast|music|radio).*\.xml)")

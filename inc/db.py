@@ -10,11 +10,13 @@ File = model('File',
              type    = 'string',
              link    = 'string'
             )
+
 Link = model('Link',
              episode = 'integer',
              title   = 'string',
              url     = 'string'
             )
+
 Episode = model('Episode',
                 filename = 'string',
                 name     = 'string',
@@ -26,6 +28,7 @@ Episode = model('Episode',
                 short    = 'text',
                 long     = 'text'
                )
+
 Comment = model('Comment',
                 episode = 'integer',
                 author  = 'string',
@@ -37,7 +40,6 @@ Comment = model('Comment',
 
 # helper
 
-
 def _fdate(date:datetime):
-  return date.strftime("%A, %d. %B %Y um %H:%M")
+    return date.strftime("%A, %d. %B %Y um %H:%M")
 
