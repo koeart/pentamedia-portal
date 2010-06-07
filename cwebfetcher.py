@@ -77,7 +77,7 @@ def main():
         if old != new or fulllog:
             print("* get filenames from log")
             if fulllog:log = git("log --name-only --format=%n",1)
-            else: log = git("log --name-only --format=%n {1}..{2}".\
+            else: log = git("log --name-only --format=%n {0}..{1}".\
                             format(old,new),1)
         else:
             print("* no new updates")
