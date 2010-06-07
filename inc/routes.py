@@ -42,8 +42,8 @@ def cat_image(web, typ):
         format(not iscat and "not" or "", nr))
 
 
-@route("/(?P<site>penta(radio|cast|music))/(?P<id>([^/](?!(atom|json)))*)(?P<cmnt>/(comment|reply))?")
-def episode(web, site, id, cmnt):
+@route("/(?P<site>penta(radio|cast|music))/(?P<id>([^/](?!(atom|json)))*)(?P<mode>/(comment|reply))?")
+def episode(web, site, id, mode):
     try: # FIXME wrap db queries into one
         episode  = Episode.find().filter_by(link = id).one()
         files    = File.find().filter_by(episode = episode.id).all()
@@ -51,11 +51,11 @@ def episode(web, site, id, cmnt):
         comments = Comment.find().filter_by(episode = episode.id).\
                    order_by(Comment.date).all()
     except: return notfound("Episode not found.")
-    if cmnt is None: cmnt = ""
-    if len(cmnt): cmnt = cmnt[1:]
-    comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
+    if mode is None: mode = ""
+    if len(mode): mode = mode[1:]
+    comments, reply, author, hash, a, b, c = do_the_comments(web, comments, mode)
     return template("episode.tpl",
-                    comment_form = cmnt != "",
+                    comment_form = mode != "",
                     css          = "episode",
                     episode      = episode,
                     episodes     = {episode.id: episode},
@@ -158,12 +158,12 @@ def new_comment(web, site, id, isjson):
 
 # helper
 
-def template_comments(web, site, episode, comments, cmnt):
-    if cmnt is None: cmnt = ""
-    if len(cmnt): cmnt = cmnt[1:]
-    comments, reply, author, hash, a, b, c = do_the_comments(web, comments, cmnt)
+def template_comments(web, site, episode, comments, mode):
+    if mode is None: mode = ""
+    if len(mode): mode = mode[1:]
+    comments, reply, author, hash, a, b, c = do_the_comments(web, comments, mode)
     return template("comments.tpl",
-                    comment_form = cmnt != "",
+                    comment_form = mode != "",
                     css          = "episode",
                     episode      = episode,
                     site         = site,
