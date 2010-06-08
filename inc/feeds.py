@@ -34,7 +34,7 @@ def feed_all_comments_counts(web):
     comments = {}
     for episode in episodes:
         label = episode.filename.split("/").pop()
-        comments[label] = len(Comment.find().filter_by(episode = episode.id).all())
+        comments[label] = Comment.find().filter_by(episode = episode.id).count()
     return template_json(web, comments)
 
 
@@ -139,8 +139,8 @@ def template_json(web, data):
     else:
         header('Content-Type', "application/json")
     response = append("")
-    response.config['body'] = value
-    return response
+    response.config['body'] = ""
+    return response.append(value)
 
 
 

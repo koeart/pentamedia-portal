@@ -65,10 +65,10 @@ def create_session(web, comments, mode):
     hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
     if mode in ["comment", "reply"]:
         cats = [ chr(65+i) for i in range(4) if randint(0, 1) ]
-        if not len(cats): cats = [chr(65+randint(0, 4))]
-        elif len(cats) == 4: cats.pop(randint(0, 4))
+        if not len(cats): cats = [chr(65+randint(0, 3))]
+        elif len(cats) == 4: cats.pop(randint(0, 3))
         pics = list(range(16)); shuffle(pics); pics = pics[:4]
-        comment_hashes[hash] = (time(), a + b + c, cats, pics)
+        comment_hashes[hash] = (now(), a + b + c, cats, pics)
     return reply, author, hash, a, b, c
 
 

@@ -70,7 +70,7 @@ def episode(web, site, id, mode):
                    )
 
 
-@route("/(?P<site>penta(radio|cast|music))(?!.*/comments)")
+@route("/(?P<site>penta(radio|cast|music))(?!.*/comment(s|/new))")
 def main(web, site):
     # FIXME wrap db queries into one
     episodes = Episode.find().filter_by(category=site).\
@@ -111,9 +111,9 @@ def comments_by_filename(web, filename, mode):
 
 
 @post("/(?P<site>penta(radio|cast|music))/:id/comment/new") # FIXME impl error
-def new_comment(web, site, id, isjson):
+def new_comment(web, site, id):
     try:    episode = Episode.find().filter_by(link = id).one()
-    except: return redirect("/{0}".format(site)) # FIXME impl error
+    except: return notfound("Episode not found.")
     found, hash = False, web.input('hash')
     captcha, tip = web.input('tcha'), None
     if captcha == "sum":
