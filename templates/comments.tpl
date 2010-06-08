@@ -29,13 +29,23 @@
 {% if not fail|d(False) %}
 {% if isjson|d(False) %}
 <style type="text/css">
+.comment {
+  font-size: 0.9em;
+  margin-bottom: 1em;
+}
 .comment a {
   border: none;
   color: #555555;
 }
-.comment a:hover { text-decoration: none; }
+.comment a:hover { text-decoration: none; border: none; }
 .comment a:hover .line { text-decoration: underline; }
 .comment .line:hover { text-decoration: underline; }
+.comment .author {
+  font-size: small;
+  font-style: italic;
+  font-weight: bold;
+  margin-left: 1em;
+}
 </style>
 {%endif%}
 {% for comment in comments %}
