@@ -34,9 +34,19 @@ Comment = model('Comment',
                 author  = 'string',
                 reply   = 'integer',
                 date    = 'datetime',
-                fdate    = lambda self: _fdate(self.date),
+                fdate   = lambda self: _fdate(self.date),
                 text    = 'text'
                )
+
+Trackback = model('Trackback',
+                  episode = 'integer',
+                  title   = 'string',
+                  text    = 'text',
+                  url     = 'string',
+                  date    = 'datetime',
+                  fdate   = lambda self: _fdate(self.date),
+                  name    = 'string'
+                 )
 
 # helper
 

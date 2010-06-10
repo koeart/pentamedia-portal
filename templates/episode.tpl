@@ -17,6 +17,12 @@
 	</p>
 
 {{print_comments()}}
+<br/>
+{% for tb in trackbacks %}
+  <div class="comment">{{tb.text or ""}}
+    <small><b><a href="{{tb.url}}">{{tb.title or "---"}}</a></b> by {{tb.name or "Unknown"}} on {{tb.fdate()}}</small>
+  </div>
+{% endfor %}
 
       </div>
  {% if files|d([]) != [] %}

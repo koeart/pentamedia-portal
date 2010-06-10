@@ -3,14 +3,16 @@ from juno import route, get, post, yield_file, template, redirect, find, \
                  notfound
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
 
-from inc.re import re_reply
-from inc.db import File, Link, Episode, Comment
+from inc.re import re_reply, re_url
+from inc.db import File, Link, Episode, Comment, Trackback
 from inc.helper import cache, in_cache, clean_cache, do_the_comments
 from inc.markdown import md
+from inc.trackback import trackback_client
 
 # routes
 
 import inc.feeds
+import inc.trackback
 
 @route("/")
 def start(web): # FIXME wrap db queries into one
@@ -37,7 +39,7 @@ def cat_image(web, typ):
         hash = web['QUERY_STRING']
         iscat = typ in cache(hash)[2]
         nr = cache(hash)[3][ord(typ)-65]
-    except: return notfound("File not Found.")
+    except Exception as e: return notfound(str(e))
     yield_file("static/img/{0}acat{1}.jpeg".\
         format(not iscat and "not" or "", nr))
 
@@ -50,7 +52,9 @@ def episode(web, site, id, mode):
         links    = Link.find().filter_by(episode = episode.id).all()
         comments = Comment.find().filter_by(episode = episode.id).\
                    order_by(Comment.date).all()
-    except: return notfound("Episode not found.")
+        trackbacks = Trackback.find().filter_by(episode = episode.id).\
+                     order_by(Trackback.date).all()
+    except Exception as e: return notfound(str(e))
     if mode is None: mode = ""
     if len(mode): mode = mode[1:]
     comments, reply, author, hash, a, b, c = do_the_comments(web, comments, mode)
@@ -61,6 +65,7 @@ def episode(web, site, id, mode):
                     episodes     = {episode.id: episode},
                     site         = site,
                     comments     = comments,
+                    trackbacks   = trackbacks,
                     files        = files,
                     links        = links,
                     reply        = reply,
@@ -106,14 +111,14 @@ def comments_by_filename(web, filename, mode):
         elif "cast"  in filename: site = "pentacast"
         elif "music" in filename: site = "pentamusic"
         else: site = 42 / 0
-    except: return notfound("Episode not found.")
+    except Exception as e: return notfound(str(e))
     return template_comments(web, site, episode, comments, mode)
 
 
 @post("/(?P<site>penta(radio|cast|music))/:id/comment/new") # FIXME impl error
 def new_comment(web, site, id):
     try:    episode = Episode.find().filter_by(link = id).one()
-    except: return notfound("Episode not found.")
+    except Exception as e: return notfound(str(e))
     found, hash = False, web.input('hash')
     captcha, tip = web.input('tcha'), None
     if captcha == "sum":
@@ -148,6 +153,12 @@ def new_comment(web, site, id):
         if web.input('reply') != "-1":
             try: reply = int(web.input('reply'))
             except: pass
+        for link in re_url.finditer(web.input('comment')):
+            trackback_client(link.group(),
+                             episode.name,
+                             "url", # FIXME
+                             web.input('comment')
+                            )
         Comment(episode = episode.id,
                 author  = web.input('author'),
                 reply   = reply,
