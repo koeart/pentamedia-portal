@@ -2,7 +2,7 @@
 
 # CONFIG
 
-update_all = False
+update_all = True
 debug      = False
 trackback  = True
 # ------
@@ -109,21 +109,26 @@ def main():
         else:
             try:
                 data = load_file(filename)
-                print("\033[32m* add to db: ",filename,"\033[m")
             except:
                 data = None
                 print("\033[31m* errör during parsing: ",filename,"\033[m")
         if data:
-            try:
-                old = Episode.find().filter_by(filename = filename).one()
-                File.find().filter_by(episode = old.id).delete()
-                Link.find().filter_by(episode = old.id).delete()
-            except: old = 0
+            olds = Episode.find().filter_by(filename = filename).all()
+            for old in olds:
+                try:
+                    File.find().filter_by(episode = old.id).delete()
+                    Link.find().filter_by(episode = old.id).delete()
+                except Exception as e: print("\033[31merrör 1:\033[m",e)
             episode = Episode(filename=filename, **data['episode'])
             episode.save()
-            if old:
-                Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
-                Episode.find().filter_by(id = old.id).delete()
+            if olds:
+                for old in olds:
+                    try:
+                        Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
+                        Episode.find().filter_by(id = old.id).delete()
+                    except Exception as e: print("\033[31merrör 2:\033[m",e)
+                print("\033[32m* update db: ",filename,"\033[m")
+            else: print("\033[32m* add to db: ",filename,"\033[m")
             list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
             list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
             if trackback:
