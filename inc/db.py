@@ -48,6 +48,11 @@ Trackback = model('Trackback',
                   name    = 'string'
                  )
 
+ShownoteTrackback = model("ShownoteTrackback",
+                          filename = 'string',
+                          url      = 'string'
+                         )
+
 # helper
 
 def _fdate(date:datetime):

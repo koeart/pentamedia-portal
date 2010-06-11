@@ -8,6 +8,7 @@ from inc.db import File, Link, Episode, Comment, Trackback
 from inc.helper import cache, in_cache, clean_cache, do_the_comments
 from inc.markdown import md
 from inc.trackback import trackback_client
+from config import pentamediaportal
 
 # routes
 
@@ -155,9 +156,10 @@ def new_comment(web, site, id):
             except: pass
         for link in re_url.finditer(web.input('comment')):
             trackback_client(link.group(),
-                             episode.name,
-                             "url", # FIXME
-                             web.input('comment')
+                             pentamediaportal+"/{0}/{1}".\
+                                 format(episode.category, episode.link),
+                             title   = episode.name,
+                             excerpt = web.input('comment')
                             )
         Comment(episode = episode.id,
                 author  = web.input('author'),

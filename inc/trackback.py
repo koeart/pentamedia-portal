@@ -32,21 +32,22 @@ def trackback_server(web, id):
     return template_tb()
 
 
-def trackback_client(link, title, url, excerpt):
-    m = re_trackback.search(fetch_site(link))
-    if not m: return False
-    lrel = m.group('rela') or m.group('relb')
+def trackback_client(link, url, title = None, excerpt = None):
+    lrel = None
+    for m in re_trackback.finditer(fetch_site(link)):
+        if m:
+            lrel = m.group('rela') or m.group('relb')
+            if lrel and lrel.lower() == "trackback": break
     if not lrel or lrel.lower() != "trackback": return False
     lurl = m.group('urla') or m.group('urlb')
     if not lurl: return False
     if not re_url.match(lurl): lurl = urljoin(link, lurl)
-    send_post(lurl,
-              blog_name = "C3D2 Pentamedia Portal",
-              title     = title,
-              excerpt   = excerpt,
-              url       = url
-             )
-    return True
+    kwargs = {"blog_name": "C3D2 Pentamedia Portal",
+              "url":       url }
+    if excerpt: kwargs['excerpt'] = excerpt
+    if title: kwargs['title'] = title
+    print(link, lurl)
+    return send_post(lurl, **kwargs)
 
 # helper
 
@@ -63,15 +64,21 @@ def template_tb(**kwargs):
 def fetch_site(url):
     try: f = urlopen(url,timeout = 3)
     except: f = None
-    if f: return str(f.read(),'utf-8')
-    else: return ""
+    if f and "html" in f.info().get_content_type().lower():
+        text = f.read()
+        try:    return str(text,'utf-8')
+        except: return str(text)
+    else:       return ""
 
 
-def send_post(url, **data):
-    try: f = urlopen(url,urlencode(data),timeout = 3)
+def send_post(link, **data):
+    try: f = urlopen(link,urlencode(data),timeout = 3)
     except: f = None
-    if f: return str(f.read(),'utf-8')
-    else: return False
+    if f:
+        text = f.read()
+        try:    return str(text,'utf-8')
+        except: return text
+    else:       return False
 
 
 def is_spam(url, episode):

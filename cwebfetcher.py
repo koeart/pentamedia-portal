@@ -4,6 +4,7 @@
 
 update_all = False
 debug      = False
+trackback  = True
 # ------
 
 import re
@@ -17,8 +18,10 @@ init({'use_db':          True,
       'db_location':     "db.sqlite"
      })
 
-from inc.db import File, Link, Episode, Comment
-
+from inc.db import File, Link, Episode, Comment, ShownoteTrackback
+from inc.trackback import trackback_client
+from inc.progressbar import Progressbar
+from config import pentamediaportal
 
 re_news = re.compile(r"(?P<file>content/news/penta(cast|music|radio).*\.xml)")
 gitcmd = "git --git-dir=cweb.git --work-tree=. "
@@ -37,6 +40,7 @@ def git(options, verbose=0):
 
 def main():
     log = ""
+    links_count, tb_count, skip_count, error_count = 0, 0, 0, 0
 
     git_test = getoutput("git log --format=%n")
     if "fatal" in git_test or "--format" in git_test:
@@ -105,7 +109,7 @@ def main():
         else:
             try:
                 data = load_file(filename)
-                print("* add to db: ",filename)
+                print("\033[32m* add to db: ",filename,"\033[m")
             except:
                 data = None
                 print("\033[31m* errör during parsing: ",filename,"\033[m")
@@ -122,7 +126,40 @@ def main():
                 Episode.find().filter_by(id = old.id).delete()
             list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
             list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
+            if trackback:
+                links_count += len(data['links'])
+                pb = Progressbar(0, len(data['links']), 42, True)
+                for n, linkdata in enumerate(data['links']):
+                    link = linkdata['url']
+                    pb.update(n, link)
+                    used = ShownoteTrackback.find().filter_by(url = link).count()
+                    if not used:
+                        response = trackback_client(link,
+                                        pentamediaportal+"/{0}/{1}".\
+                                         format(episode.category, episode.link),
+                                        title = episode.name,
+                                        excerpt = episode.short
+                                                )
+                        if response:
+                            response = response.replace(" ","")
+                            response = response.replace("\n","")
+                            response = response.lower()
+                            print(link, response)
+                            tb_count += 1
+                            if "<error>0</error>" in response:
+                                ShownoteTrackback(
+                                    filename = filename,
+                                    url      = link).add()
+                            else: error_count += 1
+                    else:
+                        tb_count += 1
+                        skip_count += 1
+                    pb.draw()
+                pb.clear()
             session().commit()
+    if trackback:
+        print("{0} Shownotes scaned. {1} Trackback links discovered. {2} skipped. {3} failed to use.".\
+              format(links_count, tb_count, skip_count, error_count))
     print("done.")
 
 if __name__ == "__main__":
