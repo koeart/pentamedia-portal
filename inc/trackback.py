@@ -65,7 +65,8 @@ def fetch_site(url):
     try: f = urlopen(url,timeout = 3)
     except: f = None
     if f and "html" in f.info().get_content_type().lower():
-        text = f.read()
+        try: text = f.read()
+        except: return ""
         try:    return str(text,'utf-8')
         except: return str(text)
     else:       return ""
@@ -75,7 +76,8 @@ def send_post(link, **data):
     try: f = urlopen(link,urlencode(data),timeout = 3)
     except: f = None
     if f:
-        text = f.read()
+        try: text = f.read()
+        except: return ""
         try:    return str(text,'utf-8')
         except: return text
     else:       return False
