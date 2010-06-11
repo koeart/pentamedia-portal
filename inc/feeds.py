@@ -2,7 +2,7 @@
 import json
 from juno import route, redirect, template, header, append, notfound
 
-from inc.db import File, Link, Episode, Comment
+from inc.db import File, Link, Episode, Comment, Trackback
 from inc.helper import build_comment_tree
 
 
@@ -11,19 +11,24 @@ def feed_all_comments(web, mode):
     # FIXME wrap db queries into one
     episodes = Episode.find().all()
     comments = Comment.find().all()
-    comments.sort(key=lambda cmnt: cmnt.date)
-    comments.reverse()
+    trackbacks = Trackback.find().all()
     if mode == "atom":
+        entries = comments + trackbacks
+        entries.sort(key=lambda e: e.date)
+        entries.reverse()
         id_episodes = {}
         for episode in episodes:
             id_episodes[episode.id] = episode
         return template_atom(
                         title    = "Pentamedia-Portal // Comments",
                         episodes = id_episodes,
-                        comments = comments
+                        entries  = entries
                        )
     elif mode == "json":
-        return template_json(web, list(map(comment_to_json, comments)))
+        return template_json(web, {
+            "comments":   list(map(comment_to_json, comments)),
+            "trackbacks": list(map(trackback_to_json, trackbacks))
+                           })
     else:
         return notfound("Type not supported.")
 
@@ -119,11 +124,24 @@ def comments_per_episode(web, episode, comments, site, mode):
         return notfound("Type not supported.")
 
 
+def trackback_to_json(trackback):
+    return { "title":     trackback.title,
+             "excerpt":   trackback.text,
+             "date":      trackback.fdate(),
+             "url":       trackback.url,
+             "blog_name": trackback.name }
+
+
 def comment_to_json(comment):
   return { "author": comment.author,
            "reply":  comment.reply,
            "date":   comment.fdate(),
            "text":   comment.text }
+
+
+def entry_to_json(entry):
+    if isinstance(entry, Trackback): return trackback_to_json(entry)
+    elif isinstance(entry, Comment): return comment_to_json(entry)
 
 
 def template_atom(**kwargs):

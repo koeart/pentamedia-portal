@@ -5,16 +5,21 @@
   </author>
   <title>{{title}}</title>
   <id>averyuniqid:D</id>
-  {% if comments|d([]) != [] %}<updated>{{comments[-1].date}}</updated>{% endif %}
+  {% if entries|d([]) != [] %}<updated>{{entries[-1].date}}</updated>{% endif %}
 
-  {% for comment in comments|d([]) %}
+  {% for entry in entries|d([]) %}
   <entry>
-    <title>Comment by {{comment.author}} on {{episodes[comment.episode].name}}</title>
-    <link href="http://pentamedia.hq.c3d2.de/{{episodes[comment.episode].category}}/{{episodes[comment.episode].link}}"/>
-    <id>{{comment.id}}</id>
-    <updated>{{comment.date}}</updated>
-    <summary>{{comment.author}} added these pithy words on {{comment.fdate()}}</summary>
-    <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">{{comment.text}}</div></content>
+    <link href="http://pentamedia.hq.c3d2.de/{{episodes[entry.episode].category}}/{{episodes[entry.episode].link}}"/>
+    <id>{{entry.id}}</id>
+    <updated>{{entry.date}}</updated>
+    {% if entry.reply is defined %}
+    <title>Comment by {{entry.author}} on {{episodes[entry.episode].name}}</title>
+    <summary>{{entry.author}} added these pithy words on {{entry.fdate()}}</summary>
+    {% else %}
+    <title>Trackback by {{entry.title or "---"}} on {{episodes[entry.episode].name}}</title>
+    <summary>{{entry.title or "---"}} by {{entry.name or "Unknown"}} on {{entry.fdate()}}</summary>
+    {% endif %}
+    <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">{{entry.text}}</div></content>
   </entry>
   {% endfor %}
 </feed>
