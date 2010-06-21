@@ -1,1 +1,1 @@
-pentamediaportal = "http://pentamedia.hq.c3d2.de"
+pentamediaportal = "http://pentamedia.org"

@@ -2,7 +2,7 @@
 
 # CONFIG
 
-update_all = True
+update_all = False
 debug      = False
 trackback  = True
 # ------
@@ -22,6 +22,7 @@ from inc.db import File, Link, Episode, Comment, ShownoteTrackback
 from inc.trackback import trackback_client
 from inc.progressbar import Progressbar
 from config import pentamediaportal
+from blacklist import sites as blacklist
 
 re_news = re.compile(r"(?P<file>content/news/penta(cast|music|radio).*\.xml)")
 gitcmd = "git --git-dir=cweb.git --work-tree=. "
@@ -40,7 +41,7 @@ def git(options, verbose=0):
 
 def main():
     log = ""
-    links_count, tb_count, skip_count, error_count = 0, 0, 0, 0
+    links_count, tb_count, skip_count, error_count, ign_count = 0, 0, 0, 0, 0
 
     git_test = getoutput("git log --format=%n")
     if "fatal" in git_test or "--format" in git_test:
@@ -136,12 +137,17 @@ def main():
                 pb = Progressbar(0, len(data['links']), 42, True)
                 for n, linkdata in enumerate(data['links']):
                     link = linkdata['url']
-                    pb.update(n, link)
+                    blacklisted = False
+                    for site in blacklist:
+                        if site in link:
+                            blacklisted = True
+                            break
+                    if not blacklisted: pb.update(n, link)
                     used = ShownoteTrackback.find().filter_by(url = link).count()
-                    if not used:
+                    if not blacklisted and not used:
                         response = trackback_client(link,
                                         pentamediaportal+"/{0}/{1}".\
-                                         format(episode.category, episode.link),
+                                        format(episode.category, episode.link),
                                         title = episode.name,
                                         excerpt = episode.short
                                                 )
@@ -158,13 +164,14 @@ def main():
                             else: error_count += 1
                     else:
                         tb_count += 1
-                        skip_count += 1
-                    pb.draw()
+                        if blacklisted: ign_count += 1
+                        else: skip_count += 1
+                    if not blacklisted: pb.draw()
                 pb.clear()
             session().commit()
     if trackback:
-        print("{0} Shownotes scaned. {1} Trackback links discovered. {2} skipped. {3} failed to use.".\
-              format(links_count, tb_count, skip_count, error_count))
+        print("{0} Shownotes scaned. {1} Trackback links discovered. {2} skipped. {3} failed to use. {4} ignored".\
+              format(links_count, tb_count, skip_count, error_count, ign_count))
     print("done.")
 
 if __name__ == "__main__":
