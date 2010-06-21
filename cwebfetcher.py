@@ -163,14 +163,15 @@ def main():
                                     url      = link).add()
                             else: error_count += 1
                     else:
-                        tb_count += 1
                         if blacklisted: ign_count += 1
-                        else: skip_count += 1
+                        else:
+                            tb_count += 1
+                            skip_count += 1
                     if not blacklisted: pb.draw()
                 pb.clear()
             session().commit()
     if trackback:
-        print("{0} Shownotes scaned. {1} Trackback links discovered. {2} skipped. {3} failed to use. {4} ignored".\
+        print("{0} Shownotes scaned. {4} ignored. {1} Trackback links discovered. {2} skipped. {3} failed to use.".\
               format(links_count, tb_count, skip_count, error_count, ign_count))
     print("done.")
 
