@@ -6,7 +6,7 @@
       <h2>{{episode.name|d("episode.name")}}</h2>
 
       <div class="description">
-	<p>{{episode.short|d("episode.short")}}</p>
+	<p><em>{{episode.short|d("episode.short")}}</em></p>
 	<p>{{episode.long|d("episode.long")}}</p>
 	<p>
 	  Wir freuen uns über Feedback: bislang bitte

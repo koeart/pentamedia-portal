@@ -62,10 +62,10 @@ def get_short(root):
 
 def get_long(root):
     p = root.findall('p')
-    lang = "".join([ etree.tostring(n).strip()[3:-4].strip().\
+    raw = "".join([ etree.tostring(n).\
                 replace("<link", "<a").replace("</link>", "</a>")
-                + "\n" for n in p ])
-    # FIXME addendum Absätze?!!!!
+                + "\n" for n in p[1:] ])
+    lang = raw.strip()[3:-4].strip()
     return lang
 
 def get_episode(filename, root):
