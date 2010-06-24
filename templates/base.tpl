@@ -39,5 +39,8 @@
 {{lipsum()}}
 {% endblock %}
 </div>
+<div align="center">
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/3.0/de/88x31.png" /></a><br /><span xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/Sound" property="dc:title" rel="dc:type">pentaMedia</span> von <a xmlns:cc="http://creativecommons.org/ns#" href="pentamedia.org" property="cc:attributionName" rel="cc:attributionURL">C3D2</a> steht unter einer <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/">Creative Commons Namensnennung-Keine kommerzielle Nutzung-Weitergabe unter gleichen Bedingungen 3.0 Deutschland Lizenz</a>.
+</div>
   </body>
 </html>
