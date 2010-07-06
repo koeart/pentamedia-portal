@@ -13,8 +13,10 @@ re_filename = re.compile(r".*(?P<type>penta(cast|radio|music)).*-(?P<episode>\w*
 FILETYPE = {'ogg': "Ogg Vorbis",
             'x-bittorrent': "BitTorrent-Metainformationen",
             'mpeg': "MPEG-Audio",
-            'mp3': "MPEG-Audio"
+            'mp3': "MPEG-Audio",
+            'x-zip': "ZIP-Archiv"
            }
+
 FILESIZE = ["KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] # ready for da future :P
 FILEBLOCK = 1024
 
