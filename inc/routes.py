@@ -186,4 +186,6 @@ def template_comments(web, site, episode, comments, mode):
                     hash         = hash,
                     a = a, b = b, c = c
                    )
-
+@route("/spenden")
+def donate(web):
+    return template("spenden.tpl")
