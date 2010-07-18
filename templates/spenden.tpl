@@ -21,14 +21,13 @@
       <div class="shownotes pane">
 	      <p>Spendenmöglichkeiten Coloradio:</p>
 	      <ul class="shownotes">
-	      <li>Alternative Rundfunkgebühr</li>  
+	      <p>Alternative Rundfunkgebühr</p>  
           <li>Empfänger: Coloradio</li>
           <li>Betreff: alternative Rundfunkgebühr</li>
           <li>Kto#: 3615900</li>
           <li>BLZ: 850 205 00</li>
           <li>Bank für Sozialwirtschaft Dresden</li>
-          <li></li>
-          <li>PayPal:</lI>
+          <p>PayPal:</p>
           <li>s. <a href="http://coloradio.org/site">coloradio.org</a></li>
           </ul>
           <p>Spendenmöglichkeiten C3D2:</p>
