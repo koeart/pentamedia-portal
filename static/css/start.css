@@ -59,3 +59,24 @@ body {
   left: 50%;
   margin-left: -80px;
 }
+#footer {
+  -khtml-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  font-size: 0.7em;
+  padding: 5px 21px 5px 21px;
+  position: absolute;
+  background-color: white;
+  margin-top: -10px;
+  left: 23%;
+  wisth: 555px;
+  margin-left: -80px;
+  margin-right: 80px;
+  opacity: 0.5;
+}
+#footer a {
+  color: #666666;
+  border-bottom: 1px solid #ebc63c;
+}
+#footer a:hover { border-bottom: 2px solid #ebc63c; }
