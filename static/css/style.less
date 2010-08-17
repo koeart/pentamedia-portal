@@ -174,3 +174,16 @@ ul.shownotes {
     list-style-image:url("/img/bullet.png");
     list-style-type:square;
 }
+
+a.flattr {
+    border: none;
+    :before {
+        content:url("http://api.flattr.com/button/button-compact-static-100x17.png");
+    }
+    :after {
+        content: attr(name);
+        color: #555;
+        border-bottom: #ebc63c 1px solid;
+    }
+    :hover:after {border-width: 2px;}
+}

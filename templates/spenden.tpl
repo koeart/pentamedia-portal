@@ -6,6 +6,7 @@
 	<p><em>Wir wurden jetzt schon in mehreren Kommentaren gefragt, ob man uns flattrn kann - nein, wir sind nicht flattrbar und werden es auch nicht sein. Warum wir das nicht sind und wie ihr uns aber trotzdem unterstützen könnt, wollen wir hier gerne erläutern.</em></p>
 	<p>Flattr ist der neue heiße Scheiß. Die Funktionsweise und ein bisschen für und wider hat Tim Pritlove mal <a href="http://tim.geekheim.de/2010/06/03/i-am-flattered/">in seinem Blog</a><a href="http://tim.geekheim.de/2010/07/02/flattr-zweiter-streich/"> zusammengefasst</a>.</p>
     <p>Um es kurz zu machen: Um geflattrd zu werden muss man auch flattrn - und das geht für uns aus zwei Gründen schlecht: (1) Man braucht einen Account und muss Geld einzahlen und dieses muss man (2) mindestens einem Projekt zukommen lassen. Und da wir ein ständig wechselndes Team sind und so weiter, blöd also.</p>
+    <p>Deswegen konnten wir das Coloradio Team davon überzeugen sich einen Flattr-Account zu klicken und unsere Projekte mit zu hosten. Die Spenden gehen somit direkt an Coloradio, die schließlich die Projekte durch ihr Studio-Angebot am Leben halten.</p>
     <p>Zweite Möglichkeit: Paypal. Datenschutz. Doof.</p>
     <p>Wir haben uns deshalb folgendes überlegt: Unterstützt doch einfach das Coloradio aus Dresden. Das freie Radio macht es uns möglich, monatlich das pentaRadio und die pentaMusic Radio Show auszustrahlen. Außerdem können wir mit der vorhandenen Studiotechnik Aufnahmen in hervorragender Qualität, welche sich in den Podcasts widerspiegelt, produzieren. Die Spendenmöglichkeiten für Coloradio nennt sich "Alternative Rundfunkgebühr", außerdem findet ihr auf der <a href="http://coloradio.org/site">Coloradio Homepage</a> einen PayPal Button. Im rechten Bereich dieser Seite haben wir die Kontonummer für die "Alternative Rundfunkgebühr" herausgeschrieben.</p>
     <p>Wenn ihr explizit uns unterstützen wollt, könnt ihr das auch. Und zwar per Spende. Da wir ein gemeinnütziger Verein sind, können wir sogar auf Wunsch eine Spendenquittung ausstellen. Dazu am besten eine Mail an uns. Die Kontodaten findet ihr ebenfalls auf der rechten Seite.</p>
@@ -21,7 +22,7 @@
       <div class="shownotes pane">
 	      <p>Spendenmöglichkeiten Coloradio:</p>
 	      <ul class="shownotes">
-	      <p>Alternative Rundfunkgebühr</p>  
+	      <p>Alternative Rundfunkgebühr</p>
           <li>Empfänger: Coloradio</li>
           <li>Betreff: alternative Rundfunkgebühr</li>
           <li>Kto#: 3615900</li>
@@ -38,7 +39,13 @@
           <li>BLZ: 85090000</li>
           <li>Dresdner Volks- und Raiffeisenbank</li>
 	      </ul>
-          <p>Alle Angaben sind OHNE GEWEHR!</li>
+          <p>Alle Angaben sind OHNE GEWEHR!</p>
+          <p>
+            <a class="flattr" name="Coloradio" href="http://flattr.com/thing/49331/Redaktion"></a><br/>
+            <a class="flattr" name="Pentaradio" href="http://flattr.com/thing/51034/Pentaradio-24"></a><br/>
+            <a class="flattr" name="Pentacast" href="http://flattr.com/thing/51037/Pentacast"></a><br/>
+            <a class="flattr" name="Pentamusic" href="http://flattr.com/thing/51039/Pentamusic"></a>
+          </p>
       </div>
 
 <div style="position:absolute;right:3px;"></div>
