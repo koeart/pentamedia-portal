@@ -2,6 +2,7 @@
 from juno import route, get, post, yield_file, template, redirect, find, \
                  notfound
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
+import os
 
 from inc.re import re_reply, re_url
 from inc.db import File, Link, Episode, Comment, Trackback
@@ -154,10 +155,9 @@ def new_comment(web, site, id):
         if web.input('reply') != "-1":
             try: reply = int(web.input('reply'))
             except: pass
+        pm_url = pentamediaportal+"/{0}/{1}".format(episode.category, episode.link)
         for link in re_url.finditer(web.input('comment')):
-            trackback_client(link.group(),
-                             pentamediaportal+"/{0}/{1}".\
-                                 format(episode.category, episode.link),
+            trackback_client(link.group(), pm_url,
                              title   = episode.name,
                              excerpt = web.input('comment')
                             )
@@ -167,7 +167,14 @@ def new_comment(web, site, id):
                 text    = text,
                 date    = datetime.now()
                ).save()
+        notify_muc("{0} just left some pithy words on {1}. [ {2} ]".\
+            format(web.input('author'), episode.name, pm_url))
     return redirect("/{0}/{1}".format(site,id)) # FIXME maybe error
+
+
+@route("/spenden")
+def donate(web):
+    return template("spenden.tpl")
 
 # helper
 
@@ -186,6 +193,7 @@ def template_comments(web, site, episode, comments, mode):
                     hash         = hash,
                     a = a, b = b, c = c
                    )
-@route("/spenden")
-def donate(web):
-    return template("spenden.tpl")
+
+def notify_muc(text):
+    cmd = 'curl --data-urlencode "text={0}" http://www.hq.c3d2.de/bot/msg'.format(text)
+    os.system(cmd)
