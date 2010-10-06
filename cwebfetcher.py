@@ -3,8 +3,8 @@
 # CONFIG
 
 update_all = False
-debug      = True
-trackback  = False
+debug      = False
+trackback  = True
 # ------
 
 import re
