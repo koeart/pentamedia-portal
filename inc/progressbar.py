@@ -1,4 +1,5 @@
 import sys
+from inc.console import getTerminalSize
 
 class Progressbar:
     def __init__(self, minValue = 0, maxValue = 10, totalWidth=12, show_numbers=False):
@@ -11,7 +12,7 @@ class Progressbar:
         self.width = totalWidth
         self.amount = 0       # When amount == max, we are 100% done
         self.update(0)  # Build progress bar string
-        self._old_pbar = self.pbar_str
+        self._changed = False
 
     def update(self, newAmount = 0, payload = None):
         if newAmount < self.min: newAmount = self.min
@@ -56,17 +57,20 @@ class Progressbar:
                 self._old_payload = ""
 
         self.pbar_str = str(self)
+        self._changed = True
 
     def __str__(self):
         return str(self.progBar)
 
     def draw(self):
         # draw progress bar - but only if it has changed
-        if self.pbar_str != self._old_pbar:
-            self._old_pbar = self.pbar_str
-            sys.stdout.write(self.pbar_str + '\r')
+        if self._changed:
+            self._changed = False
+            w, _ = getTerminalSize()
+            sys.stdout.write(self.pbar_str[:w] + '\r')
             sys.stdout.flush()      # force updating of screen
 
     def clear(self):
-        sys.stdout.write(" " * len(self.pbar_str) + '\r')
+        w, _ = getTerminalSize()
+        sys.stdout.write(" " * len(self.pbar_str[:w]) + '\r')
         sys.stdout.flush()      # force updating of screen

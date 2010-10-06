@@ -3,8 +3,8 @@
 # CONFIG
 
 update_all = False
-debug      = False
-trackback  = True
+debug      = True
+trackback  = False
 # ------
 
 import re
@@ -21,6 +21,7 @@ init({'use_db':          True,
 from inc.db import File, Link, Episode, Comment, ShownoteTrackback
 from inc.trackback import trackback_client
 from inc.progressbar import Progressbar
+from inc.console import style
 from config import pentamediaportal
 from blacklist import sites as blacklist
 
@@ -112,14 +113,14 @@ def main():
                 data = load_file(filename)
             except:
                 data = None
-                print("\033[31m* errör during parsing: ",filename,"\033[m")
+                print(style.red+"* errör during parsing: ",filename,style.default)
         if data:
             olds = Episode.find().filter_by(filename = filename).all()
             for old in olds:
                 try:
                     File.find().filter_by(episode = old.id).delete()
                     Link.find().filter_by(episode = old.id).delete()
-                except Exception as e: print("\033[31merrör 1:\033[m",e)
+                except Exception as e: print(style.red+"errör 1:"+style.default,e)
             episode = Episode(filename=filename, **data['episode'])
             episode.save()
             if olds:
@@ -127,9 +128,9 @@ def main():
                     try:
                         Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
                         Episode.find().filter_by(id = old.id).delete()
-                    except Exception as e: print("\033[31merrör 2:\033[m",e)
-                print("\033[32m* update db: ",filename,"\033[m")
-            else: print("\033[32m* add to db: ",filename,"\033[m")
+                    except Exception as e: print(style.red+"errör 2:"+style.default,e)
+                print(style.green+"* update db: ",filename,style.default)
+            else: print(style.green+"* add to db: ",filename,style.default)
             list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
             list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
             if trackback:
