@@ -65,21 +65,28 @@
 
      </p>
 
-    <p>
-<label for="sumtcha">Sumtcha</label> (required if catcha not checked)<br>
-      <input type="radio" name="tcha" value="sum" />
-      Enter the sum of {{a}}, {{b}} and {{c}}:
-      <input type="text" name="sumtcha" id="sumtcha" value="" size="3" tabindex="2" />
-        </p>
-    <p>
-<label for="cat">Cattcha</label> (required if sumtcha not checked) <br>
-      <input type="radio" name="tcha" value="cat" checked="checked"/>
-      Or checkz-ze-catz: <br />
-      <input type="checkbox" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
-      <input type="checkbox" name="cat" value="B" /><img src="/cat/B?{{hash}}" /><br />
-      <input type="checkbox" name="cat" value="C" /><img src="/cat/C?{{hash}}" />
-      <input type="checkbox" name="cat" value="D" /><img src="/cat/D?{{hash}}" />
-  </p>
+    <fieldset>
+      <legend>
+	<input type="radio" name="tcha" value="sum" id="sumtcha"/>
+	<label for="sumtcha">Sumtcha</label>
+      </legend>
+      <p>
+	Enter the sum of {{a}}, {{b}} and {{c}}:
+	<input type="text" name="sumtcha" id="sumtcha" value="" size="3" tabindex="2" />
+      </p>
+    </fieldset>
+    <fieldset>
+      <legend>
+	<input type="radio" name="tcha" value="cat" checked="checked" id="cattcha"/>
+	<label for="cattcha">Cattcha</label>
+      </legend>
+      <p>
+	<input type="checkbox" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
+	<input type="checkbox" name="cat" value="B" /><img src="/cat/B?{{hash}}" /><br />
+	<input type="checkbox" name="cat" value="C" /><img src="/cat/C?{{hash}}" />
+	<input type="checkbox" name="cat" value="D" /><img src="/cat/D?{{hash}}" />
+      </p>
+    </fieldset>
     <p>
       <label for="comment">Your Comment</label>
     <br />
