@@ -98,7 +98,7 @@
 
     </form>
 {% else %}
-{% if isjson is not defined %}<a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment …</a>{% endif %}
+{% if isjson is not defined %}<a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment…</a>{% endif %}
 {% endif %}
 {% endif %}
 </div>

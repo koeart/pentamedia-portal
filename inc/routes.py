@@ -27,7 +27,7 @@ def start(web): # FIXME wrap db queries into one
                    ))
         if len(episode) > 13:
             episode = episode[:13]
-            episode.append({'name': "more …", 'link': ""})
+            episode.append({'name': "more…", 'link': ""})
         episodes[category] = episode
     return template("start.html",
                     episodes = episodes,
