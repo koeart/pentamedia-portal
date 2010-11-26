@@ -65,7 +65,7 @@
 
      </p>
 
-    <fieldset>
+    <fieldset class="captcha">
       <legend>
 	<input type="radio" name="tcha" value="sum" id="sumtcha"/>
 	<label for="sumtcha">Sumtcha</label>
@@ -75,11 +75,12 @@
 	<input type="text" name="sumtcha" id="sumtcha" value="" size="3" tabindex="2" />
       </p>
     </fieldset>
-    <fieldset>
+    <fieldset class="captcha">
       <legend>
 	<input type="radio" name="tcha" value="cat" checked="checked" id="cattcha"/>
 	<label for="cattcha">Cattcha</label>
       </legend>
+      <p>Select the feline animals to prove your fleshy nature:</p>
       <p>
 	<input type="checkbox" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
 	<input type="checkbox" name="cat" value="B" /><img src="/cat/B?{{hash}}" /><br />
@@ -97,6 +98,8 @@
 
 
     </form>
+<script src="/js/jquery-1.4.4.min.js" type="application/javascript" defer="defer"></script>
+<script src="/js/captcha-form.js" type="application/javascript" defer="defer"></script>
 {% else %}
 {% if isjson is not defined %}<a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment…</a>{% endif %}
 {% endif %}
