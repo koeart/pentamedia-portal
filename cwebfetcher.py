@@ -172,12 +172,15 @@ def main(update_all, debug, trackback):
 
 if __name__ == "__main__":
     parser = OptionParser()
-    parser.add_option("-a", "--all" ,dest="update_all", action="store_true",
-        help = "update everthing again [default: %default]", default = False)
-    parser.add_option("-d", "--debug", dest="debug", action="store_true",
-        help = "show errors [default: %default]", default = False)
-    parser.add_option("-t", "--no-trackback",dest="trackback",action="store_false",
-        help ="disable trackback crawling [default: %default]", default = True)
+    parser.add_option("-a", "--all",
+        dest="update_all", action="store_true", default = False,
+        help = "update everthing again [default: %default]")
+    parser.add_option("-d", "--debug",
+        dest="debug", action="store_true", default = False,
+        help = "show errors [default: %default]")
+    parser.add_option("-t", "--no-trackback",
+        dest="no_trackback", action="store_true", default = False,
+        help ="disable trackback crawling [default: %default]")
 
     opts, _ = parser.parse_args()
-    main(opts.update_all, opts.debug, opts.trackback)
+    main(opts.update_all, opts.debug, not opts.no_trackback)
