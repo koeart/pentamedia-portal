@@ -29,8 +29,7 @@ def feed_all_comments(web, mode):
             "comments":   list(map(comment_to_json, comments)),
             "trackbacks": list(map(trackback_to_json, trackbacks))
                            })
-    else:
-        return notfound("Type not supported.")
+    else:  return notfound("Type not supported.")
 
 
 @route("/comments/count[/.]json")
@@ -66,8 +65,21 @@ def feed_comments_by_category(web, site, mode):
             "comments": list(map(comment_to_json,comments)),
             "new_link": "/{0}/{1}/comment#new".format(episode.category,episode.link)
                                   })
-    else:
-        return  notfound("Type not supported.")
+    else: return  notfound("Type not supported.")
+
+
+@route("/(?P<site>penta(radio|cast|music))[/.](?P<mode>(atom|json))")
+def feed_episodes_by_category(web, site, mode):
+    try:
+        episodes = Episode.find().filter_by(category = site).\
+                    order_by(Episode.date).all()
+    except: return notfound("Category not found.")
+    if mode == "atom":
+        return template_episodes_atom(
+            title = "Pentamedia-Portal // P{0} // Episodes".format(site[1:]),
+            episodes = episodes
+                            )
+    else: return notfound("Type not supported.")
 
 
 @route("/(?P<site>penta(radio|cast|music))/(?P<id>[^/]*)/comments[/.](?P<mode>(atom|json))")
@@ -120,8 +132,7 @@ def comments_per_episode(web, episode, comments, site, mode):
             "comments": list(map(comment_to_json,comments)),
             "new_link": "/{0}/{1}/comments/comment#new".format(episode.category, episode.link)
                             })
-    else:
-        return notfound("Type not supported.")
+    else:  return notfound("Type not supported.")
 
 
 def trackback_to_json(trackback):
@@ -144,9 +155,14 @@ def entry_to_json(entry):
     elif isinstance(entry, Comment): return comment_to_json(entry)
 
 
+def template_episodes_atom(**kwargs):
+    header('Content-Type', "application/atom+xml")
+    return template("episodes_atom.tpl", **kwargs)
+
+
 def template_atom(**kwargs):
     header('Content-Type', "application/atom+xml")
-    return template("atom.tpl", **kwargs)
+    return template("comments_atom.tpl", **kwargs)
 
 
 def template_json(web, data):
