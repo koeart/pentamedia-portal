@@ -65,21 +65,29 @@
 
      </p>
 
-    <p>
-<label for="sumtcha">Sumtcha</label> (required if catcha not checked)<br>
-      <input type="radio" name="tcha" value="sum" />
-      Enter the sum of {{a}}, {{b}} and {{c}}:
-      <input type="text" name="sumtcha" id="sumtcha" value="" size="3" tabindex="2" />
-        </p>
-    <p>
-<label for="cat">Cattcha</label> (required if sumtcha not checked) <br>
-      <input type="radio" name="tcha" value="cat" checked="checked"/>
-      Or checkz-ze-catz: <br />
-      <input type="checkbox" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
-      <input type="checkbox" name="cat" value="B" /><img src="/cat/B?{{hash}}" /><br />
-      <input type="checkbox" name="cat" value="C" /><img src="/cat/C?{{hash}}" />
-      <input type="checkbox" name="cat" value="D" /><img src="/cat/D?{{hash}}" />
-  </p>
+    <fieldset class="captcha">
+      <legend>
+	<input type="radio" name="tcha" value="sum" id="sumtcha"/>
+	<label for="sumtcha">Sumtcha</label>
+      </legend>
+      <p>
+	Enter the sum of {{a}}, {{b}} and {{c}}:
+	<input type="text" name="sumtcha" id="sumtcha" value="" size="3" tabindex="2" />
+      </p>
+    </fieldset>
+    <fieldset class="captcha">
+      <legend>
+	<input type="radio" name="tcha" value="cat" checked="checked" id="cattcha"/>
+	<label for="cattcha">Cattcha</label>
+      </legend>
+      <p>Select the feline animals to prove your fleshy nature:</p>
+      <p>
+	<input type="checkbox" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
+	<input type="checkbox" name="cat" value="B" /><img src="/cat/B?{{hash}}" /><br />
+	<input type="checkbox" name="cat" value="C" /><img src="/cat/C?{{hash}}" />
+	<input type="checkbox" name="cat" value="D" /><img src="/cat/D?{{hash}}" />
+      </p>
+    </fieldset>
     <p>
       <label for="comment">Your Comment</label>
     <br />
@@ -90,8 +98,10 @@
 
 
     </form>
+<script src="/js/jquery-1.4.4.min.js" type="application/javascript" defer="defer"></script>
+<script src="/js/captcha-form.js" type="application/javascript" defer="defer"></script>
 {% else %}
-{% if isjson is not defined %}<a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment …</a>{% endif %}
+{% if isjson is not defined %}<a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment…</a>{% endif %}
 {% endif %}
 {% endif %}
 </div>
