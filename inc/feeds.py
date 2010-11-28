@@ -92,6 +92,10 @@ def feed_episodes_by_category(web, site, mode):
             title = "Pentamedia-Portal // P{0} // Episodes".format(site[1:]),
             episodes = episodes
                             )
+    elif mode == "json":
+        return template_json(web, {
+            "episodes": list(map(episode_to_json, episodes))
+                            })
     else: return notfound("Type not supported.")
 
 
@@ -146,6 +150,16 @@ def comments_per_episode(web, episode, comments, site, mode):
             "new_link": "/{0}/{1}/comments/comment#new".format(episode.category, episode.link)
                             })
     else:  return notfound("Type not supported.")
+
+
+def episode_to_json(episode):
+    return { "name":       episode.name,
+             "date":       episode.fdate(),
+             "author":     episode.author,
+             "category":   episode.category,
+             "short_text": episode.short,
+             "long_text":  episode.long,
+             "link":       "/{0}/{1}".format(episode.category, episode.link) }
 
 
 def trackback_to_json(trackback):
