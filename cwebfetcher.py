@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 
-# CONFIG
-
-update_all = False
-debug      = False
-trackback  = True
-# ------
-
 import re
 import os
 import os.path as ospath
+from optparse import OptionParser
 from subprocess import getoutput, getstatusoutput
 from inc.cwebparser import load_file
 from juno import init, session
@@ -40,7 +34,7 @@ def git(options, verbose=0):
         print("U doing it wrong.")
 
 
-def main():
+def main(update_all, debug, trackback):
     log = ""
     links_count, tb_count, skip_count, error_count, ign_count = 0, 0, 0, 0, 0
 
@@ -177,4 +171,13 @@ def main():
     print("done.")
 
 if __name__ == "__main__":
-    main()
+    parser = OptionParser()
+    parser.add_option("-a", "--all" ,dest="update_all", action="store_true",
+        help = "update everthing again [default: %default]", default = False)
+    parser.add_option("-d", "--debug", dest="debug", action="store_true",
+        help = "show errors [default: %default]", default = False)
+    parser.add_option("-t", "--no-trackback",dest="trackback",action="store_false",
+        help ="disable trackback crawling [default: %default]", default = True)
+
+    opts, _ = parser.parse_args()
+    main(opts.update_all, opts.debug, opts.trackback)
