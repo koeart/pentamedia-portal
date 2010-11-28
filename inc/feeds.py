@@ -68,6 +68,19 @@ def feed_comments_by_category(web, site, mode):
     else: return  notfound("Type not supported.")
 
 
+@route("/(?P<mode>(atom|json))")
+def feed_episodes(web, mode):
+    try:
+        episodes = Episode.find().order_by(Episode.date).all()
+    except: return notfound("No Episodes not found.")
+    if mode == "atom":
+        return template_episodes_atom(
+            title = "Pentamedia-Portal // Episodes",
+            episodes = episodes
+                            )
+    else: return notfound("Type not supported.")
+
+
 @route("/(?P<site>penta(radio|cast|music))[/.](?P<mode>(atom|json))")
 def feed_episodes_by_category(web, site, mode):
     try:

@@ -13,7 +13,7 @@
     <id>{{episode.id}}</id>
     <updated>{{episode.date}}</updated>
     <title>{{episode.name}}</title>
-    <summary>{{episode.long}}</summary>
+    <summary><div xmlns="http://www.w3.org/1999/xhtml">{{episode.short}}</div></summary>
     <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">{{episode.long}}</div></content>
   </entry>
   {% endfor %}
