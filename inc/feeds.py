@@ -78,6 +78,10 @@ def feed_episodes(web, mode):
             title = "Pentamedia-Portal // Episodes",
             episodes = episodes
                             )
+    elif mode == "json":
+        return template_json(web, {
+            "episodes": list(map(episode_to_json, episodes))
+                            })
     else: return notfound("Type not supported.")
 
 
