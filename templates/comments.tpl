@@ -1,3 +1,4 @@
+{% from "captcha.tpl" import captchas_begin, captchas_body, captchas_end with context %}
 <!DOCTYPE HTML>
 <html>
   <head>
@@ -24,6 +25,7 @@
   <body>
 <div class="content">
 {% block htmlcmts %}
+
 <div class="comments">
 <p>{% set comments = comments|d([]) %}{{comments|count}} Comment{{comments|count != 1 and "s" or ""}}</p>
 {% if not fail|d(False) %}
@@ -55,51 +57,25 @@
   </div>
 {% endfor %}
 {% if comment_form|d(False) %}
-<form action="/{{site}}/{{episode.link}}/comment/new{{''|d('.json',isjson|d(False))}}" method="post" id="new">
-<input type="hidden" name="hash" value="{{hash}}" />
-<input type="hidden" name="reply" value="{{reply}}" />
+
+{% macro action() -%}
+/{{site}}/{{episode.link}}/comment/new{{''|d('.json',isjson|d(False))}}
+{%- endmacro %}
+
+{{captchas_begin(action())}}
     <p>
        <label for="author">Name</label> (required)<br>
-
       <input type="text" name="author" id="author" class="textarea" value="" size="15" tabindex="1" />
-
      </p>
-
-    <fieldset class="captcha">
-      <legend>
-	<input type="radio" name="tcha" value="sum" id="sumtcha"/>
-	<label for="sumtcha">Sumtcha</label>
-      </legend>
-      <p>
-	Enter the sum of {{a}}, {{b}} and {{c}}:
-	<input type="text" name="sumtcha" id="sumtcha" value="" size="3" tabindex="2" />
-      </p>
-    </fieldset>
-    <fieldset class="captcha">
-      <legend>
-	<input type="radio" name="tcha" value="cat" checked="checked" id="cattcha"/>
-	<label for="cattcha">Cattcha</label>
-      </legend>
-      <p>Select the feline animals to prove your fleshy nature:</p>
-      <p>
-	<input type="checkbox" name="cat" value="A" /><img src="/cat/A?{{hash}}" />
-	<input type="checkbox" name="cat" value="B" /><img src="/cat/B?{{hash}}" /><br />
-	<input type="checkbox" name="cat" value="C" /><img src="/cat/C?{{hash}}" />
-	<input type="checkbox" name="cat" value="D" /><img src="/cat/D?{{hash}}" />
-      </p>
-    </fieldset>
+{{captchas_body()}}
     <p>
       <label for="comment">Your Comment</label>
     <br />
       <textarea name="comment" style="border: 1px solid #000;" id="comment" cols="50" rows="6" tabindex="4">{{at_author}}</textarea>
       <br /><a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> enabled. (url autolinking included.)
 </p>
-<input name="submit" id="submit" type="submit" tabindex="5" value="Say It!" style="position:absolute;margin-left:29em;" />
+{{captchas_end("Say It!")}}
 
-
-    </form>
-<script src="/js/jquery-1.4.4.min.js" type="application/javascript" defer="defer"></script>
-<script src="/js/captcha-form.js" type="application/javascript" defer="defer"></script>
 {% else %}
 {% if isjson is not defined %}<a href="/{{site}}/{{episode.link}}/comment#new" class="add_comment">new Comment…</a>{% endif %}
 {% endif %}

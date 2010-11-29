@@ -158,3 +158,8 @@ a.flattr:after {
   border-bottom: #ebc63c 1px solid;
 }
 a.flattr:hover:after { border-width: 2px; }
+.stars {
+  font-size: 1.5em;
+  color: black;
+  margin-left: 1em;
+}

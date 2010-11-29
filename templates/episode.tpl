@@ -1,9 +1,11 @@
 {% extends "astro.tpl" %}
-{% from "comments.tpl"import print_comments with context %}
+{% from "comments.tpl" import print_comments with context %}
+{% from "rating.tpl"   import print_rating   with context %}
 
 {% block body %}
       <p class="date">{{episode.author|d("episode.author")}} @ {{episode.fdate()|d("episode.date")}}</p>
       <h2>{{episode.name|d("episode.name")}}</h2>
+      <div class="stars" style="margin-top:-1em;color:#{% if rating.count == 0 %}ccc{% else %}777{% endif %}">{{rating.stars}}</div>
 
       <div class="description">
 	<p><em>{{episode.short|d("episode.short")}}</em></p>
@@ -16,6 +18,8 @@
 	  tweeten.
 	</p>
 
+<p>&nbsp;</p>
+{{print_rating()}}
 {{print_comments()}}
 <br/>
 {% for tb in trackbacks %}

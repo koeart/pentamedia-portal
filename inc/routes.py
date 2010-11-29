@@ -5,8 +5,9 @@ from datetime import datetime # year, month, day, hour=0, minute=0, second=0, mi
 import os
 
 from inc.re import re_reply, re_url
-from inc.db import File, Link, Episode, Comment, Trackback
-from inc.helper import cache, in_cache, clean_cache, do_the_comments
+from inc.db import File, Link, Episode, Comment, Trackback, Rating
+from inc.helper import cache, in_cache, clean_cache, create_session, \
+                       do_the_comments, do_the_ratings
 from inc.markdown import md
 from inc.trackback import trackback_client
 from config import pentamediaportal
@@ -46,7 +47,7 @@ def cat_image(web, typ):
         format(not iscat and "not" or "", nr))
 
 
-@route("/(?P<site>penta(radio|cast|music))/(?P<id>([^/](?!(atom|json)))*)(?P<mode>/(comment|reply))?")
+@route("/(?P<site>penta(radio|cast|music))/(?P<id>([^/](?!(atom|json)))*)(?P<mode>/(comment|rate|reply))?")
 def episode(web, site, id, mode):
     try: # FIXME wrap db queries into one
         episode  = Episode.find().filter_by(link = id).one()
@@ -54,30 +55,29 @@ def episode(web, site, id, mode):
         links    = Link.find().filter_by(episode = episode.id).all()
         comments = Comment.find().filter_by(episode = episode.id).\
                    order_by(Comment.date).all()
+        ratings  = Rating.find().filter_by(episode = episode.id).all()
         trackbacks = Trackback.find().filter_by(episode = episode.id).\
                      order_by(Trackback.date).all()
     except Exception as e: return notfound(str(e))
     if mode is None: mode = ""
     if len(mode): mode = mode[1:]
-    comments, reply, author, hash, a, b, c = do_the_comments(web, comments, mode)
+    opts = {}
+    opts.update(create_session(web, mode))
+    opts.update(do_the_comments(web, mode, comments))
+    opts.update(do_the_ratings(web, mode, ratings))
     return template("episode.tpl",
-                    comment_form = mode != "",
-                    css          = "episode",
-                    episode      = episode,
-                    episodes     = {episode.id: episode},
-                    site         = site,
-                    comments     = comments,
-                    trackbacks   = trackbacks,
-                    files        = files,
-                    links        = links,
-                    reply        = reply,
-                    at_author    = author,
-                    hash         = hash,
-                    a = a, b = b, c = c
+                    css        = "episode",
+                    episode    = episode,
+                    episodes   = {episode.id: episode},
+                    site       = site,
+                    trackbacks = trackbacks,
+                    files      = files,
+                    links      = links,
+                    **opts
                    )
 
 
-@route("/(?P<site>penta(radio|cast|music))(?!.*/comment(s|/new))")
+@route("/(?P<site>penta(radio|cast|music))(?!.*/(comment(s|/new)|rating(s)?))")
 def main(web, site):
     # FIXME wrap db queries into one
     episodes = Episode.find().filter_by(category=site).\
@@ -85,9 +85,12 @@ def main(web, site):
     episodes.reverse()
     comments_count = [ Comment.find().filter_by(episode = e.id).count()
                        for e in episodes ]
+    ratings = [ do_the_ratings(0, 0, Rating.find().\
+                filter_by(episode = e.id).all())['rating']
+                for e in episodes ]
     return template("episodes.tpl",
                     css         = "episode",
-                    episodepage = zip(episodes, comments_count),
+                    episodepage = zip(episodes, comments_count, ratings),
                     site        = site
                    )
 
@@ -99,7 +102,19 @@ def comments(web, site, id, mode):
         comments = Comment.find().filter_by(episode = episode.id).\
                    order_by(Comment.date).all()
     except: return notfound("Episode not found.")
-    return template_comments(web, site, episode, comments, mode)
+    return template_mode(web, site, episode, mode, comments = comments)
+
+
+@route("/(?P<site>penta(radio|cast|music))/(?P<id>[^/]*)/rating(s)?(?P<mode>[/.]rate)?")
+def ratings(web, site, id, mode):
+    try: # FIXME wrap db queries into one
+        episode  = Episode.find().filter_by(link = id).one()
+        ratings = Rating.find().filter_by(episode = episode.id).all()
+    except: return notfound("Episode not found.")
+    return template_mode(web, site, episode,
+                         (mode == '/' or mode is None) and "/rating" or mode,
+                         hide_rating_detail = True,
+                         ratings = ratings)
 
 
 @route("/(?P<filename>(penta(radio24|cast|music))-.*)/comments(?P<mode>[/.](comment|reply))?")
@@ -114,33 +129,33 @@ def comments_by_filename(web, filename, mode):
         elif "music" in filename: site = "pentamusic"
         else: site = 42 / 0
     except Exception as e: return notfound(str(e))
-    return template_comments(web, site, episode, comments, mode)
+    return template_mode(web, site, episode, mode, comments = comments)
+
+
+@route("/(?P<filename>(penta(radio24|cast|music))-.*)/rating(s)?(?P<mode>[/.]rate)?")
+def ratings_by_filename(web, filename, mode):
+    filename = "content/news/{0}.xml".format(filename)
+    try: # FIXME wrap db queries into one
+        episode  = Episode.find().filter_by(filename = filename).one()
+        ratings = Rating.find().filter_by(episode = episode.id).all()
+        if   "radio" in filename: site = "pentaradio"
+        elif "cast"  in filename: site = "pentacast"
+        elif "music" in filename: site = "pentamusic"
+        else: site = 42 / 0
+    except Exception as e: return notfound(str(e))
+    return template_mode(web, site, episode,
+                         (mode == '/' or mode is None) and "/rating" or mode,
+                         hide_rating_detail = True,
+                         ratings = ratings)
 
 
 @post("/(?P<site>penta(radio|cast|music))/:id/comment/new") # FIXME impl error
 def new_comment(web, site, id):
-    try:    episode = Episode.find().filter_by(link = id).one()
-    except Exception as e: return notfound(str(e))
-    found, hash = False, web.input('hash')
-    captcha, tip = web.input('tcha'), None
-    if captcha == "sum":
-        typ, tip = 1, web.input('sumtcha')
-        try:    tip = int(tip)
-        except: tip = None
-    elif captcha == "cat":
-        typ, tip = 2, web.input('cat')
-        if not isinstance(tip, list): tip = [tip]
-    else:
-        typ, tip = 0, -1
-    if hash is not None:
-        if in_cache(hash):
-            found = cache(hash)[typ] == tip
-    clean_cache(hash)
-    if found and \
-      web.input('author')  is not None and \
-      web.input('comment') is not None and \
-      web.input('reply')   is not None and \
-      web.input('comment') != "":
+    is_ok, result = get_episode_if_input_is_ok(web, id,
+            exists   = ['author','comment','reply'],
+            notempty = ['comment'] )
+    if is_ok:
+        episode, result = result, None
         text, reply = md.convert(web.input('comment')), []
         def replyer(x):
             a = x.group()[1:]
@@ -169,7 +184,21 @@ def new_comment(web, site, id):
                ).save()
         notify_muc("{0} just left some pithy words on {1}. [ {2} ]".\
             format(web.input('author'), episode.name, pm_url))
-    return redirect("/{0}/{1}".format(site,id)) # FIXME maybe error
+    return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
+
+
+@post("(?P<site>penta(radio|cast|music))/:id/rating/new")
+def new_rating(web, site, id):
+    is_ok, result = get_episode_if_input_is_ok(web, id,
+            exists = ['score'], notempty = ['score'] )
+    if is_ok:
+        episode, result = result, None
+        try:    score = int(web.input('score'))
+        except: score = None
+        if score is not None:
+            if score in range(1,6):
+                Rating(episode = episode.id, score = score).save()
+    return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
 
 
 @route("/spenden")
@@ -178,21 +207,67 @@ def donate(web):
 
 # helper
 
-def template_comments(web, site, episode, comments, mode):
+
+def captcha_is_ok(web):
+    found, hash = False, web.input('hash')
+    captcha, tip = web.input('tcha'), None
+    if captcha == "sum":
+        typ, tip = 1, web.input('sumtcha')
+        try:    tip = int(tip)
+        except: tip = None
+    elif captcha == "cat":
+        typ, tip = 2, web.input('cat')
+        if not isinstance(tip, list): tip = [tip]
+    else:
+        typ, tip = 0, -1
+    if hash is not None:
+        if in_cache(hash):
+            found = cache(hash)[typ] == tip
+    clean_cache(hash)
+    return found
+
+
+def get_episode_if_input_is_ok(web, id, exists = [], notempty = []):
+    if captcha_is_ok(web) and \
+      all([ web.input(k) is not None for k in exists   ]) and \
+      all([ web.input(k) != ""       for k in notempty ]):
+        try:    return True, Episode.find().filter_by(link = id).one()
+        except Exception as e: return False, notfound(str(e))
+    return False, None
+
+
+def template_comments():
+    return "comments.tpl", do_the_comments
+
+
+def template_rating():
+    return "rating.tpl", do_the_ratings
+
+
+_template_functions = {
+        "reply"   : template_comments,
+        "comment" : template_comments,
+        "rate"    : template_rating,
+        "rating"  : template_rating,
+    }
+
+
+def template_mode(web, site, episode, mode, **kwargs):
+    opts, func = {}, template_comments
     if mode is None: mode = ""
     if len(mode): mode = mode[1:]
-    comments, reply, author, hash, a, b, c = do_the_comments(web, comments, mode)
-    return template("comments.tpl",
-                    comment_form = mode != "",
-                    css          = "episode",
-                    episode      = episode,
-                    site         = site,
-                    comments     = comments,
-                    reply        = reply,
-                    at_author    = author,
-                    hash         = hash,
-                    a = a, b = b, c = c
-                   )
+    if mode in _template_functions:
+        func = _template_functions[mode]
+    tpl, worker = func()
+    kwargs = dict(kwargs)
+    kwargs.update(site = site, episode = episode)
+    wopts = worker(web, mode, **kwargs)
+    opts.update(create_session(web, mode))
+    opts.update(css = "episode")
+    opts.update(kwargs)
+    opts.update(wopts)
+    return template(tpl, **opts)
+
 
 def notify_muc(text):
     cmd = 'curl --data-urlencode "text={0}" http://www.hq.c3d2.de/bot/msg'.format(text)

@@ -1,5 +1,6 @@
 
 import json
+from math import floor
 from time import time as now
 from hashlib import sha1
 from random import randint, random, shuffle
@@ -55,7 +56,7 @@ def build_comment_tree(comments):
     return comments
 
 
-def create_session(web, comments, mode):
+def _create_session(web, mode):
     try:
         reply = int(web['QUERY_STRING'])
         author = find(Comment.author).filter_by(id = reply).one()[0]
@@ -63,7 +64,7 @@ def create_session(web, comments, mode):
     except: reply, author = -1, ""
     a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
     hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
-    if mode in ["comment", "reply"]:
+    if mode in ["comment", "rate", "reply"]:
         cats = [ chr(65+i) for i in range(4) if randint(0, 1) ]
         if not len(cats): cats = [chr(65+randint(0, 3))]
         elif len(cats) == 4: cats.pop(randint(0, 3))
@@ -72,6 +73,29 @@ def create_session(web, comments, mode):
     return reply, author, hash, a, b, c
 
 
-def do_the_comments(web, comments, mode):
+def create_session(web, mode):
+    reply, author, hash, a, b, c = _create_session(web, mode)
+    return {'reply'     : reply,
+            'at_author' : author,
+            'hash'      : hash,
+            'a' : a, 'b' : b, 'c' : c }
+
+
+def do_the_comments(_, mode, comments = [], **kwargs):
     comments = build_comment_tree(comments)
-    return (comments,) + create_session(web, comments, mode)
+    return {'comments' : comments , 'comment_form' : mode not in ["", "rate"] }
+
+
+def do_the_ratings(_, mode, ratings = [], **kwargs):
+    score = 0
+    for r in ratings:
+        score += r.score
+    if ratings:
+        score /= len(ratings)
+    score = floor(score)
+    return {'rating'      : { 'score' : score,
+                              'count' : len(ratings),
+                              'stars' : "★" * score + "☆" * (5 - score) },
+            'rating_form' : mode == "rate",
+            'enumerate'   : enumerate }
+

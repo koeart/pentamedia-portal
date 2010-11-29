@@ -53,6 +53,11 @@ ShownoteTrackback = model("ShownoteTrackback",
                           url      = 'string'
                          )
 
+Rating = model ("Rating",
+                episode = 'integer',
+                score   = 'integer'
+               )
+
 # helper
 
 def _fdate(date:datetime):
