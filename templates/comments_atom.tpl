@@ -5,9 +5,9 @@
   </author>
   <title>{{title}}</title>
   <id>averyuniqid:D</id>
-  {% if entries|d([]) != [] %}<updated>{{entries[-1].date}}</updated>{% endif %}
+  {% if comments|d([]) != [] %}<updated>{{comments[-1].date}}</updated>{% endif %}
 
-  {% for entry in entries|d([]) %}
+  {% for entry in comments|d([]) %}
   <entry>
     <link href="{{pentamediaportal}}/{{episodes[entry.episode].category}}/{{episodes[entry.episode].link}}"/>
     <id>{{entry.id}}</id>
