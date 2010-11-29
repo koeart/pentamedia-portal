@@ -12,7 +12,7 @@ init({'use_db':          True,
       'db_location':     "db.sqlite"
      })
 
-from inc.db import File, Link, Episode, Comment, ShownoteTrackback
+from inc.db import File, Link, Episode, Comment, ShownoteTrackback, Rating
 from inc.trackback import trackback_client
 from inc.progressbar import Progressbar
 from inc.console import style
@@ -121,6 +121,7 @@ def main(update_all, debug, trackback):
                 for old in olds:
                     try:
                         Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
+                        Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
                         Episode.find().filter_by(id = old.id).delete()
                     except Exception as e: print(style.red+"errör 2:"+style.default,e)
                 print(style.green+"* update db: ",filename,style.default)
