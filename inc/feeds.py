@@ -2,8 +2,8 @@
 import json
 from juno import route, redirect, template, header, append, notfound
 
-from inc.db import File, Link, Episode, Comment, Trackback
-from inc.helper import build_comment_tree
+from inc.db import File, Link, Episode, Comment, Trackback, Rating
+from inc.helper import build_comment_tree, do_the_ratings
 
 
 @route("/comments[/.](?P<mode>(atom|json))")
@@ -113,6 +113,15 @@ def feed_comments_by_slug(web, site, id, mode):
     return comments_per_episode(web, episode, comments, site, mode)
 
 
+@route("/(?P<site>penta(radio|cast|music))/(?P<id>[^/]*)/rating(s)?[/.](?P<mode>json)")
+def rating_by_slug(web, site, id, mode):
+    try: # FIXME wrap db queries into one
+        episode  = Episode.find().filter_by(link = id).one()
+        ratings  = Rating.find().filter_by(episode = episode.id).all()
+    except: return notfound("Episode not found.")
+    return rating_per_episode(web, episode, ratings, site, mode)
+
+
 @route("/(?P<filename>(penta(radio24|cast|music))-.*)/comments[/.](?P<mode>(atom|json))")
 def feed_comments_by_filename(web, filename, mode):
     filename = "content/news/{0}.xml".format(filename)
@@ -126,6 +135,21 @@ def feed_comments_by_filename(web, filename, mode):
         else: site = 42 / 0
     except: return notfound("Episode not found.")
     return comments_per_episode(web, episode, comments, site, mode)
+
+
+@route("/(?P<filename>(penta(radio24|cast|music))-.*)/rating(s)?[/.](?P<mode>json)")
+def rating_by_filename(web, filename, mode):
+    filename = "content/news/{0}.xml".format(filename)
+    try: # FIXME wrap db queries into one
+        episode  = Episode.find().filter_by(filename = filename).one()
+        ratings  = Rating.find().filter_by(episode = episode.id).all()
+        if   "radio" in filename: site = "pentaradio"
+        elif "cast"  in filename: site = "pentacast"
+        elif "music" in filename: site = "pentamusic"
+        else: site = 42 / 0
+    except: return notfound("Episode not found.")
+    return rating_per_episode(web, episode, ratings, site, mode)
+
 
 # helper
 
@@ -152,6 +176,23 @@ def comments_per_episode(web, episode, comments, site, mode):
         return template_json(web ,{
             "comments": list(map(comment_to_json,comments)),
             "new_link": "/{0}/{1}/comments/comment#new".format(episode.category, episode.link)
+                            })
+    else:  return notfound("Type not supported.")
+
+
+def rating_per_episode(web, episode, ratings, site, mode):
+    opts = do_the_ratings(web, mode, ratings)
+    opts.update( rating_form = False, site = site, episode = episode)
+    if mode == "json":
+        if web.input('html'):
+            html = template("rating.inner_html.tpl", isjson = True, **opts)
+            return template_json(web, {
+                "html"     : html.body,
+                "new_link" : "/{0}/{1}/ratings/rate#new".format(site, episode.link)
+                                })
+        return template_json(web ,{
+            "rating": opts['rating'],
+            "new_link": "/{0}/{1}/ratings/rate#new".format(episode.category, episode.link)
                             })
     else:  return notfound("Type not supported.")
 
