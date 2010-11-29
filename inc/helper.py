@@ -1,6 +1,5 @@
 
 import json
-from math import floor
 from time import time as now
 from hashlib import sha1
 from random import randint, random, shuffle
@@ -92,10 +91,13 @@ def do_the_ratings(_, mode, ratings = [], **kwargs):
         score += r.score
     if ratings:
         score /= len(ratings)
-    score = floor(score)
+    s = round(score)
     return {'rating'      : { 'score' : score,
+                              'round'  : s,
+                              'black_star': "★",
+                              'white_star' : "☆",
                               'count' : len(ratings),
-                              'stars' : "★" * score + "☆" * (5 - score) },
+                              'stars' : "★" * s + "☆" * (5 - s) },
             'rating_form' : mode == "rate",
             'enumerate'   : enumerate }
 
