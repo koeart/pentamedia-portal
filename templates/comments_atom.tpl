@@ -9,7 +9,7 @@
 
   {% for entry in entries|d([]) %}
   <entry>
-    <link href="http://pentamedia.hq.c3d2.de/{{episodes[entry.episode].category}}/{{episodes[entry.episode].link}}"/>
+    <link href="{{pentamediaportal}}/{{episodes[entry.episode].category}}/{{episodes[entry.episode].link}}"/>
     <id>{{entry.id}}</id>
     <updated>{{entry.date}}</updated>
     {% if entry.reply is defined %}

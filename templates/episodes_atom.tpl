@@ -9,7 +9,7 @@
 
   {% for episode in episodes|d([]) %}
   <entry>
-    <link href="http://pentamedia.hq.c3d2.de/{{episode.category}}/{{episode.link}}"/>
+    <link href="{{pentamediaportal}}/{{episode.category}}/{{episode.link}}"/>
     <id>{{episode.id}}</id>
     <updated>{{episode.date}}</updated>
     <title>{{episode.name}}</title>

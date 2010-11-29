@@ -4,6 +4,7 @@ from juno import route, redirect, template, header, append, notfound
 
 from inc.db import File, Link, Episode, Comment, Trackback, Rating
 from inc.helper import build_comment_tree, do_the_ratings
+from config import pentamediaportal
 
 
 @route("/comments[/.](?P<mode>(atom|json))")
@@ -229,12 +230,14 @@ def entry_to_json(entry):
 
 def template_episodes_atom(**kwargs):
     header('Content-Type', "application/atom+xml")
-    return template("episodes_atom.tpl", **kwargs)
+    return template("episodes_atom.tpl",
+                    pentamediaportal = pentamediaportal, **kwargs)
 
 
 def template_atom(**kwargs):
     header('Content-Type', "application/atom+xml")
-    return template("comments_atom.tpl", **kwargs)
+    return template("comments_atom.tpl",
+                    pentamediaportal = pentamediaportal, **kwargs)
 
 
 def template_json(web, data):
