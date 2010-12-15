@@ -95,6 +95,28 @@ def main(web, site):
                    )
 
 
+@route("/datenspuren(?!.*/(comment(s|/new)|rating(s)?))")
+def datenspuren(web):
+    # FIXME wrap db queries into one
+    episodes = Episode.find().filter(Episode.category.startswith("ds")).\
+               order_by(Episode.date).all()
+    episodes.reverse()
+    comments_count = [ Comment.find().filter_by(episode = e.id).count()
+                       for e in episodes ]
+    ratings = [ do_the_ratings(0, 0, Rating.find().\
+                filter_by(episode = e.id).all())['rating']
+                for e in episodes ]
+    for episode in episodes:
+        count = File.find().filter_by(episode = episode.id).count()
+        episode.filescount = "// {0} File{1}".format(count,
+            count != 1 and "s" or "")
+    return template("episodes.tpl",
+                    css         = "episode",
+                    episodepage = zip(episodes, comments_count, ratings),
+                    site        = "datenspuren"
+                   )
+
+
 @route("/(?P<site>penta(radio|cast|music))/(?P<id>[^/]*)/comments(?P<mode>[/.](comment|reply))?")
 def comments(web, site, id, mode):
     try: # FIXME wrap db queries into one

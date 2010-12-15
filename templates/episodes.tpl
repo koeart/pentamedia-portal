@@ -4,7 +4,10 @@
 {% for episode, comment_count, rating in episodepage|d([]) %}
 <div class="episode">
   <h3 class="summary">
-    <a class="url" href="/{{site}}/{{episode.link|d('#')}}">{{episode.name|d("episode.name")}}</a>
+    <a class="url" href="/{{site}}/{{episode.link|d('#')}}">
+      {{episode.name|d("episode.name")}}
+      {% if episode.filescount %}<span style="font-size:0.6em">{{episode.filescount}}</span>{% endif %}
+    </a>
   </h3>
   <small class="date">
     {% if comment_count != 0 %}{{comment_count}} Comment{{comment_count != 1 and "s" or ""}} :: {% endif %}
