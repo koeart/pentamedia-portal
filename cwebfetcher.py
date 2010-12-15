@@ -5,7 +5,7 @@ import os
 import os.path as ospath
 from optparse import OptionParser
 from subprocess import getoutput, getstatusoutput
-from inc.cwebparser import load_file
+from inc.cwebparser import load_podcast_file
 from juno import init, session
 
 init({'use_db':          True,
@@ -193,10 +193,10 @@ def fill_database(files, debug=False, trackback=False):
     for filename in files:
         if debug:
             print("* try to add to db: ",filename)
-            data = load_file(filename)
+            data = load_podcast_file(filename)
         else:
             try:
-                data = load_file(filename)
+                data = load_podcast_file(filename)
             except:
                 data = None
                 print(style.red + "* errör during parsing: ",

@@ -144,7 +144,7 @@ def get_files(root):
 
 
 
-def load_file(filename):
+def load_podcast_file(filename):
     tree = etree.parse(filename)
     root = tree.getroot()
     return {'episode': get_episode(filename, root),
@@ -161,7 +161,7 @@ def test():
             #for line in text:
                   #raw = filebase + line
                   #filename = raw.rstrip()
-    pprint(load_file(filename))
+    pprint(load_podcast_file(filename))
 
 if __name__ == "__main__":
     test()
