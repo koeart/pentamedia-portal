@@ -15,11 +15,11 @@ init({'use_db':          True,
 from inc.db import File, Link, Episode, Comment, ShownoteTrackback, Rating
 from inc.trackback import trackback_client
 from inc.progressbar import Progressbar
-from inc.console import style
-from config import pentamediaportal
+from inc.console import style, drug
+from config import pentamediaportal, cwebgitrepository, cwebnewsfolder
 from blacklist import sites as blacklist
 
-re_news = re.compile(r"(?P<file>content/news/penta(cast|music|radio).*\.xml)")
+re_news = re.compile(r"(?P<file>"+cwebnewsfolder+r"penta(cast|music|radio).*\.xml)")
 gitcmd = "git --git-dir=cweb.git --work-tree=. "
 
 
@@ -34,24 +34,25 @@ def git(options, verbose=0):
         print("U doing it wrong.")
 
 
-def main(update_all, debug, trackback):
-    log = ""
-    links_count, tb_count, skip_count, error_count, ign_count = 0, 0, 0, 0, 0
-
+def check_git_version():
     git_test = getoutput("git log --format=%n")
     if "fatal" in git_test or "--format" in git_test:
         print("ERROR: your git version is to old.")
         os.system("git --version")
         exit(1)
 
+
+def fetch_log_from_git(update_all=False):
+    log = ""
+
     if not os.path.exists("cweb.git"):
         print("* no c3d2-web git repository found")
         os.mkdir("cweb.git")
         git("init")
-        git("remote add web git://194.77.75.60/c3d2-web/git.git")
+        git("remote add web " + cwebgitrepository)
         if git("fetch web master") == 0:
             git("branch --track master FETCH_HEAD")
-            print("* get filenames from log")
+            print("* get all filenames from log")
             log = git("log --name-only --format=%n",1)
         else:
             print("* an error occured during fetch")
@@ -75,14 +76,21 @@ def main(update_all, debug, trackback):
         new = git("log -1 --format=%h",1)
         if not fulllog: print("* fetched revision is",new)
         if old != new or fulllog:
-            print("* get filenames from log")
-            if fulllog:log = git("log --name-only --format=%n",1)
-            else: log = git("log --name-only --format=%n {0}..{1}".\
-                            format(old,new),1)
+            if fulllog:
+                print("* get all filenames from log")
+                log = git("log --name-only --format=%n",1)
+            else:
+                print("* get updated filenames from log")
+                log = git("log --name-only --format=%n {0}..{1}".\
+                          format(old,new),1)
         else:
             print("* no new updates")
             if not update_all: exit()
 
+    return log
+
+
+def get_filenames_from_gitlog(log, update_all=False):
     while "\n\n" in log: log = log.replace("\n\n","\n").split("\n")
     files = []
 
@@ -95,9 +103,93 @@ def main(update_all, debug, trackback):
     if files:
         print("* load files from git")
         git("checkout --merge master -- "+" ".join(files))
-    else:
-        files = list(map(lambda fn:"content/news/"+fn, os.listdir("content/news/")))
+    elif update_all:
+        files = list(map(lambda fn:cwebnewsfolder+fn, os.listdir(cwebnewsfolder)))
 
+    return files
+
+
+class Trackbacker():
+    def __init__(self, enabled):
+        self.count = drug(links = 0, tb = 0, skip = 0, error = 0, ign = 0)
+        self.disabled = not enabled
+
+    def send(self, episode, link):
+        response = trackback_client(link,
+            pentamediaportal+"/{0}/{1}".\
+            format(episode.category, episode.link),
+            title = episode.name,
+            excerpt = episode.short
+                                   )
+        if response:
+            response = response.replace(" ","")
+            response = response.replace("\n","")
+            response = response.lower()
+            print(link, response)
+            self.count.tb += 1
+            if "<error>0</error>" in response:
+                ShownoteTrackback(
+                    filename = filename,
+                    url      = link).add()
+            else: self.count.error += 1
+
+    def check_all(self, episode, links):
+        if self.disabled: return
+        self.count.links += len(links)
+        pb = Progressbar(0, len(links), 42, True)
+        for n, linkdata in enumerate(links):
+            link = linkdata['url']
+            blacklisted = False
+            for site in blacklist:
+                if site in link:
+                    blacklisted = True
+                    break
+            if not blacklisted: pb.update(n, link)
+            used = ShownoteTrackback.find().filter_by(url = link).count()
+            if not blacklisted and not used:
+                self.send(episode, link)
+            else:
+                if blacklisted: self.count.ign += 1
+                else:
+                    self.count.tb += 1
+                    self.count.skip += 1
+            if not blacklisted: pb.draw()
+        pb.clear()
+
+    def print_stats(self):
+        if self.disabled: return
+        print("{0} Shownotes scaned. {4} ignored. " + \
+              "{1} Trackback links discovered. " + \
+              "{2} skipped. {3} failed to use.".\
+              format(self.count.links, self.count.tb, self.count.skip,\
+                    self.count.error, self.count.ign))
+
+
+def update_database(filename, data, tracker):
+    olds = Episode.find().filter_by(filename = filename).all()
+    for old in olds:
+        try:
+            File.find().filter_by(episode = old.id).delete()
+            Link.find().filter_by(episode = old.id).delete()
+        except Exception as e: print(style.red+"errör 1:"+style.default,e)
+    episode = Episode(filename=filename, **data['episode'])
+    episode.save()
+    for old in olds:
+        try:
+            Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
+            Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
+            Episode.find().filter_by(id = old.id).delete()
+        except Exception as e: print(style.red+"errör 2:"+style.default,e)
+    if olds: print(style.green+"* update db: ",filename,style.default)
+    else: print(style.green+"* add to db: ",filename,style.default)
+    list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
+    list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
+    tracker.check_all(episode, data['links'])
+    session().commit()
+
+
+def fill_database(files, debug=False, trackback=False):
+    tracker = Trackbacker(trackback)
     for filename in files:
         if debug:
             print("* try to add to db: ",filename)
@@ -107,69 +199,19 @@ def main(update_all, debug, trackback):
                 data = load_file(filename)
             except:
                 data = None
-                print(style.red+"* errör during parsing: ",filename,style.default)
-        if data:
-            olds = Episode.find().filter_by(filename = filename).all()
-            for old in olds:
-                try:
-                    File.find().filter_by(episode = old.id).delete()
-                    Link.find().filter_by(episode = old.id).delete()
-                except Exception as e: print(style.red+"errör 1:"+style.default,e)
-            episode = Episode(filename=filename, **data['episode'])
-            episode.save()
-            if olds:
-                for old in olds:
-                    try:
-                        Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
-                        Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
-                        Episode.find().filter_by(id = old.id).delete()
-                    except Exception as e: print(style.red+"errör 2:"+style.default,e)
-                print(style.green+"* update db: ",filename,style.default)
-            else: print(style.green+"* add to db: ",filename,style.default)
-            list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
-            list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
-            if trackback:
-                links_count += len(data['links'])
-                pb = Progressbar(0, len(data['links']), 42, True)
-                for n, linkdata in enumerate(data['links']):
-                    link = linkdata['url']
-                    blacklisted = False
-                    for site in blacklist:
-                        if site in link:
-                            blacklisted = True
-                            break
-                    if not blacklisted: pb.update(n, link)
-                    used = ShownoteTrackback.find().filter_by(url = link).count()
-                    if not blacklisted and not used:
-                        response = trackback_client(link,
-                                        pentamediaportal+"/{0}/{1}".\
-                                        format(episode.category, episode.link),
-                                        title = episode.name,
-                                        excerpt = episode.short
-                                                )
-                        if response:
-                            response = response.replace(" ","")
-                            response = response.replace("\n","")
-                            response = response.lower()
-                            print(link, response)
-                            tb_count += 1
-                            if "<error>0</error>" in response:
-                                ShownoteTrackback(
-                                    filename = filename,
-                                    url      = link).add()
-                            else: error_count += 1
-                    else:
-                        if blacklisted: ign_count += 1
-                        else:
-                            tb_count += 1
-                            skip_count += 1
-                    if not blacklisted: pb.draw()
-                pb.clear()
-            session().commit()
-    if trackback:
-        print("{0} Shownotes scaned. {4} ignored. {1} Trackback links discovered. {2} skipped. {3} failed to use.".\
-              format(links_count, tb_count, skip_count, error_count, ign_count))
+                print(style.red + "* errör during parsing: ",
+                    filename, style.default)
+        if data: update_database(filename, data, tracker)
+    tracker.print_stats()
+
+
+def main(update_all, debug, trackback):
+    check_git_version()
+    log = fetch_log_from_git(update_all)
+    files = get_filenames_from_gitlog(log, update_all)
+    fill_database(files, debug, trackback)
     print("done.")
+
 
 if __name__ == "__main__":
     parser = OptionParser()
