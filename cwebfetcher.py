@@ -186,10 +186,10 @@ class Trackbacker():
 def update_database(filename, data, tracker):
     olds = Episode.find().filter_by(filename = filename).all()
     has_links = 'links' in data
+    has_files = 'files' in data
     for old in olds:
         try:
-            if has_links:
-                Link.find().filter_by(episode = old.id).delete()
+            Link.find().filter_by(episode = old.id).delete()
             File.find().filter_by(episode = old.id).delete()
         except Exception as e: print(style.red+"errör 1:"+style.default,e)
     episode = Episode(filename=filename, **data['episode'])
@@ -202,7 +202,8 @@ def update_database(filename, data, tracker):
         except Exception as e: print(style.red+"errör 2:"+style.default,e)
     if olds: print(style.green+"* update db: ",filename,style.default)
     else: print(style.green+"* add to db: ",filename,style.default)
-    list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
+    if has_files:
+        list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
     if has_links:
         list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
         tracker.check_all(episode, data['links'])
@@ -241,7 +242,47 @@ def fill_database(files, debug=False, trackback=False):
                 data = None
                 print(style.red + "* errör during parsing: ",
                     filename, style.default)
-        if data: update_database(filename, data, tracker)
+        if not data: continue
+
+        if data['type'] == "podcast":
+            update_database(filename, data, tracker)
+        elif data['type'] == "recording":
+            dsfiles = data['files']
+            try:
+                olds = Episode.find().filter_by(filename = filename).all()
+                old_files = list(map(lambda f: f.link,
+                    sum(map(lambda o: File.find().\
+                    filter_by(episode = o.id).all(), olds), [])))
+            except Exception as e: print(style.red+"errör 0:"+style.default,e)
+            update_database(filename, data, tracker)
+            for dsfile in dsfiles:
+                dsdata = dict(data)
+                dsdata['files'] = [dsfile]
+                dsepisode = dsdata['episode']
+                dsepisode['name'] = dsfile['name']
+                dsepisode['long'] = dsfile['info']
+                dsepisode['short'] = dsfile['type']
+                dsepisode['category'] = "file" + dsepisode['category']
+                update_database(dsfile['link'], dsdata, tracker)
+                if dsfile['link'] in old_files:
+                    old_files.remove(dsfile['link'])
+            if old_files:
+                episode = Episode.find().filter_by(filename = filename).one()
+            for old_file in old_files:
+                print(style.red + style.bold +
+                    "* found dangling file (link: {0})".\
+                    format(old_file),"move comments and rating to",
+                    "[id:{0}, slug:{2}, name:{3}]".\
+                    format(episode.id,episode.link,episode.name), style.default)
+                try:
+                    old = Episode.find().filter_by(filename = old_file).one()
+                    Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
+                    Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
+                except Exception as e: print(style.red+"errör 3:"+style.default,e)
+                session().commit()
+        else:
+            print(style.red+"* errör got unsupported data type:",
+                data['type'], style.default)
     tracker.print_stats()
 
 

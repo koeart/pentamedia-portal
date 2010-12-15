@@ -231,7 +231,8 @@ def load_podcast_file(filename):
     root = tree.getroot()
     return {'episode': get_episode(filename, root),
             'links': get_links(root),
-            'files': get_files(root)
+            'files': get_files(root),
+            'type': "podcast"
            }
 
 
@@ -239,7 +240,8 @@ def load_recording_file(filename):
     tree = etree.parse(filename)
     root = tree.getroot()
     return {'episode': get_recording(filename, root),
-            'files': get_files(root)
+            'files': get_files(root),
+            'type': "recording"
            }
 
 
