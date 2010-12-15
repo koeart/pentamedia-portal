@@ -9,7 +9,10 @@
   <small class="date">
     {% if comment_count != 0 %}{{comment_count}} Comment{{comment_count != 1 and "s" or ""}} :: {% endif %}
     <em>{{episode.author|d("episode.author")}}</em> @ {{episode.fdate()|d("episode.date")}}
-    <span class="stars"{% if rating.count == 0 %} style="color:#ccc"{% endif %}>{{rating.stars|d("rating.stars")}}</span>
+    <span class="stars"{% if rating.count == 0 %} style="color:#ccc"{% endif %}>
+      <span style="font-size:0.6em">{{rating.count|d(0)}}</span>
+      {{rating.stars|d("rating.stars")}}
+    </span>
   </small>
   <div class="news">
     <p class="">{{episode.short|d("episode.short")}} <a class="url" href="/{{site}}/{{episode.link|d('#')}}">more…</a></p>
