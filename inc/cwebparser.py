@@ -24,8 +24,10 @@ FILEBLOCK = 1024
 def get_name(tag):
     return tag.attrib['title']
 
+
 def parse_date(date):
     return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+
 
 def parse_size(size):
     size = float(size)
@@ -44,23 +46,28 @@ def get_slug(filename):
     episode = str(m.group('episode'))
     return episode
 
+
 def get_category(filename):
     m = re_filename.match(filename)
     typ = str(m.group('type'))
     return typ
 
+
 def get_author(root):
     return root.attrib['author']
+
 
 def get_date(root):
     raw = root.attrib['date']
     return parse_date(raw)
+
 
 def get_short(root):
     p = root.findall('p')
     raw = etree.tostring(p[0]).strip()[3:-4].strip()
     short = raw.replace("<link", "<a").replace("</link>", "</a>")
     return short
+
 
 def get_long(root):
     p = root.findall('p')
@@ -69,6 +76,7 @@ def get_long(root):
                 + "\n" for n in p[1:] ])
     lang = raw.strip()[3:-4].strip()
     return lang
+
 
 def get_episode(filename, root):
     return {'name': get_name(root),
@@ -85,14 +93,17 @@ def get_title(litag):
     link = litag.findall('link')[0]
     return link.text
 
+
 def get_url(litag):
     link = litag.findall('link')[0]
     return link.attrib['href'] if 'href' in link.attrib else link.text
+
 
 def get_link(litag):
     return {'title': get_title(litag),
             'url': get_url(litag)
            }
+
 
 def get_links(root):
     addendum = root.findall('addendum')
@@ -107,40 +118,42 @@ def get_links(root):
 def get_filetype(tag):
     return tag.attrib['type'].partition("/")[2]
 
+
 def get_info(tag):
     size = parse_size(tag.attrib['size'])
     typ = FILETYPE[get_filetype(tag)]
     return "{0}, {1}".format(typ, size)
 
+
 def get_filelink(tag):
     return tag.attrib['url']
 
-def get_ogg(tag):
+
+def get_resource(tag):
     return {'name': get_name(tag),
             'type': get_filetype(tag),
             'link': get_filelink(tag),
             'info': get_info(tag)
            }
 
-def get_mp3(tag, title):
+
+def get_alternative(tag, title):
     return {'name': title,
             'type': get_filetype(tag),
             'link': get_filelink(tag),
             'info': get_info(tag)
            }
 
-def get_audio(resource):
-    ogg = get_ogg(resource)
-    alternative = resource.findall('alternative')
-    try: alternative = alternative[0]
-    except: return [ogg]
-    mp3 = get_mp3(alternative, ogg['name'])
-    return [ogg, mp3]
+
+def get_media(resource):
+    res = get_resource(resource)
+    alternatives = resource.findall('alternative')
+    return [res]+list(map(lambda a:get_alternative(a,res['name']),alternatives))
 
 
 def get_files(root):
     resources = root.findall('resource')
-    return sum(map(get_audio,resources), [])
+    return sum(map(get_media,resources), [])
 
 
 
@@ -162,6 +175,7 @@ def test():
                   #raw = filebase + line
                   #filename = raw.rstrip()
     pprint(load_podcast_file(filename))
+
 
 if __name__ == "__main__":
     test()
