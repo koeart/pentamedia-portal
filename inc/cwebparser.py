@@ -44,6 +44,10 @@ def parse_size(size):
     return "{0:.1f} {1}".format(size, FILESIZE[-1]) # futurity NOW :)
 
 
+def parse_link_tags(raw):
+    return raw.replace("<link", "<a").replace("</link>", "</a>")
+
+
 # workers
 
 
@@ -75,15 +79,12 @@ def get_date(root):
 def get_short(root):
     p = root.findall('p')
     raw = etree.tostring(p[0]).strip()[3:-4].strip()
-    short = raw.replace("<link", "<a").replace("</link>", "</a>")
-    return short
+    return parse_link_tags(raw)
 
 
 def get_long(root):
     p = root.findall('p')
-    raw = "".join([ etree.tostring(n).\
-                replace("<link", "<a").replace("</link>", "</a>")
-                + "\n" for n in p[1:] ])
+    raw = "".join([ parse_link_tags(etree.tostring(n)) + "\n" for n in p[1:] ])
     lang = raw.strip()[3:-4].strip()
     return lang
 
