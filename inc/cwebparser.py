@@ -11,6 +11,7 @@ re_recording = re.compile(r".*(?P<type>d(s|atenspuren20)[^-]*)-(?P<episode>[^.]*
 
 # FIXME add more types (if needed)
 FILETYPE = {'application/x-bittorrent': "BitTorrent-Metainformationen",
+            'application/pdf': "Portable Document Format",
             'multipart/x-zip': "Zip-Archiv",
             'video/mp4': "MP4-Video",
             'video/webm': "WebM Video",
@@ -61,11 +62,15 @@ def get_slug(rex, filename):
     return episode
 
 
-def get_category(rex, filename):
+def get_category_by_rex(rex, filename):
     m = rex.match(filename)
     typ = str(m.group('type'))
     return typ
 
+
+def get_save_category_by_rex(rex, filename):
+    m = rex.match(filename)
+    return str(m.group('type')) if m else None
 
 def get_author(root):
     return root.attrib['author']
@@ -148,11 +153,21 @@ def get_files(root):
 
 
 def get_podcast_category(filename):
-    return get_category(re_podcast, filename)
+    return get_category_by_rex(re_podcast, filename)
 
 
 def get_recording_category(filename):
-    return get_category(re_recording, filename).replace("atenspuren20", "s")
+    return get_category_by_rex(re_recording, filename).replace("atenspuren20", "s")
+
+
+def get_save_podcast_category(filename):
+    return get_save_category_by_rex(re_podcast, filename)
+
+
+def get_save_recording_category(filename):
+    cat = get_save_category_by_rex(re_recording, filename)
+    if cat is not None: cat = cat.replace("atenspuren20", "s")
+    return cat
 
 
 def get_podcast_slug(filename):
@@ -205,6 +220,10 @@ def get_alternative(tag, title):
 
 
 # exports
+
+
+def get_category(fn):
+    return get_save_podcast_category(fn) or get_save_recording_category(fn)
 
 
 def load_podcast_file(filename):

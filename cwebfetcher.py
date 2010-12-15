@@ -5,7 +5,7 @@ import os
 import os.path as ospath
 from optparse import OptionParser
 from subprocess import getoutput, getstatusoutput
-from inc.cwebparser import load_podcast_file
+from inc.cwebparser import load_podcast_file, load_recording_file, get_category
 from juno import init, session
 
 init({'use_db':          True,
@@ -19,7 +19,7 @@ from inc.console import style, drug
 from config import pentamediaportal, cwebgitrepository, cwebnewsfolder
 from blacklist import sites as blacklist
 
-re_news = re.compile(r"(?P<file>"+cwebnewsfolder+r"penta(cast|music|radio).*\.xml)")
+re_news = re.compile(r"(?P<status>M|A|D)\s*(?P<file>"+cwebnewsfolder+r"((penta(cast|music|radio))|(d(s|atenspuren))).*\.xml)")
 gitcmd = "git --git-dir=cweb.git --work-tree=. "
 
 
@@ -53,7 +53,7 @@ def fetch_log_from_git(update_all=False):
         if git("fetch web master") == 0:
             git("branch --track master FETCH_HEAD")
             print("* get all filenames from log")
-            log = git("log --name-only --format=%n",1)
+            log = git("log --name-status --format=%n",1)
         else:
             print("* an error occured during fetch")
             exit(1)
@@ -68,6 +68,7 @@ def fetch_log_from_git(update_all=False):
             fulllog = fulllog != 0
         if not fulllog: print("* current revision is",old)
         else: print("* no revisions available")
+        fulllog = fulllog or update_all
         if git("fetch web master") != 0:
             print("* an error occured during fetch")
             exit(1)
@@ -78,10 +79,10 @@ def fetch_log_from_git(update_all=False):
         if old != new or fulllog:
             if fulllog:
                 print("* get all filenames from log")
-                log = git("log --name-only --format=%n",1)
+                log = git("log --name-status --format=%n",1)
             else:
                 print("* get updated filenames from log")
-                log = git("log --name-only --format=%n {0}..{1}".\
+                log = git("log --name-status --format=%n {0}..{1}".\
                           format(old,new),1)
         else:
             print("* no new updates")
@@ -90,20 +91,37 @@ def fetch_log_from_git(update_all=False):
     return log
 
 
-def get_filenames_from_gitlog(log, update_all=False):
-    while "\n\n" in log: log = log.replace("\n\n","\n").split("\n")
-    files = []
+def is_recording_file(filename):
+    lines = getoutput("grep '<resource' ./"+filename)
+    return len(lines) > 0
 
+
+def clean_log(log):
+    while "\n\n" in log: log = log.replace("\n\n","\n").split("\n")
+    return log
+
+
+def get_filenames_from_gitlog(log, update_all=False):
+    files, deleted, log = [], [], clean_log(log)
+    print("* filter filenames")
     for line in log:
         m = re_news.match(line)
         if m is not None:
             filename = m.group('file')
-            if filename not in files: files.append(filename)
+            status = m.group('status')
+            if status == "D":
+                print(style.yellow+"* skip",filename,
+                    "(file deleted)", style.default)
+                deleted.append(filename)
+                continue
+            if filename not in deleted and filename not in files:
+                files.append(filename)
 
     if files:
         print("* load files from git")
         git("checkout --merge master -- "+" ".join(files))
     elif update_all:
+        print("* load files from folder")
         files = list(map(lambda fn:cwebnewsfolder+fn, os.listdir(cwebnewsfolder)))
 
     return files
@@ -167,10 +185,12 @@ class Trackbacker():
 
 def update_database(filename, data, tracker):
     olds = Episode.find().filter_by(filename = filename).all()
+    has_links = 'links' in data
     for old in olds:
         try:
+            if has_links:
+                Link.find().filter_by(episode = old.id).delete()
             File.find().filter_by(episode = old.id).delete()
-            Link.find().filter_by(episode = old.id).delete()
         except Exception as e: print(style.red+"errör 1:"+style.default,e)
     episode = Episode(filename=filename, **data['episode'])
     episode.save()
@@ -183,20 +203,40 @@ def update_database(filename, data, tracker):
     if olds: print(style.green+"* update db: ",filename,style.default)
     else: print(style.green+"* add to db: ",filename,style.default)
     list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
-    list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
-    tracker.check_all(episode, data['links'])
+    if has_links:
+        list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
+        tracker.check_all(episode, data['links'])
     session().commit()
 
 
 def fill_database(files, debug=False, trackback=False):
     tracker = Trackbacker(trackback)
     for filename in files:
+        category = get_category(filename)
+        if not category or ("penta" not in category and "ds" not in category):
+                print(style.red+"* errör can't categorize ",
+                    filename, "  found:", category, style.default)
+                continue # proceed with next
+        if not ospath.exists("./"+filename):
+            print(style.red+"* errör can't find", filename, style.default)
+            continue # proceed with next
+        if "penta" in category:
+            load_file = load_podcast_file
+        elif "ds" in category:
+            load_file = load_recording_file
+            if not is_recording_file(filename):
+                print(style.yellow+"* skip", filename,
+                    "(no resources found)", style.default)
+                continue # skip this file
+        else:
+            load_file = lambda f: print(style.magenta + \
+                "* nothing happen with",f,style.default)
         if debug:
             print("* try to add to db: ",filename)
-            data = load_podcast_file(filename)
+            data = load_file(filename)
         else:
             try:
-                data = load_podcast_file(filename)
+                data = load_file(filename)
             except:
                 data = None
                 print(style.red + "* errör during parsing: ",
