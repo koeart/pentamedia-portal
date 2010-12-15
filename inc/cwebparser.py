@@ -7,7 +7,7 @@ from datetime import datetime
 import xml.etree.ElementTree as etree
 
 re_podcast = re.compile(r".*(?P<type>penta(cast|radio|music))(-?\d*)-(?P<episode>[^.]*)\.xml")
-re_recording = re.compile(r".*(?P<type>d(s|atenspuren20)[^-]*)-(?P<episode>[^.]*)\.xml")
+re_recording = re.compile(r".*(?P<episode>(?P<type>d(s|atenspuren20)[^-]*)-[^.]*)\.xml")
 
 # FIXME add more types (if needed)
 FILETYPE = {'application/x-bittorrent': "BitTorrent-Metainformationen",
