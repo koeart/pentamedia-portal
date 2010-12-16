@@ -20,6 +20,11 @@
   <div class="news">
     <p class="">{{episode.short|d("episode.short")}} <a class="url" href="/{{site}}/{{episode.link|d('#')}}">more…</a></p>
   </div>
+  {% if episode.has_screen|d(False) %}
+    <div class="screen pane">
+      <img src="/img/empty_screen.jpg" width="360" height="270" class="screen" />
+    </div>
+  {% endif %}
 </div>
 {% endfor %}
 
