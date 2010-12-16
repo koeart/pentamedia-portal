@@ -250,6 +250,10 @@ def fill_database(files, debug=False, trackback=False):
         if data['type'] == "podcast":
             update_database(filename, data, tracker)
         elif data['type'] == "recording":
+            # datastructure:
+            # xml-file as Episode (category='ds*') with files from resource-tags
+            # files from resource-tags as Episodes (category='file/ds*/:link')
+            #    with self and alternatives as files
             dsfiles = deepcopy(data['files'])
             for f in data['files']:
                 f.pop('alternatives')

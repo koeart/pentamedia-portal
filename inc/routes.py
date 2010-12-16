@@ -117,7 +117,7 @@ def datenspur_file(web, id, filename, mode):
                     css        = "episode",
                     episode    = episode,
                     episodes   = {episode.id: episode},
-                    site       = "datenspuren/{0}/{1}".format(id, filename),
+                    site       = "datenspuren/" + id,
                     trackbacks = trackbacks,
                     files      = files,
                     **opts
