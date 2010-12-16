@@ -95,7 +95,7 @@ def main(web, site):
                    )
 
 
-@route("/datenspuren/(?P<id>.[^/]*)/(?P<filename>(.[^/](?!(atom|json)))*)(?P<mode>/(comment|rate|reply))?")
+@route("/datenspuren/(?P<id>[^/]+)/(?P<filename>([^/](?!(atom|json)))+)(?P<mode>/(comment|rate|reply))?")
 def datenspur_file(web, id, filename, mode):
     try: # FIXME wrap db queries into one
         episode = Episode.find().filter_by(link = filename).\
@@ -124,7 +124,7 @@ def datenspur_file(web, id, filename, mode):
                    )
 
 
-@route("/datenspuren/(?P<id>([^/](?!(atom|json)))*)(?P<mode>/(comment|rate|reply))?")
+@route("/datenspuren/(?P<id>([^/](?!(atom|json)))+)(?P<mode>/(comment|rate|reply))?")
 def datenspur(web, id, mode):
     # FIXME wrap db queries into one
     episodes = Episode.find().filter(Episode.category.endswith(id)).\
