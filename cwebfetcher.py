@@ -3,6 +3,7 @@
 import re
 import os
 import os.path as ospath
+from copy import deepcopy
 from optparse import OptionParser
 from subprocess import getoutput, getstatusoutput
 from inc.cwebparser import load_podcast_file, load_recording_file, get_category
@@ -256,13 +257,16 @@ def fill_database(files, debug=False, trackback=False):
             except Exception as e: print(style.red+"errör 0:"+style.default,e)
             update_database(filename, data, tracker)
             for dsfile in dsfiles:
-                dsdata = dict(data)
+                dsdata = deepcopy(data)
                 dsdata['files'] = [dsfile]
                 dsepisode = dsdata['episode']
                 dsepisode['name'] = dsfile['name']
                 dsepisode['long'] = dsfile['info']
+                dsepisode['link'] = ospath.basename(dsfile['link']).\
+                    replace(" ", "_")
                 dsepisode['short'] = dsfile['type']
-                dsepisode['category'] = "file" + dsepisode['category']
+                dsepisode['category'] = "file/{0}/{1}".\
+                    format(data['episode']['category'], data['episode']['link'])
                 update_database(dsfile['link'], dsdata, tracker)
                 if dsfile['link'] in old_files:
                     old_files.remove(dsfile['link'])

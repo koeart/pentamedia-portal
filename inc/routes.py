@@ -95,6 +95,24 @@ def main(web, site):
                    )
 
 
+@route("/datenspuren/(?P<id>([^/](?!(atom|json)))*)(?P<mode>/(comment|rate|reply))?")
+def datenspur(web, id, mode):
+    # FIXME wrap db queries into one
+    episodes = Episode.find().filter(Episode.category.endswith(id)).\
+               order_by(Episode.date).all()
+    episodes.reverse()
+    comments_count = [ Comment.find().filter_by(episode = e.id).count()
+                       for e in episodes ]
+    ratings = [ do_the_ratings(0, 0, Rating.find().\
+                filter_by(episode = e.id).all())['rating']
+                for e in episodes ]
+    return template("episodes.tpl",
+                    css         = "episode",
+                    episodepage = zip(episodes, comments_count, ratings),
+                    site        = "datenspuren/" + id
+                   )
+
+
 @route("/datenspuren(?!.*/(comment(s|/new)|rating(s)?))")
 def datenspuren(web):
     # FIXME wrap db queries into one
