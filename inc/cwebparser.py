@@ -141,12 +141,14 @@ def get_filelink(tag):
 def get_media(resource):
     res = get_resource(resource)
     alternatives = resource.findall('alternative')
-    return [res]+list(map(lambda a:get_alternative(a,res['name']),alternatives))
+    res['alternatives'] = list(map(lambda a:get_alternative(a,res['name']),
+        alternatives))
+    return res
 
 
 def get_files(root):
     resources = root.findall('resource')
-    return sum(map(get_media,resources), [])
+    return list(map(get_media,resources))
 
 
 # helpers
@@ -222,6 +224,11 @@ def get_alternative(tag, title):
 # exports
 
 
+def flatten_files(files):
+    return sum(map(lambda f: sum(
+        reversed([f.pop('alternatives'), [f]]), []), files), [])
+
+
 def get_category(fn):
     return get_save_podcast_category(fn) or get_save_recording_category(fn)
 
@@ -231,7 +238,7 @@ def load_podcast_file(filename):
     root = tree.getroot()
     return {'episode': get_episode(filename, root),
             'links': get_links(root),
-            'files': get_files(root),
+            'files': flatten_files(get_files(root)),
             'type': "podcast"
            }
 

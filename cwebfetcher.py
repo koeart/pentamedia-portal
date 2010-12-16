@@ -6,7 +6,9 @@ import os.path as ospath
 from copy import deepcopy
 from optparse import OptionParser
 from subprocess import getoutput, getstatusoutput
-from inc.cwebparser import load_podcast_file, load_recording_file, get_category
+from inc.cwebparser import load_podcast_file,  \
+                           load_recording_file, \
+                           get_category, flatten_files
 from juno import init, session
 
 init({'use_db':          True,
@@ -248,7 +250,8 @@ def fill_database(files, debug=False, trackback=False):
         if data['type'] == "podcast":
             update_database(filename, data, tracker)
         elif data['type'] == "recording":
-            dsfiles = data['files']
+            dsfiles = deepcopy(data['files'])
+            data['files'] = flatten_files(data['files'])
             try:
                 olds = Episode.find().filter_by(filename = filename).all()
                 old_files = list(map(lambda f: f.link,
@@ -258,7 +261,7 @@ def fill_database(files, debug=False, trackback=False):
             update_database(filename, data, tracker)
             for dsfile in dsfiles:
                 dsdata = deepcopy(data)
-                dsdata['files'] = [dsfile]
+                dsdata['files'] = [dsfile] + dsfile.pop('alternatives')
                 dsepisode = dsdata['episode']
                 dsepisode['name'] = dsfile['name']
                 dsepisode['long'] = dsfile['info']
