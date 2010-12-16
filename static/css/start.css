@@ -59,6 +59,11 @@ body {
   left: 50%;
   margin-left: -80px;
 }
+.normal_links a {
+  color: #666666;
+  border-bottom: 1px solid #ebc63c;
+}
+.normal_links a:hover { border-bottom: 2px solid #ebc63c; }
 #footer {
   -khtml-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -70,13 +75,19 @@ body {
   background-color: white;
   margin-top: -10px;
   left: 23%;
-  wisth: 555px;
   margin-left: -80px;
   margin-right: 80px;
   opacity: 0.5;
 }
-#footer a {
-  color: #666666;
-  border-bottom: 1px solid #ebc63c;
+#right_side {
+  -khtml-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  position: absolute;
+  background-color: white;
+  padding: 41px 5px 41px 31px;
+  left: 656px;
+  margin-top: 30%;
+  opacity: 0.9;
 }
-#footer a:hover { border-bottom: 2px solid #ebc63c; }
