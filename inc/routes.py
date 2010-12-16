@@ -108,6 +108,7 @@ def datenspur(web, id, mode):
                 for e in episodes ]
     for episode in episodes:
         episode.has_screen = True
+        episode.files = File.find().filter_by(episode = episode.id).all()
     return template("episodes.tpl",
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
