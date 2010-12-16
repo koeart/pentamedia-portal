@@ -6,8 +6,8 @@ body {
   padding: 0;
   text-align: center;
   min-height: 400px;
-  background-color: #071e3d;
   background: url("/img/c3d2_blue_big.jpg") no-repeat center;
+  background-color: #071e3d;
 }
 #Container {
   position: relative;
@@ -24,7 +24,7 @@ body {
   padding: 5px;
   position: absolute;
   width: 666px;
-  top: 30%;
+  top: 13%;
   background-color: white;
   display: table-row;
 }
