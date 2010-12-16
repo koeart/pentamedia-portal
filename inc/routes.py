@@ -130,7 +130,8 @@ def datenspuren(web):
     for episode in episodes:
         ratings += [ do_the_ratings(0, 0, Rating.find().\
             filter_by(episode = Episode.find(Episode.id).\
-            filter_by(filename = f.link).one().id).all())['rating']
+            filter_by(filename = f.link, category = "file/{0}/{1}".\
+            format(episode.category,episode.link)).one().id).all())['rating']
             for f in File.find().filter_by(episode = episode.id).all() ]
         count = File.find().filter_by(episode = episode.id).count()
         episode.filescount = "// {0} File{1}".format(count,

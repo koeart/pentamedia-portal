@@ -225,8 +225,7 @@ def get_alternative(tag, title):
 
 
 def flatten_files(files):
-    return sum(map(lambda f: sum(
-        reversed([f.pop('alternatives'), [f]]), []), files), [])
+    return sum(map(lambda f: [f] + f.pop('alternatives'), files), [])
 
 
 def get_category(fn):

@@ -251,7 +251,8 @@ def fill_database(files, debug=False, trackback=False):
             update_database(filename, data, tracker)
         elif data['type'] == "recording":
             dsfiles = deepcopy(data['files'])
-            data['files'] = flatten_files(data['files'])
+            for f in data['files']:
+                f.pop('alternatives')
             try:
                 olds = Episode.find().filter_by(filename = filename).all()
                 old_files = list(map(lambda f: f.link,
@@ -261,7 +262,8 @@ def fill_database(files, debug=False, trackback=False):
             update_database(filename, data, tracker)
             for dsfile in dsfiles:
                 dsdata = deepcopy(data)
-                dsdata['files'] = [dsfile] + dsfile.pop('alternatives')
+                alternatives = dsfile.pop('alternatives')
+                dsdata['files'] = [dsfile] + alternatives
                 dsepisode = dsdata['episode']
                 dsepisode['name'] = dsfile['name']
                 dsepisode['long'] = dsfile['info']
@@ -273,18 +275,26 @@ def fill_database(files, debug=False, trackback=False):
                 update_database(dsfile['link'], dsdata, tracker)
                 if dsfile['link'] in old_files:
                     old_files.remove(dsfile['link'])
+                for alternative in alternatives:
+                    if alternative['link'] in old_files:
+                        old_files.remove(alternative['link'])
             if old_files:
                 episode = Episode.find().filter_by(filename = filename).one()
             for old_file in old_files:
                 print(style.red + style.bold +
                     "* found dangling file (link: {0})".\
-                    format(old_file),"move comments and rating to",
-                    "[id:{0}, slug:{1}, name:{2}]".\
+                    format(old_file), "move comments and rating to",
+                    "[id:{0}, link:{1}, name:{2}]".\
                     format(episode.id,episode.link,episode.name), style.default)
                 try:
-                    old = Episode.find().filter_by(filename = old_file).one()
-                    Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
-                    Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
+                    olds = Episode.find().filter_by(filename = old_file).\
+                        filter(Episode.category.startswith("file/")).all()
+                    if debug: print("* found",len(olds),"episodes to delete")
+                    for old in olds:
+                        Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
+                        Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
+                    print("* deleted {0} episodes".format(
+                        Episode.find().filter_by(filename = old_file).delete()))
                 except Exception as e: print(style.red+"errör 3:"+style.default,e)
                 session().commit()
         else:
