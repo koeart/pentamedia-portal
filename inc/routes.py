@@ -95,6 +95,35 @@ def main(web, site):
                    )
 
 
+@route("/datenspuren/(?P<id>.[^/]*)/(?P<filename>(.[^/](?!(atom|json)))*)(?P<mode>/(comment|rate|reply))?")
+def datenspur_file(web, id, filename, mode):
+    try: # FIXME wrap db queries into one
+        episode = Episode.find().filter_by(link = filename).\
+                filter(Episode.category.endswith(id)).\
+                order_by(Episode.date).one()
+        comments = Comment.find().filter_by(episode = episode.id).all()
+        files    = File.find().filter_by(episode = episode.id).all()
+        ratings  = Rating.find().filter_by(episode = episode.id).all()
+        trackbacks = Trackback.find().filter_by(episode = episode.id).\
+                    order_by(Trackback.date).all()
+    except Exception as e: return notfound(str(e))
+    if mode is None: mode = ""
+    if len(mode): mode = mode[1:]
+    opts = {}
+    opts.update(create_session(web, mode))
+    opts.update(do_the_comments(web, mode, comments))
+    opts.update(do_the_ratings(web, mode, ratings))
+    return template("datenspur.tpl",
+                    css        = "episode",
+                    episode    = episode,
+                    episodes   = {episode.id: episode},
+                    site       = "datenspuren/{0}/{1}".format(id, filename),
+                    trackbacks = trackbacks,
+                    files      = files,
+                    **opts
+                   )
+
+
 @route("/datenspuren/(?P<id>([^/](?!(atom|json)))*)(?P<mode>/(comment|rate|reply))?")
 def datenspur(web, id, mode):
     # FIXME wrap db queries into one
