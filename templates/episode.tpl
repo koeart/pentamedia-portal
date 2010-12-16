@@ -11,11 +11,9 @@
 	<p><em>{{episode.short|d("episode.short")}}</em></p>
 	<p>{{episode.long|d("episode.long")}}</p>
 	<p>
-	  Wir freuen uns über Feedback: bislang bitte
-	  an <a href="mailto:mail@c3d2.de">mail@c3d2.de</a> schicken
-	  oder <a href="http://twitter.com/pentaradio">@pentaradio</a>
-
-	  tweeten.
+    Wir freuen uns über Feedback: bitte
+    an <a href="mailto:mail@c3d2.de">mail@c3d2.de</a>, <a href="http://identi.ca/pentaradio">@pentaradio (identi.ca)</a>
+    oder an <a href="http://twitter.com/pentaradio">@pentaradio (twitter)</a> schicken, denten oder tweeten.
 	</p>
 
 <p>&nbsp;</p>
