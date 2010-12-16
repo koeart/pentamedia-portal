@@ -227,7 +227,7 @@ def fill_database(files, debug=False, trackback=False):
         elif "ds" in category:
             load_file = load_recording_file
             if not is_recording_file(filename):
-                print(style.yellow+"* skip", filename,
+                print(style.green + style.bold + "* skip", filename,
                     "(no resources found)", style.default)
                 continue # skip this file
         else:
@@ -276,7 +276,7 @@ def fill_database(files, debug=False, trackback=False):
                 print(style.red + style.bold +
                     "* found dangling file (link: {0})".\
                     format(old_file),"move comments and rating to",
-                    "[id:{0}, slug:{2}, name:{3}]".\
+                    "[id:{0}, slug:{1}, name:{2}]".\
                     format(episode.id,episode.link,episode.name), style.default)
                 try:
                     old = Episode.find().filter_by(filename = old_file).one()
