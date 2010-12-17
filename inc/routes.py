@@ -153,18 +153,18 @@ def datenspuren(web):
     episodes.reverse()
     comments_count = [ Comment.find().filter_by(episode = e.id).count()
                        for e in episodes ]
-    ratings = [ do_the_ratings(0, 0, Rating.find().\
-                filter_by(episode = e.id).all())['rating']
-                for e in episodes ]
+    ratings = []
     for episode in episodes:
-        ratings += [ do_the_ratings(0, 0, Rating.find().\
-            filter_by(episode = Episode.find(Episode.id).\
-            filter_by(filename = f.link, category = "file/{0}/{1}".\
-            format(episode.category,episode.link)).one().id).all())['rating']
-            for f in File.find().filter_by(episode = episode.id).all() ]
+        ids = list(map(lambda e:e.id, Episode.find(Episode.id).\
+            filter_by(category = "file/{0}/{1}".\
+            format(episode.category, episode.link)).all()))
+        f_rts = list(Rating.find().filter( Rating.episode.in_(ids)) )
+        e_rts = list(Rating.find().filter_by(episode = episode.id).all())
+        ratings += [ do_the_ratings(0, 0, e_rts + f_rts)['rating'] ]
         count = File.find().filter_by(episode = episode.id).count()
         episode.filescount = "// {0} File{1}".format(count,
             count != 1 and "s" or "")
+    print("-"*20,len(ratings), ratings)
     return template("episodes.tpl",
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
