@@ -3,6 +3,12 @@
 {% from "rating.tpl"   import print_rating   with context %}
 
 {% block body %}
+
+
+      <p class="date">{{episode.author|d("episode.author")}} @ {{episode.fdate()|d("episode.date")}}</p>
+      <h2>{{episode.name|d("episode.name")}}</h2>
+      <div class="stars" style="margin-top:-1em;color:#{% if rating.count == 0 %}ccc{% else %}777{% endif %}">{{rating.stars}}</div>
+
 {% for episode, comment_count, rating in episodepage|d([]) %}
 <div class="episode">
   <h3 class="summary">
@@ -43,6 +49,7 @@
 {% endfor %}
 
 <p>&nbsp;</p>
+<h3>{{episode.name|d("episode.name")}}</h3>
 {{print_rating()}}
 {{print_comments()}}
 <p>&nbsp;</p>
