@@ -272,7 +272,7 @@ def fill_database(files, debug=False, trackback=False):
                 dsepisode['name'] = dsfile['name']
                 dsepisode['long'] = dsfile['info']
                 dsepisode['link'] = ospath.basename(dsfile['link']).\
-                    replace(" ", "_")
+                    replace(" ", "_").replace("%20", "_")
                 dsepisode['short'] = dsfile['type']
                 dsepisode['category'] = "file/{0}/{1}".\
                     format(data['episode']['category'], data['episode']['link'])

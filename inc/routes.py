@@ -165,7 +165,6 @@ def datenspuren(web):
         count = File.find().filter_by(episode = episode.id).count()
         episode.filescount = "// {0} File{1}".format(count,
             count != 1 and "s" or "")
-    print("-"*20,len(ratings), ratings)
     return template("episodes.tpl",
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
