@@ -293,7 +293,6 @@ def new_ds_file_rating(web, id, filename):
 
 @post("/datenspuren/:id/comment/new") # FIXME impl error
 def new_ds_file_comment(web, id):
-    print(";"*20,id)
     is_ok, result = get_episode_if_input_is_ok(web, Episode.link == id,
             exists   = ['author','comment','reply'],
             notempty = ['comment'] )
@@ -305,7 +304,6 @@ def new_ds_file_comment(web, id):
 
 @post("datenspuren/:id/rating/new")
 def new_ds_file_rating(web, id):
-    print(":"*20,id)
     is_ok, result = get_episode_if_input_is_ok(web, Episode.link == id,
             exists = ['score'], notempty = ['score'] )
     if is_ok:
