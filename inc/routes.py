@@ -2,6 +2,7 @@
 from juno import route, get, post, yield_file, template, redirect, find, \
                  notfound
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
+from sqlalchemy import and_
 import os
 
 from inc.re import re_reply, re_url
@@ -228,7 +229,7 @@ def ratings_by_filename(web, filename, mode):
 
 @post("/(?P<site>penta(radio|cast|music))/:id/comment/new") # FIXME impl error
 def new_comment(web, site, id):
-    is_ok, result = get_episode_if_input_is_ok(web, id,
+    is_ok, result = get_episode_if_input_is_ok(web, Episode.link == id,
             exists   = ['author','comment','reply'],
             notempty = ['comment'] )
     if is_ok:
@@ -266,7 +267,7 @@ def new_comment(web, site, id):
 
 @post("(?P<site>penta(radio|cast|music))/:id/rating/new")
 def new_rating(web, site, id):
-    is_ok, result = get_episode_if_input_is_ok(web, id,
+    is_ok, result = get_episode_if_input_is_ok(web, Episode.link == id,
             exists = ['score'], notempty = ['score'] )
     if is_ok:
         episode, result = result, None
@@ -276,6 +277,22 @@ def new_rating(web, site, id):
             if score in range(1,6):
                 Rating(episode = episode.id, score = score).save()
     return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
+
+
+
+@post("datenspuren/:id/:filename/rating/new")
+def new_rating(web, id, filename):
+    is_ok, result = get_episode_if_input_is_ok(web,
+            and_(Episode.link == filename, Episode.category.endswith(id)),
+            exists = ['score'], notempty = ['score'] )
+    if is_ok:
+        episode, result = result, None
+        try:    score = int(web.input('score'))
+        except: score = None
+        if score is not None:
+            if score in range(1,6):
+                Rating(episode = episode.id, score = score).save()
+    return result or redirect("/datenspuren/{0}/{1}".format(id,filename)) # FIXME give error to user
 
 
 @route("/spenden")
@@ -304,11 +321,11 @@ def captcha_is_ok(web):
     return found
 
 
-def get_episode_if_input_is_ok(web, id, exists = [], notempty = []):
+def get_episode_if_input_is_ok(web, filtr, exists = [], notempty = []):
     if captcha_is_ok(web) and \
       all([ web.input(k) is not None for k in exists   ]) and \
       all([ web.input(k) != ""       for k in notempty ]):
-        try:    return True, Episode.find().filter_by(link = id).one()
+        try:    return True, Episode.find().filter(filtr).one()
         except Exception as e: return False, notfound(str(e))
     return False, None
 
