@@ -232,35 +232,8 @@ def new_comment(web, site, id):
             exists   = ['author','comment','reply'],
             notempty = ['comment'] )
     if is_ok:
-        episode, result = result, None
-        text, reply = md.convert(web.input('comment')), []
-        def replyer(x):
-            a = x.group()[1:]
-            i = find(Comment.id).filter_by(author=a).order_by(Comment.date).all()
-            if i: reply.append(i[-1][0])
-            return i and '@<a href="/{0}/{1}/reply?{2}#new">{3}</a>'.\
-                         format(site, id, i[-1][0], a)\
-                     or "@{0}".format(a)
-        text = re_reply.sub(replyer, text)
-        if reply: reply = reply[0]
-        else:     reply = -1
-        if web.input('reply') != "-1":
-            try: reply = int(web.input('reply'))
-            except: pass
-        pm_url = pentamediaportal+"/{0}/{1}".format(episode.category, episode.link)
-        for link in re_url.finditer(web.input('comment')):
-            trackback_client(link.group(), pm_url,
-                             title   = episode.name,
-                             excerpt = web.input('comment')
-                            )
-        Comment(episode = episode.id,
-                author  = web.input('author'),
-                reply   = reply,
-                text    = text,
-                date    = datetime.now()
-               ).save()
-        notify_muc("{0} just left some pithy words on {1}. [ {2} ]".\
-            format(web.input('author'), episode.name, pm_url))
+        build_and_save_comment(web, site+"/"+id, result)
+        result = None
     return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
 
 
@@ -327,6 +300,37 @@ def get_episode_if_input_is_ok(web, filtr, exists = [], notempty = []):
         try:    return True, Episode.find().filter(filtr).one()
         except Exception as e: return False, notfound(str(e))
     return False, None
+
+
+def build_and_save_comment(web, site, episode):
+        text, reply = md.convert(web.input('comment')), []
+        def replyer(x):
+            a = x.group()[1:]
+            i = find(Comment.id).filter_by(author=a).order_by(Comment.date).all()
+            if i: reply.append(i[-1][0])
+            return i and '@<a href="/{0}/reply?{1}#new">{2}</a>'.\
+                         format(site, i[-1][0], a)\
+                     or "@{0}".format(a)
+        text = re_reply.sub(replyer, text)
+        if reply: reply = reply[0]
+        else:     reply = -1
+        if web.input('reply') != "-1":
+            try: reply = int(web.input('reply'))
+            except: pass
+        pm_url = pentamediaportal+"/{0}/{1}".format(episode.category, episode.link)
+        for link in re_url.finditer(web.input('comment')):
+            trackback_client(link.group(), pm_url,
+                             title   = episode.name,
+                             excerpt = web.input('comment')
+                            )
+        Comment(episode = episode.id,
+                author  = web.input('author'),
+                reply   = reply,
+                text    = text,
+                date    = datetime.now()
+               ).save()
+        notify_muc("{0} just left some pithy words on {1}. [ {2} ]".\
+            format(web.input('author'), episode.name, pm_url))
 
 
 def template_comments():
