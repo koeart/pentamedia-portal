@@ -251,9 +251,20 @@ def new_rating(web, site, id):
     return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
 
 
+@post("/datenspuren/:id/:filename/comment/new") # FIXME impl error
+def new_ds_file_comment(web, id, filename):
+    is_ok, result = get_episode_if_input_is_ok(web,
+            and_(Episode.link == filename, Episode.category.endswith(id)),
+            exists   = ['author','comment','reply'],
+            notempty = ['comment'] )
+    if is_ok:
+        build_and_save_comment(web, "datenspuren/{0}/{1}".format(id, filename), result)
+        result = None
+    return result or redirect("/datenspuren/{0}/{1}".format(id, filename)) # FIXME give error to user
+
 
 @post("datenspuren/:id/:filename/rating/new")
-def new_rating(web, id, filename):
+def new_ds_file_rating(web, id, filename):
     is_ok, result = get_episode_if_input_is_ok(web,
             and_(Episode.link == filename, Episode.category.endswith(id)),
             exists = ['score'], notempty = ['score'] )
