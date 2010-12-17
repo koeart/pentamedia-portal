@@ -1,4 +1,6 @@
 {% extends "astro.tpl" %}
+{% from "comments.tpl" import print_comments with context %}
+{% from "rating.tpl"   import print_rating   with context %}
 
 {% block body %}
 {% for episode, comment_count, rating in episodepage|d([]) %}
@@ -20,8 +22,30 @@
   <div class="news">
     <p class="">{{episode.short|d("episode.short")}} <a class="url" href="/{{site}}/{{episode.link|d('#')}}">more…</a></p>
   </div>
+  {% if episode.has_screen|d(False) %}
+  <div style="clear:both;margin:0em auto;max-width:70%;padding-left:20%;height:300px">
+    <div class="screen pane" style="float:left">
+      <img src="/img/empty_screen.jpg" width="360" height="270" class="screen" />
+    </div>
+    <div class="download pane" style="margin:1em auto">
+      <h3>Download</h3>
+        <dl>
+        {% for f in episode.files %}
+        <dh><a href="{{f.link}}"
+            type="application/{{f.type}}" class="mime"
+            rel="enclosure">{{f.name}}</a></dh>
+        <dd>{{f.info}}</dd>{% endfor %}
+      </dl>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endfor %}
+
+<p>&nbsp;</p>
+{{print_rating()}}
+{{print_comments()}}
+<p>&nbsp;</p>
 
 <div style="position:absolute;right:3px;"><small><a href="/{{site}}/comments.atom">Atom</a></small></div>
 
