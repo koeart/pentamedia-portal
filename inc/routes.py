@@ -80,15 +80,16 @@ def episode(web, site, id, mode):
 
 @route("/(?P<site>penta(radio|cast|music))(?!.*/(comment(s|/new)|rating(s)?))")
 def main(web, site):
-    # FIXME wrap db queries into one
-    episodes = Episode.find().filter_by(category=site).\
-               order_by(Episode.date).all()
-    episodes.reverse()
-    comments_count = [ Comment.find().filter_by(episode = e.id).count()
-                       for e in episodes ]
-    ratings = [ do_the_ratings(0, 0, Rating.find().\
-                filter_by(episode = e.id).all())['rating']
-                for e in episodes ]
+    try: # FIXME wrap db queries into one
+        episodes = Episode.find().filter_by(category=site).\
+                order_by(Episode.date).all()
+        episodes.reverse()
+        comments_count = [ Comment.find().filter_by(episode = e.id).count()
+                        for e in episodes ]
+        ratings = [ do_the_ratings(0, 0, Rating.find().\
+                    filter_by(episode = e.id).all())['rating']
+                    for e in episodes ]
+    except Exception as e: return notfound(str(e))
     return template("episodes.tpl",
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
@@ -98,21 +99,22 @@ def main(web, site):
 
 @route("/datenspuren/(?P<id>([^/](?!(atom|json)))+)(?P<mode>/(comment|rate|reply))?")
 def datenspur(web, id, mode):
-    # FIXME wrap db queries into one
-    episodes = Episode.find().filter(Episode.category.endswith(id)).\
-               order_by(Episode.date).all()
-    episodes.reverse()
-    comments_count = [ Comment.find().filter_by(episode = e.id).count()
-                       for e in episodes ]
-    ratings = [ do_the_ratings(0, 0, Rating.find().\
-                filter_by(episode = e.id).all())['rating']
-                for e in episodes ]
-    for episode in episodes:
-        episode.has_screen = True
-        episode.files = File.find().filter_by(episode = episode.id).all()
-    episode = Episode.find().filter_by(link = id).one()
-    comments = Comment.find().filter_by(episode = episode.id).all()
-    rating = Rating.find().filter_by(episode = episode.id).all()
+    try: # FIXME wrap db queries into one
+        episodes = Episode.find().filter(Episode.category.endswith(id)).\
+                order_by(Episode.date).all()
+        episodes.reverse()
+        comments_count = [ Comment.find().filter_by(episode = e.id).count()
+                        for e in episodes ]
+        ratings = [ do_the_ratings(0, 0, Rating.find().\
+                    filter_by(episode = e.id).all())['rating']
+                    for e in episodes ]
+        for episode in episodes:
+            episode.has_screen = True
+            episode.files = File.find().filter_by(episode = episode.id).all()
+        episode = Episode.find().filter_by(link = id).one()
+        comments = Comment.find().filter_by(episode = episode.id).all()
+        rating = Rating.find().filter_by(episode = episode.id).all()
+    except Exception as e: return notfound(str(e))
     if mode is None: mode = ""
     if len(mode): mode = mode[1:]
     opts = {}
@@ -160,24 +162,25 @@ def datenspur_file(web, id, filename, mode):
 
 @route("/datenspuren(?!.*/(comment(s|/new)|rating(s)?))")
 def datenspuren(web):
-    # FIXME wrap db queries into one
-    episodes = Episode.find().filter(Episode.category.startswith("ds")).\
-               order_by(Episode.date).all()
-    episodes.reverse()
-    comments_count, ratings = [], []
-    for episode in episodes:
-        ids = list(map(lambda e:e.id, Episode.find(Episode.id).\
-            filter_by(category = "file/{0}/{1}".\
-            format(episode.category, episode.link)).all()))
-        f_rts = Rating.find().filter(Rating.episode.in_(ids)).all()
-        e_rts = Rating.find().filter_by(episode = episode.id).all()
-        ratings += [ do_the_ratings(0, 0, e_rts + f_rts)['rating'] ]
-        comments_count += [
-            Comment.find().filter(Comment.episode.in_(ids)).count() +
-            Comment.find().filter_by( episode = episode.id).count() ]
-        count = File.find().filter_by(episode = episode.id).count()
-        episode.filescount = "// {0} File{1}".format(count,
-            count != 1 and "s" or "")
+    try: # FIXME wrap db queries into one
+        episodes = Episode.find().filter(Episode.category.startswith("ds")).\
+                order_by(Episode.date).all()
+        episodes.reverse()
+        comments_count, ratings = [], []
+        for episode in episodes:
+            ids = list(map(lambda e:e.id, Episode.find(Episode.id).\
+                filter_by(category = "file/{0}/{1}".\
+                format(episode.category, episode.link)).all()))
+            f_rts = Rating.find().filter(Rating.episode.in_(ids)).all()
+            e_rts = Rating.find().filter_by(episode = episode.id).all()
+            ratings += [ do_the_ratings(0, 0, e_rts + f_rts)['rating'] ]
+            comments_count += [
+                Comment.find().filter(Comment.episode.in_(ids)).count() +
+                Comment.find().filter_by( episode = episode.id).count() ]
+            count = File.find().filter_by(episode = episode.id).count()
+            episode.filescount = "// {0} File{1}".format(count,
+                count != 1 and "s" or "")
+    except Exception as e: return notfound(str(e))
     return template("episodes.tpl",
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
@@ -319,6 +322,7 @@ def new_ds_file_rating(web, id):
 @route("/spenden")
 def donate(web):
     return template("spenden.tpl")
+
 
 # helper
 
