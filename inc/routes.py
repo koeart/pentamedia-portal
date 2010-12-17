@@ -152,9 +152,7 @@ def datenspuren(web):
     episodes = Episode.find().filter(Episode.category.startswith("ds")).\
                order_by(Episode.date).all()
     episodes.reverse()
-    comments_count = [ Comment.find().filter_by(episode = e.id).count()
-                       for e in episodes ]
-    ratings = []
+    comments_count, ratings = [], []
     for episode in episodes:
         ids = list(map(lambda e:e.id, Episode.find(Episode.id).\
             filter_by(category = "file/{0}/{1}".\
@@ -162,6 +160,9 @@ def datenspuren(web):
         f_rts = Rating.find().filter(Rating.episode.in_(ids)).all()
         e_rts = Rating.find().filter_by(episode = episode.id).all()
         ratings += [ do_the_ratings(0, 0, e_rts + f_rts)['rating'] ]
+        comments_count += [
+            Comment.find().filter(Comment.episode.in_(ids)).count() +
+            Comment.find().filter_by( episode = episode.id).count() ]
         count = File.find().filter_by(episode = episode.id).count()
         episode.filescount = "// {0} File{1}".format(count,
             count != 1 and "s" or "")
