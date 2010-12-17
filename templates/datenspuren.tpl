@@ -6,7 +6,7 @@
 {% for episode, comment_count, rating in episodepage|d([]) %}
 <div class="episode">
   <h3 class="summary">
-    <a class="url" href="/{{site}}/{{episode.link|d('#')}}">
+    <a class="url" href="/{{full_site}}/{{episode.link|d('#')}}">
       {{episode.name|d("episode.name")}}
       {% if episode.filescount %}<span style="font-size:0.6em">{{episode.filescount}}</span>{% endif %}
     </a>
@@ -20,7 +20,7 @@
     </span>
   </small>
   <div class="news">
-    <p class="">{{episode.short|d("episode.short")}} <a class="url" href="/{{site}}/{{episode.link|d('#')}}">more…</a></p>
+    <p class="">{{episode.short|d("episode.short")}} <a class="url" href="/{{full_site}}/{{episode.link|d('#')}}">more…</a></p>
   </div>
   {% if episode.has_screen|d(False) %}
   <div style="clear:both;margin:0em auto;max-width:70%;padding-left:20%;height:300px">
@@ -47,7 +47,7 @@
 {{print_comments()}}
 <p>&nbsp;</p>
 
-<div style="position:absolute;right:3px;"><small><a href="/{{site}}/comments.atom">Atom</a></small></div>
+<div style="position:absolute;right:3px;"><small><a href="/{{full_site}}/comments.atom">Atom</a></small></div>
 
 {% endblock %}
 
