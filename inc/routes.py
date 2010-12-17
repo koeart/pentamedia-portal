@@ -159,8 +159,8 @@ def datenspuren(web):
         ids = list(map(lambda e:e.id, Episode.find(Episode.id).\
             filter_by(category = "file/{0}/{1}".\
             format(episode.category, episode.link)).all()))
-        f_rts = list(Rating.find().filter( Rating.episode.in_(ids)) )
-        e_rts = list(Rating.find().filter_by(episode = episode.id).all())
+        f_rts = Rating.find().filter(Rating.episode.in_(ids)).all()
+        e_rts = Rating.find().filter_by(episode = episode.id).all()
         ratings += [ do_the_ratings(0, 0, e_rts + f_rts)['rating'] ]
         count = File.find().filter_by(episode = episode.id).count()
         episode.filescount = "// {0} File{1}".format(count,
