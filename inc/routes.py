@@ -139,10 +139,21 @@ def datenspur(web, id, mode):
     for episode in episodes:
         episode.has_screen = True
         episode.files = File.find().filter_by(episode = episode.id).all()
-    return template("episodes.tpl",
+    episode = Episode.find().filter_by(link = id).one()
+    comments = Comment.find().filter_by(episode = episode.id).all()
+    rating = Rating.find().filter_by(episode = episode.id).all()
+    if mode is None: mode = ""
+    if len(mode): mode = mode[1:]
+    opts = {}
+    opts.update(create_session(web, mode))
+    opts.update(do_the_comments(web, mode, comments))
+    opts.update(do_the_ratings(web, mode, rating))
+    return template("datenspuren.tpl",
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
-                    site        = "datenspuren/" + id
+                    site        = "datenspuren/" + id,
+                    episode     = episode,
+                    **opts
                    )
 
 
