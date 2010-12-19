@@ -23,7 +23,7 @@ def feed_all_comments(web, mode):
         return template_atom(
                         title    = "Pentamedia-Portal // Comments",
                         episodes = id_episodes,
-                        entries  = entries
+                        comments = entries
                        )
     elif mode == "json":
         return template_json(web, {
