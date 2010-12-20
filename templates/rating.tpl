@@ -49,7 +49,7 @@
 {%- endmacro %}
 
 {{captchas_begin(action())}}
-<p>
+<p class="scores">
 {% for n, star in enumerate(rating.stars) %}
 <input type="radio" name="score" value="{{n+1}}" id="score{{n+1}}"/>{{star}}
 {% endfor %}
@@ -58,7 +58,8 @@
 {{captchas_end("I like it that much!")}}
 
 {% else %}
-{% if isjson is not defined %}<p>✰ <a href="/{{site}}/{{episode.link}}/rate#new" class="add_comment">new Rating…</a></p>{% endif %}
+{% if isjson is not defined
+%}<p>✰ <a href="/{{site}}/{{episode.link}}/rate#new" class="add_comment add_rating">new Rating…</a></p>{% endif %}
 {% endif %}
 {% endif %}
 </div>

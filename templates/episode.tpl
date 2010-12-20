@@ -61,4 +61,6 @@
 
 <div style="position:absolute;right:3px;"><small><a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a></small></div>
 
+<script src="/js/jquery-1.4.4.min.js" type="application/javascript" defer="defer"></script>
+<script src="/js/rating-magic.js" type="application/javascript" defer="defer"></script>
 {% endblock %}
