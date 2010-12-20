@@ -17,7 +17,6 @@ function setupStars(stars) {
 	    icons[i] = icon;
 	    icon.mouseover((function(j) {
 		return function() {
-console.log('mouseover: '+j);
 		    var k;
 		    for(k = 1; k <= j; k++)
 			icons[k].text('★');
@@ -27,9 +26,7 @@ console.log('mouseover: '+j);
 	    })(i));
 	    icon.click((function(j) {
 		return function() {
-console.log('click: '+j);
 		    var rateUrl = $('.add_rating').attr('href');
-console.log('rateUrl: '+rateUrl);
 		    $.get(rateUrl, function(data) {
 			var form = $(data).find('#new');
 			form.find('p.scores').remove();
