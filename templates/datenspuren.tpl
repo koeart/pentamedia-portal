@@ -25,9 +25,6 @@
       {{rating.stars|d("rating.stars")}}
     </span>
   </small>
-  <div class="news">
-    <p class="">{{episode.short|d("episode.short")}} <a class="url" href="/{{full_site}}/{{episode.link|d('#')}}">more…</a></p>
-  </div>
   {% if episode.has_screen|d(False) %}
   <div style="clear:both;margin:0em auto;max-width:70%;padding-left:20%;height:300px">
     <div class="screen pane" style="float:left">
