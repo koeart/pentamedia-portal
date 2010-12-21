@@ -138,6 +138,18 @@ def get_filelink(tag):
     return tag.attrib['url']
 
 
+def get_poster(tag):
+    return tag.attrib['poster']
+
+
+def get_previewlink(tag):
+    return tag.attrib['preview']
+
+
+def has_preview(tag):
+    return 'preview' in tag.attrib and 'poster' in tag.attrib
+
+
 def get_media(resource):
     res = get_resource(resource)
     alternatives = resource.findall('alternative')
@@ -149,6 +161,11 @@ def get_media(resource):
 def get_files(root):
     resources = root.findall('resource')
     return list(map(get_media,resources))
+
+
+def get_previews(root):
+    resources = root.findall('resource')
+    return list(map(get_preview, filter(has_preview, resources)))
 
 
 # helpers
@@ -221,6 +238,13 @@ def get_alternative(tag, title):
            }
 
 
+def get_preview(tag):
+    return {'animated': get_previewlink(tag),
+            'static': get_poster(tag),
+            'link': get_filelink(tag)
+           }
+
+
 # exports
 
 
@@ -247,6 +271,7 @@ def load_recording_file(filename):
     root = tree.getroot()
     return {'episode': get_recording(filename, root),
             'files': get_files(root),
+            'previews': get_previews(root),
             'type': "recording"
            }
 

@@ -6,7 +6,7 @@ from sqlalchemy import and_
 import os
 
 from inc.re import re_reply, re_url
-from inc.db import File, Link, Episode, Comment, Trackback, Rating
+from inc.db import File, Link, Episode, Comment, Trackback, Rating, Preview
 from inc.helper import cache, in_cache, clean_cache, create_session, \
                        do_the_comments, do_the_ratings
 from inc.markdown import md
@@ -111,6 +111,8 @@ def datenspur(web, id, mode):
         for episode in episodes:
             episode.has_screen = True
             episode.files = File.find().filter_by(episode = episode.id).all()
+            episode.preview = get_preview(Preview.find().\
+                filter_by(episode = episode.id).all(), episode.files)
         episode = Episode.find().filter_by(link = id).one()
         comments = Comment.find().filter_by(episode = episode.id).all()
         rating = Rating.find().filter_by(episode = episode.id).all()
@@ -142,6 +144,8 @@ def datenspur_file(web, id, filename, mode):
         ratings  = Rating.find().filter_by(episode = episode.id).all()
         trackbacks = Trackback.find().filter_by(episode = episode.id).\
                     order_by(Trackback.date).all()
+        previews = preview_dict(Preview.find().\
+                   filter_by(episode = episode.id).all())
     except Exception as e: return notfound(str(e))
     if mode is None: mode = ""
     if len(mode): mode = mode[1:]
@@ -149,6 +153,7 @@ def datenspur_file(web, id, filename, mode):
     opts.update(create_session(web, mode))
     opts.update(do_the_comments(web, mode, comments))
     opts.update(do_the_ratings(web, mode, ratings))
+    preview = get_preview(previews, files)
     return template("datenspur.tpl",
                     css        = "episode",
                     episode    = episode,
@@ -156,6 +161,7 @@ def datenspur_file(web, id, filename, mode):
                     site       = "datenspuren",
                     trackbacks = trackbacks,
                     files      = files,
+                    preview    = preview,
                     **opts
                    )
 
@@ -384,6 +390,16 @@ def build_and_save_comment(web, site, episode):
                ).save()
         notify_muc("{0} just left some pithy words on {1}. [ {2} ]".\
             format(web.input('author'), episode.name, pm_url))
+
+
+def get_preview(previews, files):
+    previews = dict([ (preview.link, preview) for preview in previews ])
+    preview = None
+    for f in files:
+        if f.link in previews:
+            preview = previews[f.link]
+            break
+    return preview
 
 
 def template_comments():

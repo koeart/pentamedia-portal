@@ -28,7 +28,7 @@
   {% if episode.has_screen|d(False) %}
   <div style="clear:both;margin:0em auto;max-width:70%;padding-left:20%;height:300px">
     <div class="screen pane" style="float:left">
-      <img src="/img/empty_screen.jpg" width="360" height="270" class="screen" />
+      <img src="{{episode.preview and episode.preview.poster or '/img/empty_screen.jpg'}}" width="360" height="270" class="screen" />
     </div>
     <div class="download pane" style="margin:1em auto">
       <h3>Download</h3>

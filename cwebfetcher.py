@@ -15,7 +15,8 @@ init({'use_db':          True,
       'db_location':     "db.sqlite"
      })
 
-from inc.db import File, Link, Episode, Comment, ShownoteTrackback, Rating
+from inc.db import File, Link, Episode, Comment, Rating, Preview,\
+                   ShownoteTrackback
 from inc.trackback import trackback_client
 from inc.progressbar import Progressbar
 from inc.console import style, drug
@@ -190,10 +191,12 @@ def update_database(filename, data, tracker):
     olds = Episode.find().filter_by(filename = filename).all()
     has_links = 'links' in data
     has_files = 'files' in data
+    has_previews = 'previews' in data
     for old in olds:
         try:
             Link.find().filter_by(episode = old.id).delete()
             File.find().filter_by(episode = old.id).delete()
+            Preview.find().filter_by(episode = old.id).delete()
         except Exception as e: print(style.red+"errör 1:"+style.default,e)
     episode = Episode(filename=filename, **data['episode'])
     episode.save()
@@ -207,6 +210,8 @@ def update_database(filename, data, tracker):
     else: print(style.green+"* add to db: ",filename,style.default)
     if has_files:
         list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
+    if has_previews:
+        list(map(lambda kwargs: Preview(episode=episode.id, **kwargs).add(), data['previews']))
     if has_links:
         list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
         tracker.check_all(episode, data['links'])

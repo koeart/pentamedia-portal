@@ -11,6 +11,13 @@ File = model('File',
              link    = 'string'
             )
 
+Preview = model('Preview',
+                episode  = 'integer',
+                link     = 'string',
+                static   = 'string',
+                animated = 'string'
+               )
+
 Link = model('Link',
              episode = 'integer',
              title   = 'string',
