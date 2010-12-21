@@ -187,11 +187,8 @@ class Trackbacker():
                     self.count.error, self.count.ign))
 
 
-def update_database(filename, data, tracker):
+def save_in_database(filename, data, tracker):
     olds = Episode.find().filter_by(filename = filename).all()
-    has_links = 'links' in data
-    has_files = 'files' in data
-    has_previews = 'previews' in data
     for old in olds:
         try:
             Link.find().filter_by(episode = old.id).delete()
@@ -208,14 +205,68 @@ def update_database(filename, data, tracker):
         except Exception as e: print(style.red+"errör 2:"+style.default,e)
     if olds: print(style.green+"* update db: ",filename,style.default)
     else: print(style.green+"* add to db: ",filename,style.default)
-    if has_files:
+    if 'files' in data:
         list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
-    if has_previews:
+    if 'previews' in data:
         list(map(lambda kwargs: Preview(episode=episode.id, **kwargs).add(), data['previews']))
-    if has_links:
+    if 'links' in data:
         list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
         tracker.check_all(episode, data['links'])
     session().commit()
+
+
+def save_recording_in_database(filename, data, tracker):
+    # datastructure:
+    # xml-file as Episode (category='ds*') with files from resource-tags
+    # files from resource-tags as Episodes (category='file/ds*/:link')
+    #    with self and alternatives as files
+    dsfiles = deepcopy(data['files'])
+    for f in data['files']:
+        f.pop('alternatives')
+    try:
+        olds = Episode.find().filter_by(filename = filename).all()
+        old_files = list(map(lambda f: f.link,
+            sum(map(lambda o: File.find().\
+            filter_by(episode = o.id).all(), olds), [])))
+    except Exception as e: print(style.red+"errör 0:"+style.default,e)
+    save_in_database(filename, data, tracker)
+    for dsfile in dsfiles:
+        dsdata = deepcopy(data)
+        alternatives = dsfile.pop('alternatives')
+        dsdata['files'] = [dsfile] + alternatives
+        dsepisode = dsdata['episode']
+        dsepisode['name'] = dsfile['name']
+        dsepisode['long'] = dsfile['info']
+        dsepisode['link'] = ospath.basename(dsfile['link']).\
+            replace(" ", "_").replace("%20", "_")
+        dsepisode['short'] = dsfile['type']
+        dsepisode['category'] = "file/{0}/{1}".\
+            format(data['episode']['category'], data['episode']['link'])
+        save_in_database(dsfile['link'], dsdata, tracker)
+        if dsfile['link'] in old_files:
+            old_files.remove(dsfile['link'])
+        for alternative in alternatives:
+            if alternative['link'] in old_files:
+                old_files.remove(alternative['link'])
+    if old_files:
+        episode = Episode.find().filter_by(filename = filename).one()
+    for old_file in old_files:
+        print(style.red + style.bold +
+            "* found dangling file (link: {0})".\
+            format(old_file), "move comments and rating to",
+            "[id:{0}, link:{1}, name:{2}]".\
+            format(episode.id,episode.link,episode.name), style.default)
+        try:
+            olds = Episode.find().filter_by(filename = old_file).\
+                filter(Episode.category.startswith("file/")).all()
+            if debug: print("* found",len(olds),"episodes to delete")
+            for old in olds:
+                Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
+                Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
+            print("* deleted {0} episodes".format(
+                Episode.find().filter_by(filename = old_file).delete()))
+        except Exception as e: print(style.red+"errör 3:"+style.default,e)
+        session().commit()
 
 
 def fill_database(files, debug=False, trackback=False):
@@ -246,66 +297,16 @@ def fill_database(files, debug=False, trackback=False):
         else:
             try:
                 data = load_file(filename)
-            except:
+            except Exception as e:
                 data = None
-                print(style.red + "* errör during parsing: ",
-                    filename, style.default)
+                print(style.red + "* errör during parsing",
+                    filename+": ", e, style.default)
         if not data: continue
 
         if data['type'] == "podcast":
-            update_database(filename, data, tracker)
+            save_in_database(filename, data, tracker)
         elif data['type'] == "recording":
-            # datastructure:
-            # xml-file as Episode (category='ds*') with files from resource-tags
-            # files from resource-tags as Episodes (category='file/ds*/:link')
-            #    with self and alternatives as files
-            dsfiles = deepcopy(data['files'])
-            for f in data['files']:
-                f.pop('alternatives')
-            try:
-                olds = Episode.find().filter_by(filename = filename).all()
-                old_files = list(map(lambda f: f.link,
-                    sum(map(lambda o: File.find().\
-                    filter_by(episode = o.id).all(), olds), [])))
-            except Exception as e: print(style.red+"errör 0:"+style.default,e)
-            update_database(filename, data, tracker)
-            for dsfile in dsfiles:
-                dsdata = deepcopy(data)
-                alternatives = dsfile.pop('alternatives')
-                dsdata['files'] = [dsfile] + alternatives
-                dsepisode = dsdata['episode']
-                dsepisode['name'] = dsfile['name']
-                dsepisode['long'] = dsfile['info']
-                dsepisode['link'] = ospath.basename(dsfile['link']).\
-                    replace(" ", "_").replace("%20", "_")
-                dsepisode['short'] = dsfile['type']
-                dsepisode['category'] = "file/{0}/{1}".\
-                    format(data['episode']['category'], data['episode']['link'])
-                update_database(dsfile['link'], dsdata, tracker)
-                if dsfile['link'] in old_files:
-                    old_files.remove(dsfile['link'])
-                for alternative in alternatives:
-                    if alternative['link'] in old_files:
-                        old_files.remove(alternative['link'])
-            if old_files:
-                episode = Episode.find().filter_by(filename = filename).one()
-            for old_file in old_files:
-                print(style.red + style.bold +
-                    "* found dangling file (link: {0})".\
-                    format(old_file), "move comments and rating to",
-                    "[id:{0}, link:{1}, name:{2}]".\
-                    format(episode.id,episode.link,episode.name), style.default)
-                try:
-                    olds = Episode.find().filter_by(filename = old_file).\
-                        filter(Episode.category.startswith("file/")).all()
-                    if debug: print("* found",len(olds),"episodes to delete")
-                    for old in olds:
-                        Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
-                        Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
-                    print("* deleted {0} episodes".format(
-                        Episode.find().filter_by(filename = old_file).delete()))
-                except Exception as e: print(style.red+"errör 3:"+style.default,e)
-                session().commit()
+            save_recording_in_database(filename, data, tracker)
         else:
             print(style.red+"* errör got unsupported data type:",
                 data['type'], style.default)
