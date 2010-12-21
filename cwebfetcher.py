@@ -156,7 +156,7 @@ class Trackbacker():
             else: self.count.error += 1
 
     def check_all(self, episode, links):
-        if self.disabled: return
+        if self.disabled or not links: return
         self.count.links += len(links)
         pb = Progressbar(0, len(links), 42, True)
         for n, linkdata in enumerate(links):
@@ -189,6 +189,9 @@ class Trackbacker():
 
 def save_in_database(filename, data, tracker):
     olds = Episode.find().filter_by(filename = filename).all()
+    for key in ['files', 'links', 'previews']:
+        if key not in data:
+            data[key] = []
     for old in olds:
         try:
             Link.find().filter_by(episode = old.id).delete()
@@ -205,13 +208,10 @@ def save_in_database(filename, data, tracker):
         except Exception as e: print(style.red+"errör 2:"+style.default,e)
     if olds: print(style.green+"* update db: ",filename,style.default)
     else: print(style.green+"* add to db: ",filename,style.default)
-    if 'files' in data:
-        list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
-    if 'previews' in data:
-        list(map(lambda kwargs: Preview(episode=episode.id, **kwargs).add(), data['previews']))
-    if 'links' in data:
-        list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
-        tracker.check_all(episode, data['links'])
+    list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
+    list(map(lambda kwargs: Preview(episode=episode.id, **kwargs).add(), data['previews']))
+    list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
+    tracker.check_all(episode, data['links'])
     session().commit()
 
 

@@ -142,10 +142,9 @@ def datenspur_file(web, id, filename, mode):
         comments = Comment.find().filter_by(episode = episode.id).all()
         files    = File.find().filter_by(episode = episode.id).all()
         ratings  = Rating.find().filter_by(episode = episode.id).all()
+        previews = Preview.find().filter_by(episode = episode.id).all()
         trackbacks = Trackback.find().filter_by(episode = episode.id).\
                     order_by(Trackback.date).all()
-        previews = preview_dict(Preview.find().\
-                   filter_by(episode = episode.id).all())
     except Exception as e: return notfound(str(e))
     if mode is None: mode = ""
     if len(mode): mode = mode[1:]
