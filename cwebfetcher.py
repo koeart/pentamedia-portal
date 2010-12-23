@@ -180,9 +180,9 @@ class Trackbacker():
 
     def print_stats(self):
         if self.disabled: return
-        print("{0} Shownotes scaned. {4} ignored. " + \
+        print(("{0} Shownotes scaned. {4} ignored. " + \
               "{1} Trackback links discovered. " + \
-              "{2} skipped. {3} failed to use.".\
+              "{2} skipped. {3} failed to use.").\
               format(self.count.links, self.count.tb, self.count.skip,\
                     self.count.error, self.count.ign))
 
