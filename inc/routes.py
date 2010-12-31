@@ -108,12 +108,13 @@ def datenspur(web, id, mode):
         ratings = [ do_the_ratings(0, 0, Rating.find().\
                     filter_by(episode = e.id).all())['rating']
                     for e in episodes ]
-        for episode in episodes:
-            episode.has_screen = True
-            episode.files = File.find().filter_by(episode = episode.id).all()
-            episode.preview = get_preview(Preview.find().\
-                filter_by(episode = episode.id).all(), episode.files)
         episode = Episode.find().filter_by(link = id).one()
+        for ep in episodes:
+            ep.has_screen = True
+            ep.files = File.find().filter_by(episode = ep.id).all()
+            ep.preview = get_preview(Preview.find().\
+                filter_by(episode = episode.id).all(), ep.files)
+            print("-"*20, ep, ep.preview)
         comments = Comment.find().filter_by(episode = episode.id).all()
         rating = Rating.find().filter_by(episode = episode.id).all()
     except Exception as e: return notfound(str(e))
