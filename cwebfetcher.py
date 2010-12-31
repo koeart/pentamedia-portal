@@ -215,7 +215,7 @@ def save_in_database(filename, data, tracker):
     session().commit()
 
 
-def save_recording_in_database(filename, data, tracker):
+def save_recording_in_database(filename, data, tracker, debug=False):
     # datastructure:
     # xml-file as Episode (category='ds*') with files from resource-tags
     # files from resource-tags as Episodes (category='file/ds*/:link')
@@ -306,7 +306,7 @@ def fill_database(files, debug=False, trackback=False):
         if data['type'] == "podcast":
             save_in_database(filename, data, tracker)
         elif data['type'] == "recording":
-            save_recording_in_database(filename, data, tracker)
+            save_recording_in_database(filename, data, tracker, debug)
         else:
             print(style.red+"* errör got unsupported data type:",
                 data['type'], style.default)
