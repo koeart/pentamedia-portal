@@ -46,7 +46,7 @@ def check_git_version():
         exit(1)
 
 
-def fetch_log_from_git(update_all=False):
+def fetch_log_from_git(update_all=False, do_fetch=True):
     log = ""
 
     if not os.path.exists("cweb.git"):
@@ -73,7 +73,7 @@ def fetch_log_from_git(update_all=False):
         if not fulllog: print("* current revision is",old)
         else: print("* no revisions available")
         fulllog = fulllog or update_all
-        if git("fetch web master") != 0:
+        if do_fetch and git("fetch web master") != 0:
             print("* an error occured during fetch")
             exit(1)
         if createbranch: git("branch --track master FETCH_HEAD")
@@ -313,9 +313,9 @@ def fill_database(files, debug=False, trackback=False):
     tracker.print_stats()
 
 
-def main(update_all, debug, trackback):
+def main(update_all, debug, trackback, do_fetch):
     check_git_version()
-    log = fetch_log_from_git(update_all)
+    log = fetch_log_from_git(update_all, do_fetch)
     files = get_filenames_from_gitlog(log, update_all)
     fill_database(files, debug, trackback)
     print("done.")
@@ -332,6 +332,9 @@ if __name__ == "__main__":
     parser.add_option("-t", "--no-trackback",
         dest="no_trackback", action="store_true", default = False,
         help ="disable trackback crawling [default: %default]")
+    parser.add_option("-f", "--no-fetch",
+        dest="no_fetch", action="store_true", default = False,
+        help ="disable git fetch [default: %default]")
 
     opts, _ = parser.parse_args()
-    main(opts.update_all, opts.debug, not opts.no_trackback)
+    main(opts.update_all, opts.debug, not opts.no_trackback, not opts.no_fetch)
