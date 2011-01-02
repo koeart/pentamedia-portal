@@ -34,7 +34,7 @@
 	  <dl>
 	    {% for f in files %}
 	    <dh><a href="{{f.link}}"
-		   type="application/{{f.type}}" class="mime"
+		   type="application/{{f.typetyp()}}" class="mime {{f.mime()}}"
 		   rel="enclosure">{{f.name}}</a></dh>
 	    <dd>{{f.info}}</dd>{% endfor %}
 	  </dl>
@@ -44,7 +44,7 @@
 	  <video controls="controls">
 	    {% for f in files %}
 	    <source src="{{f.link}}"
-		    type="audio/{{f.type}}"/>{% endfor %}
+		    type="{{f.type}}"/>{% endfor %}
 	    Bitte Browser auf den neuesten Stand bringt. Hilft bei
 	    Multimedia und Sicherheit!
 	  </video>

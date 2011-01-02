@@ -172,9 +172,18 @@ h3 {
     color: #999;
 }
 a.mime:before {
-    content: url("/img/audio.png");
     padding: 1px 2px;
 }
+
+a.mime.pkg:before {content: url("/img/pkg.png");}
+a.mime.text:before {content: url("/img/text.png");}
+a.mime.image:before {content: url("/img/image.png");}
+a.mime.audio:before {content: url("/img/audio.png");}
+a.mime.video:before {content: url("/img/video.png");}
+a.mime.bittorrent:before {content: url("/img/bittorrent.png");}
+a.mime.application:before {content: url("/img/application.png");}
+
+
 audio, video {
     background-color: white;
     color: black;

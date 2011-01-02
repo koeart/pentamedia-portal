@@ -17,7 +17,7 @@
         <div class="video-js-box vim-css">
           <video class="video-js" width="360" height="202" poster="{{preview.static}}" preload="none" controls>
             {% for f in files %}
-              <source src="{{f.link}}" type='video/{{f.type}}' />
+              <source src="{{f.link}}" type='{{f.type}}' />
             {% endfor %}
             <object id="flash_fallback_1" class="vjs-flash-fallback" width="360" height="202" type="application/x-shockwave-flash" data="http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf">
               <param name="movie" value="http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf" />
@@ -40,7 +40,7 @@
         <dl>
         {% for f in files %}
         <dh><a href="{{f.link}}"
-            type="video/{{f.type}}" class="mime"
+            type="application/{{f.typetyp()}}" class="mime {{f.mime()}}"
             rel="enclosure">{{f.name}}</a></dh>
         <dd>{{f.info}}</dd>{% endfor %}
       </dl>

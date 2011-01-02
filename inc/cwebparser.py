@@ -18,7 +18,6 @@ FILETYPE = {'application/x-bittorrent': "BitTorrent-Metainformationen",
             'video/x-flv': "Flash Video",
             'video/ogg': "Ogg Media Video",
             'audio/ogg': "Ogg Vorbis Audio",
-            'application/ogg': "Ogg Vorbis Audio",
             'audio/mpeg': "MPEG-Audio",
             'audio/mp3': "MPEG-Audio"
            }
@@ -120,17 +119,16 @@ def get_links(root):
     return list(map(get_link,litags))
 
 
-def get_full_filetype(tag):
-    return tag.attrib['type']
-
-
 def get_filetype(tag):
-    return get_full_filetype(tag).partition("/")[2]
+    type = tag.attrib['type']
+    if type == "application/ogg":
+        return "audio/ogg"
+    return type
 
 
 def get_info(tag):
     size = parse_size(tag.attrib['size'])
-    typ = FILETYPE[get_full_filetype(tag)]
+    typ = FILETYPE[get_filetype(tag)]
     return "{0}, {1}".format(typ, size)
 
 

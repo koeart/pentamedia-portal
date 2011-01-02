@@ -40,7 +40,7 @@
         <dl>
         {% for f in episode.files %}
         <dh><a href="{{f.link}}"
-            type="application/{{f.type}}" class="mime"
+            type="application/{{f.typetyp()}}"  class="mime {{f.mime()}}"
             rel="enclosure">{{f.name}}</a></dh>
         <dd>{{f.info}}</dd>{% endfor %}
       </dl>

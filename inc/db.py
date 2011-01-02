@@ -8,6 +8,9 @@ File = model('File',
              info    = 'string',
              name    = 'string',
              type    = 'string',
+             mime    = lambda self: _mime(self),
+             typecat = lambda self: self.type.partition("/")[0],
+             typetyp = lambda self: self.type.partition("/")[2],
              link    = 'string'
             )
 
@@ -70,3 +73,9 @@ Rating = model ("Rating",
 def _fdate(date:datetime):
     return date.strftime("%A, %d. %B %Y um %H:%M")
 
+def _mime(file):
+    if "torrent" in file.type:
+        return "bittorrent"
+    elif "multipart" in file.type:
+        return "pkg"
+    return file.typecat()
