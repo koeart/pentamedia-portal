@@ -161,6 +161,9 @@ def datenspur_file(web, id, filename, mode):
                     trackbacks = trackbacks,
                     files      = files,
                     preview    = preview,
+                    csss       = [ "../video-js/video-js",
+                                   "../video-js/skins/vim",
+                                   "vim"],
                     **opts
                    )
 

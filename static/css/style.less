@@ -110,12 +110,15 @@ div.screen {
     margin: 0 auto;
     text-align:center;
     max-width:600px;
+    .frame {
+        .rounded_corners(10px);
+        border:8px solid black;
+        background-color: black;
+        margin:2px;
+    }
 }
 img.screen {
-    .rounded_corners(10px);
-    border:8px solid black;
-    background-color: black;
-    margin:2px;
+    border: none;
     max-width:360px;
     max-height:270px;
 }
