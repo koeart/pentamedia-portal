@@ -1,8 +1,8 @@
 
 .video-js {
     margin:none !important;
-    left:-26px !important;
-    top:-26px !important;
+    left:-2em !important;
+    top:-2em !important;
 }
 
 .vim-css .vjs-controls > div {
