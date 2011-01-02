@@ -71,7 +71,7 @@
 
 {% if preview|d(False) %}
 <script src="/js/jquery-1.4.4.min.js" type="application/javascript" defer="defer"></script>
-<script src="/video-js/video.js" type="text/javascript" charset="utf-8"></script>
+<script src="/lib/video-js/video.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
 
   // Add VideoJS to all video tags on the page when the DOM is ready

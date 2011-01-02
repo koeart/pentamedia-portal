@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.0
 from juno import init, run
 
-init({'static_url':      '/(s/)?(?P<file>(?<=s/).*|(css|img|js|video-js)/.*)',
+init({'static_url':      '/(s/)?(?P<file>(?<=s/).*|(css|img|js|lib)/.*)',
       '500_traceback':   True,
       'use_templates':   True,
       'bind_address':    '',
