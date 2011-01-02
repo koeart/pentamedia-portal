@@ -19,16 +19,18 @@ Pentasubmitter: http://pentamedia.c3d2.de/submit/
 
 === Dependencies
 
-  Juno - light webframework (http://github.com/dodo/juno)
+  Juno - light webframework (https://github.com/dodo/juno)
   Jinja2 - template engine (http://jinja.pocoo.org/2/)
   SQLAlchemy - database framework (http://www.sqlalchemy.org/)
   lesscss - css compiler (http://lesscss.org/)
   markdown - format syntax (http://gitorious.org/python-markdown)
+  video-js - (https://github.com/zencoder/video-js)
 
 === Install
 
   · get all dependencies
-  · use py3k branch from juno
+  · run git submodules init
+  · use master branch from juno
   · convert jinja2 and markdown with 2to3
   · run sa2to3.py in sqlalchemy
   · install all dependencies
