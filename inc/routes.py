@@ -114,7 +114,6 @@ def datenspur(web, id, mode):
             ep.files = File.find().filter_by(episode = ep.id).all()
             ep.preview = get_preview(Preview.find().\
                 filter_by(episode = episode.id).all(), ep.files)
-            print("-"*20, ep, ep.preview)
         comments = Comment.find().filter_by(episode = episode.id).all()
         rating = Rating.find().filter_by(episode = episode.id).all()
     except Exception as e: return notfound(str(e))

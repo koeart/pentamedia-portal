@@ -116,7 +116,17 @@ img.screen {
     border:8px solid black;
     background-color: black;
     margin:2px;
+    max-width:360px;
+    max-height:270px;
 }
+
+img.screen.static   {display:inline;}
+img.screen.animated {display:none;}
+div.screen:hover {
+    img.screen.static   {display:none;}
+    img.screen.animated {display:inline;}
+}
+
 div.listen {
     margin-left: 50%;
     width: 45%;
