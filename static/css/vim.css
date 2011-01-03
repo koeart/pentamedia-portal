@@ -5,6 +5,19 @@
     top:-2em !important;
 }
 
+.vim-css div.vjs-big-play-button {
+    width: 65px;
+    height: 40px;
+    margin: -20px 0 0 -32px;
+}
+
+.vim-css div.vjs-big-play-button span {
+    margin: 11px 0 0 24px;
+    border-left: 18px solid #fff;
+    border-top: 9px solid rgba(0,0,0,0);
+    border-bottom: 9px solid rgba(0,0,0,0);
+}
+
 .vim-css .vjs-controls > div {
     background-color: rgba(0, 0, 0, 0.42);
 }

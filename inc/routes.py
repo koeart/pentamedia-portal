@@ -74,6 +74,9 @@ def episode(web, site, id, mode):
                     trackbacks = trackbacks,
                     files      = files,
                     links      = links,
+                    csss       = [ "../lib/video-js/video-js",
+                                   "../lib/video-js/skins/vim",
+                                   "vim"],
                     **opts
                    )
 

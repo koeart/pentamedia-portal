@@ -22,7 +22,7 @@
             <object id="flash_fallback_1" class="vjs-flash-fallback" width="360" height="202" type="application/x-shockwave-flash" data="http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf">
               <param name="movie" value="http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf" />
               <param name="allowfullscreen" value="true" />
-              <param name="flashvars" value='config={"playlist":["{{preview.static}}", {"url": "{{files[0].link}}","autoPlay":false,"autoBuffering":true}]}' />
+              <param name="flashvars" value='config={"playlist":["{{preview.static}}", {"url": "{{files[0].link}}","autoPlay":false,"autoBuffering":false}]}' />
                 <img src="{{preview.animated}}" alt="Poster Image" title="No video playback capabilities." class="animated screen" />
             </object>
           </video>
@@ -70,13 +70,11 @@
 <div style="position:absolute;right:3px;"><small><a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a></small></div>
 
 {% if preview|d(False) %}
-<script src="/js/jquery-1.4.4.min.js" type="application/javascript" defer="defer"></script>
 <script src="/lib/video-js/video.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
 
   // Add VideoJS to all video tags on the page when the DOM is ready
   VideoJS.setupAllWhenReady({
-      showControlsAtStart: true,
       controlsBelow: false,
       controlsHiding: true,
       linksHiding: false
