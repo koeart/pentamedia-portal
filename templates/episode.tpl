@@ -44,7 +44,7 @@
 
       <!-- Begin VideoJS -->
         <div class="video-js-box vim-css" style="top:1.5em">
-          <video class="video-js" width="360" style="height:0;border:none" preload="none" controls>
+          <video class="video-js" width="360" height="0" style="height:0;border:none" preload="none" controls>
             {% for f in files %}
               <source src="{{f.link}}" type='{{f.type}}' />
             {% endfor %}

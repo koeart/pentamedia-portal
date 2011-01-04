@@ -27,14 +27,16 @@
   </small>
   {% if episode.has_screen|d(False) %}
   <div style="clear:both;margin:0em auto;max-width:70%;padding-left:20%;height:300px">
+    {% if episode.ismedia() %}
     <div class="screen pane" style="float:left">
     <div class="frame">
     <a href="/{{full_site}}/{{episode.link|d('#')}}" style="border:none">
-      <img src="{{episode.preview and episode.preview.static or '/img/empty_screen.jpg'}}" class="static screen" />
-      <img src="{{episode.preview and episode.preview.animated or '/img/empty_screen.jpg'}}" class="animated screen" />
+      <img src="{{episode.preview.static|d('/img/empty_screen.jpg')}}" class="static screen" />
+      <img src="{{episode.preview.animated|d('/img/empty_screen.jpg')}}" class="animated screen" />
     </a>
     </div>
     </div>
+    {% endif %}
     <div class="download pane" style="margin:1em auto">
       <h3>Download</h3>
         <dl>

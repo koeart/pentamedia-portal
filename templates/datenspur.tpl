@@ -10,31 +10,28 @@
       <div class="stars" style="margin-top:-1em;color:#{% if rating.count == 0 %}ccc{% else %}777{% endif %}">{{rating.stars}}</div>
 
   <div style="clear:both;margin:0em auto;max-width:70%;padding-left:20%;height:300px">
+      {% if episode.ismedia() %}
     <div class="screen pane" style="float:left">
       <div class="frame">
-      {% if preview|d(False) %}
       <!-- Begin VideoJS -->
         <div class="video-js-box vim-css">
-          <video class="video-js" width="360" height="202" poster="{{preview.static}}" preload="none" controls>
+          <video class="video-js" width="360" height="202" poster="{{preview.static|d('/img/empty_screen.jpg')}}" preload="none" controls>
             {% for f in files %}
               <source src="{{f.link}}" type='{{f.type}}' />
             {% endfor %}
             <object id="flash_fallback_1" class="vjs-flash-fallback" width="360" height="202" type="application/x-shockwave-flash" data="http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf">
               <param name="movie" value="http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf" />
               <param name="allowfullscreen" value="true" />
-              <param name="flashvars" value='config={"playlist":["{{preview.static}}", {"url": "{{files[0].link}}","autoPlay":false,"autoBuffering":false}]}' />
-                <img src="{{preview.animated}}" alt="Poster Image" title="No video playback capabilities." class="animated screen" />
+              <param name="flashvars" value='config={"playlist":["{{preview.static|d('/img/empty_screen.jpg')}}", {"url": "{{files[0].link}}","autoPlay":false,"autoBuffering":false}]}' />
+                <img src="{{preview.animated|d('/img/empty_screen.jpg')}}" alt="Poster Image" title="No video playback capabilities." class="animated screen" />
             </object>
           </video>
           <p class="vjs-no-video" style="color:white">Video not playable with <a href="http://videojs.com">HTML5 Video Player</a>.</p>
         </div>
       <!-- End VideoJS -->
-      {% else %}
-        <img src="/img/empty_screen.jpg" class="static screen" />
-        <img src="/img/empty_screen.jpg" class="animated screen" />
-      {% endif %}
       </div>
     </div>
+      {% endif %}
     <div class="download pane" style="margin:1em auto">
       <h3>Download</h3>
         <dl>

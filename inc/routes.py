@@ -149,6 +149,7 @@ def datenspur_file(web, id, filename, mode):
         trackbacks = Trackback.find().filter_by(episode = episode.id).\
                     order_by(Trackback.date).all()
     except Exception as e: return notfound(str(e))
+    episode.files = files
     if mode is None: mode = ""
     if len(mode): mode = mode[1:]
     opts = {}
