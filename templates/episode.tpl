@@ -34,25 +34,29 @@
 	  <dl>
 	    {% for f in files %}
 	    <dh><a href="{{f.link}}"
-		   type="application/{{f.type}}" class="mime"
+		   type="application/{{f.typetyp()}}" class="mime {{f.mime()}}"
 		   rel="enclosure">{{f.name}}</a></dh>
 	    <dd>{{f.info}}</dd>{% endfor %}
 	  </dl>
 	</div>
 	<div class="listen pane" id="penta{{site}}">
 	  <h3>Hören</h3>
-	  <video controls="controls">
-	    {% for f in files %}
-	    <source src="{{f.link}}"
-		    type="audio/{{f.type}}"/>{% endfor %}
-	    Bitte Browser auf den neuesten Stand bringt. Hilft bei
-	    Multimedia und Sicherheit!
-	  </video>
+
+      <!-- Begin AudioJS -->
+        <div class="audio-js-box vim-css" style="top:1.5em">
+          <audio class="audio-js" width="360" height="0" style="height:0;border:none" preload="none" controls>
+          Bitte Browser auf den neuesten Stand bringt. Hilft bei Multimedia und Sicherheit!
+            {% for f in files %}
+              <source src="{{f.link}}" type='{{f.type}}' />
+            {% endfor %}
+          </audio>
+        </div>
+      <!-- End AudioJS -->
 	</div>
       </div>{% endif %}
  {% if links|d([]) != [] %}
       <div class="shownotes pane">
-	      <p>Shownotes:</p>
+	      <h3>Shownotes</h3>
 	      <ul class="shownotes">
 	        {% for link in links %}
 	        <li><a href="{{link.url}}">{{link.title}}</a></li>{% endfor %}
@@ -61,6 +65,17 @@
 
 <div style="position:absolute;right:3px;"><small><a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a></small></div>
 
+
 <script src="/js/jquery-1.4.4.min.js" type="application/javascript" defer="defer"></script>
 <script src="/js/rating-magic.js" type="application/javascript" defer="defer"></script>
+<script src="/lib/audio-js/audio.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+
+    // Add AudioJS to all video tags on the page when the DOM is ready
+    window.onload = function(){
+        var players = AudioJS.setup();
+    };
+
+</script>
+
 {% endblock %}

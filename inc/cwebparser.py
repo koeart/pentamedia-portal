@@ -6,26 +6,32 @@ import re
 from datetime import datetime
 import xml.etree.ElementTree as etree
 
-re_filename = re.compile(r".*(?P<type>penta(cast|radio|music)).*-(?P<episode>\w*)\.xml")
-
+re_podcast = re.compile(r".*(?P<type>penta(cast|radio|music))(-?\d*)-(?P<episode>[^.]*)\.xml")
+re_recording = re.compile(r".*(?P<episode>(?P<type>d(s|atenspuren20)[^-]*)-[^.]*)\.xml")
 
 # FIXME add more types (if needed)
-FILETYPE = {'x-bittorrent': "BitTorrent-Metainformationen",
-            'x-zip': "Zip-Archiv",
-            'ogg': "Ogg Vorbis Audio",
-            'mpeg': "MPEG-Audio",
-            'mp3': "MPEG-Audio"
+FILETYPE = {'application/x-bittorrent': "BitTorrent-Metainformationen",
+            'application/pdf': "Portable Document Format",
+            'multipart/x-zip': "Zip-Archiv",
+            'video/mp4': "MP4-Video",
+            'video/webm': "WebM Video",
+            'video/x-flv': "Flash Video",
+            'video/ogg': "Ogg Media Video",
+            'audio/ogg': "Ogg Vorbis Audio",
+            'audio/mpeg': "MPEG-Audio",
+            'audio/mp3': "MPEG-Audio"
            }
 
 FILESIZE = ["KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] # ready for da future :P
 FILEBLOCK = 1024
 
 
-def get_name(tag):
-    return tag.attrib['title']
+# parsers
+
 
 def parse_date(date):
     return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+
 
 def parse_size(size):
     size = float(size)
@@ -38,61 +44,70 @@ def parse_size(size):
     return "{0:.1f} {1}".format(size, FILESIZE[-1]) # futurity NOW :)
 
 
+def parse_link_tags(raw):
+    return raw.replace("<link", "<a").replace("</link>", "</a>")
 
-def get_slug(filename):
-    m = re_filename.match(filename)
+
+# workers
+
+
+def get_name(tag):
+    return tag.attrib['title']
+
+
+def get_slug(rex, filename):
+    m = rex.match(filename)
     episode = str(m.group('episode'))
     return episode
 
-def get_category(filename):
-    m = re_filename.match(filename)
+
+def get_category_by_rex(rex, filename):
+    m = rex.match(filename)
     typ = str(m.group('type'))
     return typ
 
+
+def get_save_category_by_rex(rex, filename):
+    m = rex.match(filename)
+    return str(m.group('type')) if m else None
+
 def get_author(root):
     return root.attrib['author']
+
 
 def get_date(root):
     raw = root.attrib['date']
     return parse_date(raw)
 
+
 def get_short(root):
     p = root.findall('p')
     raw = etree.tostring(p[0]).strip()[3:-4].strip()
-    short = raw.replace("<link", "<a").replace("</link>", "</a>")
-    return short
+    return parse_link_tags(raw)
+
 
 def get_long(root):
     p = root.findall('p')
-    raw = "".join([ etree.tostring(n).\
-                replace("<link", "<a").replace("</link>", "</a>")
-                + "\n" for n in p[1:] ])
+    raw = "".join([ parse_link_tags(etree.tostring(n)) + "\n" for n in p[1:] ])
     lang = raw.strip()[3:-4].strip()
     return lang
-
-def get_episode(filename, root):
-    return {'name': get_name(root),
-            'link': get_slug(filename),
-            'category': get_category(filename),
-            'author': get_author(root),
-            'date': get_date(root),
-            'short': get_short(root),
-            'long': get_long(root)
-           }
 
 
 def get_title(litag):
     link = litag.findall('link')[0]
     return link.text
 
+
 def get_url(litag):
     link = litag.findall('link')[0]
     return link.attrib['href'] if 'href' in link.attrib else link.text
+
 
 def get_link(litag):
     return {'title': get_title(litag),
             'url': get_url(litag)
            }
+
 
 def get_links(root):
     addendum = root.findall('addendum')
@@ -105,63 +120,174 @@ def get_links(root):
 
 
 def get_filetype(tag):
-    return tag.attrib['type'].partition("/")[2]
+    type = tag.attrib['type']
+    if type == "application/ogg":
+        return "audio/ogg"
+    return type
+
 
 def get_info(tag):
     size = parse_size(tag.attrib['size'])
     typ = FILETYPE[get_filetype(tag)]
     return "{0}, {1}".format(typ, size)
 
+
 def get_filelink(tag):
     return tag.attrib['url']
 
-def get_ogg(tag):
+
+def get_poster(tag):
+    return tag.attrib['poster']
+
+
+def get_previewlink(tag):
+    return tag.attrib['preview']
+
+
+def has_preview(tag):
+    return 'preview' in tag.attrib and 'poster' in tag.attrib
+
+
+def get_media(resource):
+    res = get_resource(resource)
+    alternatives = resource.findall('alternative')
+    res['alternatives'] = list(map(lambda a:get_alternative(a,res['name']),
+        alternatives))
+    return res
+
+
+def get_files(root):
+    resources = root.findall('resource')
+    return list(map(get_media,resources))
+
+
+def get_previews(root):
+    resources = root.findall('resource')
+    return list(map(get_preview, filter(has_preview, resources)))
+
+
+# helpers
+
+
+def get_podcast_category(filename):
+    return get_category_by_rex(re_podcast, filename)
+
+
+def get_recording_category(filename):
+    return get_category_by_rex(re_recording, filename).replace("atenspuren20", "s")
+
+
+def get_save_podcast_category(filename):
+    return get_save_category_by_rex(re_podcast, filename)
+
+
+def get_save_recording_category(filename):
+    cat = get_save_category_by_rex(re_recording, filename)
+    if cat is not None: cat = cat.replace("atenspuren20", "s")
+    return cat
+
+
+def get_podcast_slug(filename):
+    return get_slug(re_podcast, filename)
+
+
+def get_recording_slug(filename):
+    return get_slug(re_recording, filename)
+
+
+# packers
+
+
+def get_episode(filename, root):
+    return {'name': get_name(root),
+            'link': get_podcast_slug(filename),
+            'category': get_podcast_category(filename),
+            'author': get_author(root),
+            'date': get_date(root),
+            'short': get_short(root),
+            'long': get_long(root)
+           }
+
+
+def get_recording(filename, root):
+    return {'name': get_name(root),
+            'link': get_recording_slug(filename),
+            'category': get_recording_category(filename),
+            'author': get_author(root),
+            'date': get_date(root),
+            'short': get_short(root),
+            'long': get_long(root)
+           }
+
+
+def get_resource(tag):
     return {'name': get_name(tag),
             'type': get_filetype(tag),
             'link': get_filelink(tag),
             'info': get_info(tag)
            }
 
-def get_mp3(tag, title):
+
+def get_alternative(tag, title):
     return {'name': title,
             'type': get_filetype(tag),
             'link': get_filelink(tag),
             'info': get_info(tag)
            }
 
-def get_audio(resource):
-    ogg = get_ogg(resource)
-    alternative = resource.findall('alternative')
-    try: alternative = alternative[0]
-    except: return [ogg]
-    mp3 = get_mp3(alternative, ogg['name'])
-    return [ogg, mp3]
+
+def get_preview(tag):
+    return {'animated': get_previewlink(tag),
+            'static': get_poster(tag),
+            'link': get_filelink(tag)
+           }
 
 
-def get_files(root):
-    resources = root.findall('resource')
-    return sum(map(get_audio,resources), [])
+# exports
 
 
+def flatten_files(files):
+    return sum(map(lambda f: [f] + f.pop('alternatives'), files), [])
 
-def load_file(filename):
+
+def get_category(fn):
+    return get_save_podcast_category(fn) or get_save_recording_category(fn)
+
+
+def load_podcast_file(filename):
     tree = etree.parse(filename)
     root = tree.getroot()
     return {'episode': get_episode(filename, root),
             'links': get_links(root),
-            'files': get_files(root)
+            'files': flatten_files(get_files(root)),
+            'type': "podcast"
+           }
+
+
+def load_recording_file(filename):
+    tree = etree.parse(filename)
+    root = tree.getroot()
+    return {'episode': get_recording(filename, root),
+            'files': get_files(root),
+            'previews': get_previews(root),
+            'type': "recording"
            }
 
 
 def test():
     from pprint import pprint
-    filename = "./pentamusic-0x001.xml"
+    #filename = "./pentamusic-0x001.xml"
     #filebase = "../c3d2-web/content/news/" #wo liegen dateien? RELATIV!!!
     #with open("pentafiles.txt", "r") as text:
             #for line in text:
                   #raw = filebase + line
                   #filename = raw.rstrip()
-    pprint(load_file(filename))
+    #pprint(load_podcast_file(filename))
+
+    #filename = "./ds10-videomitschnitte-online.xml"
+    filename = "./datenspuren2005-audio.xml"
+    pprint(load_recording_file(filename))
+
 
 if __name__ == "__main__":
     test()

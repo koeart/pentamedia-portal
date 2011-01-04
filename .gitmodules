@@ -1,0 +1,6 @@
+[submodule "static/lib/video-js"]
+	path = static/lib/video-js
+	url = git://github.com/zencoder/video-js.git
+[submodule "static/lib/audio-js"]
+	path = static/lib/audio-js
+	url = git://github.com/dz0ny/AudioJS.git

@@ -2,10 +2,11 @@
 from juno import route, get, post, yield_file, template, redirect, find, \
                  notfound
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
+from sqlalchemy import and_
 import os
 
 from inc.re import re_reply, re_url
-from inc.db import File, Link, Episode, Comment, Trackback, Rating
+from inc.db import File, Link, Episode, Comment, Trackback, Rating, Preview
 from inc.helper import cache, in_cache, clean_cache, create_session, \
                        do_the_comments, do_the_ratings
 from inc.markdown import md
@@ -73,25 +74,130 @@ def episode(web, site, id, mode):
                     trackbacks = trackbacks,
                     files      = files,
                     links      = links,
+                    csss       = [ "../lib/audio-js/audio-js",
+                                   "../lib/audio-js/skins/vim",
+                                   "vim"],
                     **opts
                    )
 
 
 @route("/(?P<site>penta(radio|cast|music))(?!.*/(comment(s|/new)|rating(s)?))")
 def main(web, site):
-    # FIXME wrap db queries into one
-    episodes = Episode.find().filter_by(category=site).\
-               order_by(Episode.date).all()
-    episodes.reverse()
-    comments_count = [ Comment.find().filter_by(episode = e.id).count()
-                       for e in episodes ]
-    ratings = [ do_the_ratings(0, 0, Rating.find().\
-                filter_by(episode = e.id).all())['rating']
-                for e in episodes ]
+    try: # FIXME wrap db queries into one
+        episodes = Episode.find().filter_by(category=site).\
+                order_by(Episode.date).all()
+        episodes.reverse()
+        comments_count = [ Comment.find().filter_by(episode = e.id).count()
+                        for e in episodes ]
+        ratings = [ do_the_ratings(0, 0, Rating.find().\
+                    filter_by(episode = e.id).all())['rating']
+                    for e in episodes ]
+    except Exception as e: return notfound(str(e))
     return template("episodes.tpl",
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
                     site        = site
+                   )
+
+
+@route("/datenspuren/(?P<id>([^/](?!(atom|json)))+)(?P<mode>/(comment|rate|reply))?")
+def datenspur(web, id, mode):
+    try: # FIXME wrap db queries into one
+        episodes = Episode.find().filter(Episode.category.endswith(id)).\
+                order_by(Episode.date).all()
+        episodes.reverse()
+        comments_count = [ Comment.find().filter_by(episode = e.id).count()
+                        for e in episodes ]
+        ratings = [ do_the_ratings(0, 0, Rating.find().\
+                    filter_by(episode = e.id).all())['rating']
+                    for e in episodes ]
+        episode = Episode.find().filter_by(link = id).one()
+        for ep in episodes:
+            ep.has_screen = True
+            ep.files = File.find().filter_by(episode = ep.id).all()
+            ep.preview = get_preview(Preview.find().\
+                filter_by(episode = episode.id).all(), ep.files)
+        comments = Comment.find().filter_by(episode = episode.id).all()
+        rating = Rating.find().filter_by(episode = episode.id).all()
+    except Exception as e: return notfound(str(e))
+    if mode is None: mode = ""
+    if len(mode): mode = mode[1:]
+    opts = {}
+    opts.update(create_session(web, mode))
+    opts.update(do_the_comments(web, mode, comments))
+    opts.update(do_the_ratings(web, mode, rating))
+    return template("datenspuren.tpl",
+                    css         = "episode",
+                    episodepage = zip(episodes, comments_count, ratings),
+                    site        = "datenspuren",
+                    full_site   = "datenspuren/" + id,
+                    episode     = episode,
+                    **opts
+                   )
+
+
+@route("/datenspuren/(?P<id>[^/]+)/(?P<filename>([^/](?!(atom|json)))+)(?P<mode>/(comment|rate|reply))?")
+def datenspur_file(web, id, filename, mode):
+    try: # FIXME wrap db queries into one
+        episode = Episode.find().filter_by(link = filename).\
+                filter(Episode.category.endswith(id)).\
+                order_by(Episode.date).one()
+        comments = Comment.find().filter_by(episode = episode.id).all()
+        files    = File.find().filter_by(episode = episode.id).all()
+        ratings  = Rating.find().filter_by(episode = episode.id).all()
+        previews = Preview.find().filter_by(episode = episode.id).all()
+        trackbacks = Trackback.find().filter_by(episode = episode.id).\
+                    order_by(Trackback.date).all()
+    except Exception as e: return notfound(str(e))
+    episode.files = files
+    if mode is None: mode = ""
+    if len(mode): mode = mode[1:]
+    opts = {}
+    opts.update(create_session(web, mode))
+    opts.update(do_the_comments(web, mode, comments))
+    opts.update(do_the_ratings(web, mode, ratings))
+    preview = get_preview(previews, files)
+    csss = [ "../lib/video-js/video-js", "../lib/video-js/skins/vim", "vim"]
+    if episode.isaudio():
+        csss = list(map(lambda s:s.replace("video", "audio"), csss))
+    return template("datenspur.tpl",
+                    css        = "episode",
+                    episode    = episode,
+                    episodes   = {episode.id: episode},
+                    site       = "datenspuren",
+                    trackbacks = trackbacks,
+                    files      = files,
+                    preview    = preview,
+                    csss       = csss,
+                    **opts
+                   )
+
+
+@route("/datenspuren(?!.*/(comment(s|/new)|rating(s)?))")
+def datenspuren(web):
+    try: # FIXME wrap db queries into one
+        episodes = Episode.find().filter(Episode.category.startswith("ds")).\
+                order_by(Episode.date).all()
+        episodes.reverse()
+        comments_count, ratings = [], []
+        for episode in episodes:
+            ids = list(map(lambda e:e.id, Episode.find(Episode.id).\
+                filter_by(category = "file/{0}/{1}".\
+                format(episode.category, episode.link)).all()))
+            f_rts = Rating.find().filter(Rating.episode.in_(ids)).all()
+            e_rts = Rating.find().filter_by(episode = episode.id).all()
+            ratings += [ do_the_ratings(0, 0, e_rts + f_rts)['rating'] ]
+            comments_count += [
+                Comment.find().filter(Comment.episode.in_(ids)).count() +
+                Comment.find().filter_by( episode = episode.id).count() ]
+            count = File.find().filter_by(episode = episode.id).count()
+            episode.filescount = "// {0} File{1}".format(count,
+                count != 1 and "s" or "")
+    except Exception as e: return notfound(str(e))
+    return template("episodes.tpl",
+                    css         = "episode",
+                    episodepage = zip(episodes, comments_count, ratings),
+                    site        = "datenspuren"
                    )
 
 
@@ -151,45 +257,18 @@ def ratings_by_filename(web, filename, mode):
 
 @post("/(?P<site>penta(radio|cast|music))/:id/comment/new") # FIXME impl error
 def new_comment(web, site, id):
-    is_ok, result = get_episode_if_input_is_ok(web, id,
+    is_ok, result = get_episode_if_input_is_ok(web, Episode.link == id,
             exists   = ['author','comment','reply'],
             notempty = ['comment'] )
     if is_ok:
-        episode, result = result, None
-        text, reply = md.convert(web.input('comment')), []
-        def replyer(x):
-            a = x.group()[1:]
-            i = find(Comment.id).filter_by(author=a).order_by(Comment.date).all()
-            if i: reply.append(i[-1][0])
-            return i and '@<a href="/{0}/{1}/reply?{2}#new">{3}</a>'.\
-                         format(site, id, i[-1][0], a)\
-                     or "@{0}".format(a)
-        text = re_reply.sub(replyer, text)
-        if reply: reply = reply[0]
-        else:     reply = -1
-        if web.input('reply') != "-1":
-            try: reply = int(web.input('reply'))
-            except: pass
-        pm_url = pentamediaportal+"/{0}/{1}".format(episode.category, episode.link)
-        for link in re_url.finditer(web.input('comment')):
-            trackback_client(link.group(), pm_url,
-                             title   = episode.name,
-                             excerpt = web.input('comment')
-                            )
-        Comment(episode = episode.id,
-                author  = web.input('author'),
-                reply   = reply,
-                text    = text,
-                date    = datetime.now()
-               ).save()
-        notify_muc("{0} just left some pithy words on {1}. [ {2} ]".\
-            format(web.input('author'), episode.name, pm_url))
+        build_and_save_comment(web, site+"/"+id, result)
+        result = None
     return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
 
 
 @post("(?P<site>penta(radio|cast|music))/:id/rating/new")
 def new_rating(web, site, id):
-    is_ok, result = get_episode_if_input_is_ok(web, id,
+    is_ok, result = get_episode_if_input_is_ok(web, Episode.link == id,
             exists = ['score'], notempty = ['score'] )
     if is_ok:
         episode, result = result, None
@@ -201,9 +280,62 @@ def new_rating(web, site, id):
     return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
 
 
+@post("/datenspuren/:id/:filename/comment/new") # FIXME impl error
+def new_ds_file_comment(web, id, filename):
+    is_ok, result = get_episode_if_input_is_ok(web,
+            and_(Episode.link == filename, Episode.category.endswith(id)),
+            exists   = ['author','comment','reply'],
+            notempty = ['comment'] )
+    if is_ok:
+        build_and_save_comment(web, "datenspuren/{0}/{1}".format(id, filename), result)
+        result = None
+    return result or redirect("/datenspuren/{0}/{1}".format(id, filename)) # FIXME give error to user
+
+
+@post("datenspuren/:id/:filename/rating/new")
+def new_ds_file_rating(web, id, filename):
+    is_ok, result = get_episode_if_input_is_ok(web,
+            and_(Episode.link == filename, Episode.category.endswith(id)),
+            exists = ['score'], notempty = ['score'] )
+    if is_ok:
+        episode, result = result, None
+        try:    score = int(web.input('score'))
+        except: score = None
+        if score is not None:
+            if score in range(1,6):
+                Rating(episode = episode.id, score = score).save()
+    return result or redirect("/datenspuren/{0}/{1}".format(id,filename)) # FIXME give error to user
+
+
+@post("/datenspuren/:id/comment/new") # FIXME impl error
+def new_ds_file_comment(web, id):
+    is_ok, result = get_episode_if_input_is_ok(web, Episode.link == id,
+            exists   = ['author','comment','reply'],
+            notempty = ['comment'] )
+    if is_ok:
+        build_and_save_comment(web, "datenspuren/" + id, result)
+        result = None
+    return result or redirect("/datenspuren/" + id) # FIXME give error to user
+
+
+@post("datenspuren/:id/rating/new")
+def new_ds_file_rating(web, id):
+    is_ok, result = get_episode_if_input_is_ok(web, Episode.link == id,
+            exists = ['score'], notempty = ['score'] )
+    if is_ok:
+        episode, result = result, None
+        try:    score = int(web.input('score'))
+        except: score = None
+        if score is not None:
+            if score in range(1,6):
+                Rating(episode = episode.id, score = score).save()
+    return result or redirect("/datenspuren/" + id) # FIXME give error to user
+
+
 @route("/spenden")
 def donate(web):
     return template("spenden.tpl")
+
 
 # helper
 
@@ -227,13 +359,54 @@ def captcha_is_ok(web):
     return found
 
 
-def get_episode_if_input_is_ok(web, id, exists = [], notempty = []):
+def get_episode_if_input_is_ok(web, filtr, exists = [], notempty = []):
     if captcha_is_ok(web) and \
       all([ web.input(k) is not None for k in exists   ]) and \
       all([ web.input(k) != ""       for k in notempty ]):
-        try:    return True, Episode.find().filter_by(link = id).one()
+        try:    return True, Episode.find().filter(filtr).one()
         except Exception as e: return False, notfound(str(e))
     return False, None
+
+
+def build_and_save_comment(web, site, episode):
+        text, reply = md.convert(web.input('comment')), []
+        def replyer(x):
+            a = x.group()[1:]
+            i = find(Comment.id).filter_by(author=a).order_by(Comment.date).all()
+            if i: reply.append(i[-1][0])
+            return i and '@<a href="/{0}/reply?{1}#new">{2}</a>'.\
+                         format(site, i[-1][0], a)\
+                     or "@{0}".format(a)
+        text = re_reply.sub(replyer, text)
+        if reply: reply = reply[0]
+        else:     reply = -1
+        if web.input('reply') != "-1":
+            try: reply = int(web.input('reply'))
+            except: pass
+        pm_url = pentamediaportal+"/{0}/{1}".format(episode.category, episode.link)
+        for link in re_url.finditer(web.input('comment')):
+            trackback_client(link.group(), pm_url,
+                             title   = episode.name,
+                             excerpt = web.input('comment')
+                            )
+        Comment(episode = episode.id,
+                author  = web.input('author'),
+                reply   = reply,
+                text    = text,
+                date    = datetime.now()
+               ).save()
+        notify_muc("{0} just left some pithy words on {1}. [ {2} ]".\
+            format(web.input('author'), episode.name, pm_url))
+
+
+def get_preview(previews, files):
+    previews = dict([ (preview.link, preview) for preview in previews ])
+    preview = None
+    for f in files:
+        if f.link in previews:
+            preview = previews[f.link]
+            break
+    return preview
 
 
 def template_comments():

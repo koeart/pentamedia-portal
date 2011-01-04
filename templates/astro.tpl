@@ -35,6 +35,7 @@
       <li{% if site == "pentaradio" %} class="selected"{% endif %}><a href="/pentaradio">Pentaradio</a></li>
       <li{% if site == "pentacast" %} class="selected"{% endif %}><a href="/pentacast">Pentacast</a></li>
       <li{% if site == "pentamusic" %} class="selected"{% endif %}><a href="/pentamusic">Pentamusic</a></li>
+      <li{% if "datenspuren" in site %} class="selected"{% endif %}><a href="/datenspuren">Datenspuren</a></li>
       <li><a href="/spenden">Spenden</a></li>
     </ul>
     <div class="content">

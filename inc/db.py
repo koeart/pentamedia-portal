@@ -8,8 +8,18 @@ File = model('File',
              info    = 'string',
              name    = 'string',
              type    = 'string',
+             mime    = lambda self: _mime(self),
+             typecat = lambda self: self.type.partition("/")[0],
+             typetyp = lambda self: self.type.partition("/")[2],
              link    = 'string'
             )
+
+Preview = model('Preview',
+                episode  = 'integer',
+                link     = 'string',
+                static   = 'string',
+                animated = 'string'
+               )
 
 Link = model('Link',
              episode = 'integer',
@@ -25,6 +35,9 @@ Episode = model('Episode',
                 author   = 'string',
                 date     = 'datetime',
                 fdate    = lambda self: _fdate(self.date),
+                ismedia  = lambda self: _ismedia(self.files or []),
+                isvideo  = lambda self: _isvideo(self.files or []),
+                isaudio  = lambda self: _isaudio(self.files or []),
                 short    = 'text',
                 long     = 'text'
                )
@@ -63,3 +76,21 @@ Rating = model ("Rating",
 def _fdate(date:datetime):
     return date.strftime("%A, %d. %B %Y um %H:%M")
 
+def _mime(file):
+    if "torrent" in file.type:
+        return "bittorrent"
+    elif "multipart" in file.type:
+        return "pkg"
+    return file.typecat()
+
+def _ismedia(files):
+    mimes = list(map(lambda f:f.typecat(), files))
+    return "video" in mimes or "audio" in mimes
+
+def _isaudio(files):
+    mimes = list(map(lambda f:f.typecat(), files))
+    return "audio" in mimes
+
+def _isvideo(files):
+    mimes = list(map(lambda f:f.typecat(), files))
+    return "video" in mimes
