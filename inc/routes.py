@@ -157,6 +157,9 @@ def datenspur_file(web, id, filename, mode):
     opts.update(do_the_comments(web, mode, comments))
     opts.update(do_the_ratings(web, mode, ratings))
     preview = get_preview(previews, files)
+    csss = [ "../lib/video-js/video-js", "../lib/video-js/skins/vim", "vim"]
+    if episode.isaudio():
+        csss = list(map(lambda s:s.replace("video", "audio"), csss))
     return template("datenspur.tpl",
                     css        = "episode",
                     episode    = episode,
@@ -165,9 +168,7 @@ def datenspur_file(web, id, filename, mode):
                     trackbacks = trackbacks,
                     files      = files,
                     preview    = preview,
-                    csss       = [ "../lib/video-js/video-js",
-                                   "../lib/video-js/skins/vim",
-                                   "vim"],
+                    csss       = csss,
                     **opts
                    )
 

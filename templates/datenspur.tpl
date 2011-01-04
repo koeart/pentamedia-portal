@@ -10,7 +10,7 @@
       <div class="stars" style="margin-top:-1em;color:#{% if rating.count == 0 %}ccc{% else %}777{% endif %}">{{rating.stars}}</div>
 
   <div style="clear:both;margin:0em auto;max-width:70%;padding-left:20%;height:300px">
-      {% if episode.ismedia() %}
+      {% if episode.isvideo() %}
     <div class="screen pane" style="float:left">
       <div class="frame">
       <!-- Begin VideoJS -->
@@ -29,6 +29,22 @@
           <p class="vjs-no-video" style="color:white">Video not playable with <a href="http://videojs.com">HTML5 Video Player</a>.</p>
         </div>
       <!-- End VideoJS -->
+      </div>
+    </div>
+      {% elif episode.isaudio() %}
+    <div class="screen pane" style="float:left">
+      <div class="frame">
+      <img src="/img/empty_screen.jpg" class="screen" />
+      <!-- Begin AudioJS -->
+        <div class="audio-js-box vim-css" style="margin-top:-80px;margin-left:23px">
+          <audio class="audio-js" width="360" height="0" style="height:0;border:none" preload="none" controls>
+          Bitte Browser auf den neuesten Stand bringt. Hilft bei Multimedia und Sicherheit!
+            {% for f in files %}
+              <source src="{{f.link}}" type='{{f.type}}' />
+            {% endfor %}
+          </audio>
+        </div>
+      <!-- End AudioJS -->
       </div>
     </div>
       {% endif %}
@@ -66,7 +82,7 @@
 
 <div style="position:absolute;right:3px;"><small><a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a></small></div>
 
-{% if preview|d(False) %}
+{% if episode.isvideo() %}
 <script src="/lib/video-js/video.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
 
@@ -76,6 +92,16 @@
       controlsHiding: true,
       linksHiding: false
   });
+
+</script>
+{% elif episode.isaudio() %}
+<script src="/lib/audio-js/audio.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+
+    // Add AudioJS to all video tags on the page when the DOM is ready
+    window.onload = function(){
+        var players = AudioJS.setup();
+    };
 
 </script>
 {% endif %}

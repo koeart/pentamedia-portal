@@ -36,6 +36,8 @@ Episode = model('Episode',
                 date     = 'datetime',
                 fdate    = lambda self: _fdate(self.date),
                 ismedia  = lambda self: _ismedia(self.files or []),
+                isvideo  = lambda self: _isvideo(self.files or []),
+                isaudio  = lambda self: _isaudio(self.files or []),
                 short    = 'text',
                 long     = 'text'
                )
@@ -84,3 +86,11 @@ def _mime(file):
 def _ismedia(files):
     mimes = list(map(lambda f:f.typecat(), files))
     return "video" in mimes or "audio" in mimes
+
+def _isaudio(files):
+    mimes = list(map(lambda f:f.typecat(), files))
+    return "audio" in mimes
+
+def _isvideo(files):
+    mimes = list(map(lambda f:f.typecat(), files))
+    return "video" in mimes
