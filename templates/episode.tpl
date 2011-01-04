@@ -42,30 +42,16 @@
 	<div class="listen pane" id="penta{{site}}">
 	  <h3>Hören</h3>
 
-      <!-- Begin VideoJS -->
-        <div class="video-js-box vim-css" style="top:1.5em">
-          <video class="video-js" width="360" height="0" style="height:0;border:none" preload="none" controls>
+      <!-- Begin AudioJS -->
+        <div class="audio-js-box vim-css" style="top:1.5em">
+          <audio class="audio-js" width="360" height="0" style="height:0;border:none" preload="none" controls>
+          Bitte Browser auf den neuesten Stand bringt. Hilft bei Multimedia und Sicherheit!
             {% for f in files %}
               <source src="{{f.link}}" type='{{f.type}}' />
             {% endfor %}
-            <object id="flash_fallback_1" width="360" class="vjs-flash-fallback" type="application/x-shockwave-flash" data="http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf">
-              <param name="movie" value="http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf" />
-              <param name="allowfullscreen" value="true" />
-              <param name="flashvars" value='config={"playlist":["", {"url": "{{files[0].link}}","autoPlay":false,"autoBuffering":false}]}' />
-            </object>
-          </video>
-          <p class="vjs-no-video">Track not playable with <a href="http://videojs.com">HTML5 Audio Player</a>.</p>
+          </audio>
         </div>
-      <!-- End VideoJS -->
-      <!--
-	  <audio controls>
-	    {% for f in files %}
-	    <source src="{{f.link}}"
-		    type="{{f.type}}"/>{% endfor %}
-	    Bitte Browser auf den neuesten Stand bringt. Hilft bei
-	    Multimedia und Sicherheit!
-	  </audio>
-	   -->
+      <!-- End AudioJS -->
 	</div>
       </div>{% endif %}
  {% if links|d([]) != [] %}
@@ -79,21 +65,13 @@
 
 <div style="position:absolute;right:3px;"><small><a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a></small></div>
 
-<script src="/lib/video-js/video.js" type="text/javascript" charset="utf-8"></script>
+<script src="/lib/audio-js/audio.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
 
-    // Add VideoJS to all video tags on the page when the DOM is ready
-    VideoJS.DOMReady(function(){
-        var players = VideoJS.setup("All",{
-            controlsAtStart: true,
-            controlsBelow: false,
-            controlsHiding: false,
-            linksHiding: false
-        });
-        for(var i=0,player;player=players[i++];)
-            for(var j=0,button;button=player.bigPlayButtons[j++];)
-                button.style.visibility = "hidden";
-    });
+    // Add AudioJS to all video tags on the page when the DOM is ready
+    window.onload = function(){
+        var players = AudioJS.setup();
+    };
 
 </script>
 

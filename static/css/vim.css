@@ -23,21 +23,22 @@
 }
 
 .vim-css div.vjs-big-play-button:hover {
-    background-color: #ebc63c;
+    background-color: #ebc63c !important;
 }
 
 .vim-css .vjs-play-control:hover {
-    background-color: #ebc63c;
+    background-color: #ebc63c !important;
 }
 
 .vim-css .vjs-progress-control .vjs-play-progress {
-    background-color: #ebc63c;
+    background-color: #ebc63c !important;
 }
 
+.vim-css .vjs-volume-control ul li.vjs-volume-level-on,
 .vim-css .vjs-volume-control div span.vjs-volume-level-on {
-    border-color: #ebc63c;
+    border-color: #ebc63c !important;
 }
 
 /* Fullscreen control hovering */
-.vim-css .vjs-fullscreen-control:hover div span:nth-child(3), .vim-css .vjs-fullscreen-control:hover div span:nth-child(4), .vim-css.vjs-fullscreen .vjs-fullscreen-control:hover div span:nth-child(1), .vim-css.vjs-fullscreen .vjs-fullscreen-control:hover div span:nth-child(2) { border-bottom-color: #ebc63c; }
-.vim-css .vjs-fullscreen-control:hover div span:nth-child(1), .vim-css .vjs-fullscreen-control:hover div span:nth-child(2), .vim-css.vjs-fullscreen .vjs-fullscreen-control:hover div span:nth-child(3), .vim-css.vjs-fullscreen .vjs-fullscreen-control:hover div span:nth-child(4) { border-top-color: #ebc63c; }
+.vim-css .vjs-fullscreen-control:hover div span:nth-child(3), .vim-css .vjs-fullscreen-control:hover div span:nth-child(4), .vim-css.vjs-fullscreen .vjs-fullscreen-control:hover div span:nth-child(1), .vim-css.vjs-fullscreen .vjs-fullscreen-control:hover div span:nth-child(2) { border-bottom-color: #ebc63c !important; }
+.vim-css .vjs-fullscreen-control:hover div span:nth-child(1), .vim-css .vjs-fullscreen-control:hover div span:nth-child(2), .vim-css.vjs-fullscreen .vjs-fullscreen-control:hover div span:nth-child(3), .vim-css.vjs-fullscreen .vjs-fullscreen-control:hover div span:nth-child(4) { border-top-color: #ebc63c !important; }
