@@ -24,7 +24,8 @@ Pentasubmitter: http://pentamedia.c3d2.de/submit/
   SQLAlchemy - database framework (http://www.sqlalchemy.org/)
   lesscss - css compiler (http://lesscss.org/)
   markdown - format syntax (http://gitorious.org/python-markdown)
-  video-js - (https://github.com/zencoder/video-js)
+  VideoJS- (https://github.com/zencoder/video-js)
+  AudioJS - (https://github.com/dz0ny/AudioJS)
 
 === Install
 
