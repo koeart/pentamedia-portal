@@ -242,7 +242,7 @@ def save_recording_in_database(filename, data, tracker, debug=False):
         dsepisode['short'] = dsfile['type']
         dsepisode['category'] = "file/{0}/{1}".\
             format(data['episode']['category'], data['episode']['link'])
-        save_in_database(dsfile['link'], dsdata, tracker)
+        save_in_database(filename + dsfile['link'], dsdata, tracker)
         if dsfile['link'] in old_files:
             old_files.remove(dsfile['link'])
         for alternative in alternatives:
@@ -257,14 +257,14 @@ def save_recording_in_database(filename, data, tracker, debug=False):
             "[id:{0}, link:{1}, name:{2}]".\
             format(episode.id,episode.link,episode.name), style.default)
         try:
-            olds = Episode.find().filter_by(filename = old_file).\
+            olds = Episode.find().filter_by(filename = filename + old_file).\
                 filter(Episode.category.startswith("file/")).all()
             if debug: print("* found",len(olds),"episodes to delete")
             for old in olds:
                 Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
                 Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
             print("* deleted {0} episodes".format(
-                Episode.find().filter_by(filename = old_file).delete()))
+                Episode.find().filter_by(filename = filename + old_file).delete()))
         except Exception as e: print(style.red+"errör 3:"+style.default,e)
         session().commit()
 
