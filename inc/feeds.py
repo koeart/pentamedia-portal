@@ -3,7 +3,7 @@ import json
 from juno import route, redirect, template, header, append, notfound
 
 from inc.db import File, Link, Episode, Comment, Trackback, Rating
-from inc.helper import build_comment_tree, do_the_ratings
+from inc.helper import build_comment_tree, do_the_ratings, remove_html
 from config import pentamediaportal
 
 
@@ -231,6 +231,7 @@ def entry_to_json(entry):
 def template_episodes_atom(**kwargs):
     header('Content-Type', "application/atom+xml")
     return template("episodes_atom.tpl",
+                    remove_html = remove_html,
                     pentamediaportal = pentamediaportal, **kwargs)
 
 

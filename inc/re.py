@@ -18,3 +18,7 @@ r'(<\s*a[^<>]*)(>(?!(https?|ftp|gopher|file)://)(.(?!<\s*/\s*a\s*>))*.<\s*/\s*a\
 re_trackback = re.compile(
 r'(<\s*(link|a)[^<>]*)(((rel\s*=\s*[\'"](?P<rela>[^\'"]*)[\'"])([^<>]*)(href\s*=\s*[\'"](?P<urla>[^\'"]*)[\'"]))|((href\s*=\s*[\'"](?P<urlb>[^\'"]*)[\'"])([^<>]*)(rel\s*=\s*[\'"](?P<relb>[^\'"]*)[\'"])))'
                          )
+
+re_html     = re.compile(
+                         r'<[^<]*?/?>'
+                        )

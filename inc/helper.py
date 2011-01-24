@@ -6,6 +6,7 @@ from random import randint, random, shuffle
 from juno import find
 
 from inc.db import Comment
+from inc.re import re_html
 
 # cache
 
@@ -100,4 +101,8 @@ def do_the_ratings(_, mode, ratings = [], **kwargs):
                               'stars' : "★" * s + "☆" * (5 - s) },
             'rating_form' : mode == "rate",
             'enumerate'   : enumerate }
+
+
+def remove_html(text):
+    return re_html.sub("", text)
 
