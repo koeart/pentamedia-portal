@@ -136,7 +136,7 @@ class Trackbacker():
         self.count = drug(links = 0, tb = 0, skip = 0, error = 0, ign = 0)
         self.disabled = not enabled
 
-    def send(self, episode, link):
+    def send(self, filename, episode, link):
         response = trackback_client(link,
             pentamediaportal+"/{0}/{1}".\
             format(episode.category, episode.link),
@@ -155,7 +155,7 @@ class Trackbacker():
                     url      = link).add()
             else: self.count.error += 1
 
-    def check_all(self, episode, links):
+    def check_all(self, filename, episode, links):
         if self.disabled or not links: return
         self.count.links += len(links)
         pb = Progressbar(0, len(links), 42, True)
@@ -169,7 +169,7 @@ class Trackbacker():
             if not blacklisted: pb.update(n, link)
             used = ShownoteTrackback.find().filter_by(url = link).count()
             if not blacklisted and not used:
-                self.send(episode, link)
+                self.send(filename, episode, link)
             else:
                 if blacklisted: self.count.ign += 1
                 else:
@@ -211,7 +211,7 @@ def save_in_database(filename, data, tracker):
     list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
     list(map(lambda kwargs: Preview(episode=episode.id, **kwargs).add(), data['previews']))
     list(map(lambda kwargs: Link(episode=episode.id, **kwargs).add(), data['links']))
-    tracker.check_all(episode, data['links'])
+    tracker.check_all(filename, episode, data['links'])
     session().commit()
 
 
