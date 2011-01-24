@@ -383,7 +383,9 @@ def build_and_save_comment(web, site, episode):
         if web.input('reply') != "-1":
             try: reply = int(web.input('reply'))
             except: pass
-        pm_url = pentamediaportal+"/{0}/{1}".format(episode.category, episode.link)
+        cat = episode.category
+        if "ds" in cat: cat = "datenspuren"
+        pm_url = pentamediaportal + "/{0}/{1}".format(cat, episode.link)
         for link in re_url.finditer(web.input('comment')):
             trackback_client(link.group(), pm_url,
                              title   = episode.name,

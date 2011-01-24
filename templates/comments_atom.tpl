@@ -9,7 +9,7 @@
 
   {% for entry in comments|d([]) %}
   <entry>
-    <link href="{{pentamediaportal}}/{{episodes[entry.episode].category}}/{{episodes[entry.episode].link}}"/>
+    <link href="{{pentamediaportal}}/{{"ds" in episodes[entry.episode].category and "datenspuren" or episodes[entry.episode].category}}/{{episodes[entry.episode].link}}"/>
     <id>{{entry.id}}</id>
     <updated>{{entry.date}}</updated>
     {% if entry.reply is defined %}
