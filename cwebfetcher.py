@@ -198,15 +198,21 @@ def save_in_database(filename, data, tracker):
             File.find().filter_by(episode = old.id).delete()
             Preview.find().filter_by(episode = old.id).delete()
         except Exception as e: print(style.red+"errör 1:"+style.default,e)
-    episode = Episode(filename=filename, **data['episode'])
-    episode.save()
+    updated = len(olds)
+    if olds:
+        episode = Episode.find().filter_by(id = olds.pop(0).id)
+        episode.update(data['episode'])
+        episode = episode.one()
+    else:
+        episode = Episode(filename=filename, **data['episode'])
+        episode.save()
     for old in olds:
         try:
             Comment.find().filter_by(episode=old.id).update({'episode':episode.id})
             Rating.find().filter_by(episode=old.id).update({'episode':episode.id})
             Episode.find().filter_by(id = old.id).delete()
         except Exception as e: print(style.red+"errör 2:"+style.default,e)
-    if olds: print(style.green+"* update db: ",filename,style.default)
+    if updated: print(style.green+"* update db: ",filename,style.default)
     else: print(style.green+"* add to db: ",filename,style.default)
     list(map(lambda kwargs: File(episode=episode.id, **kwargs).add(), data['files']))
     list(map(lambda kwargs: Preview(episode=episode.id, **kwargs).add(), data['previews']))
