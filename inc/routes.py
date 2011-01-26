@@ -446,4 +446,4 @@ def template_mode(web, site, episode, mode, **kwargs):
 
 def notify_muc(text):
     cmd = 'curl --data-urlencode "text={0}" http://www.hq.c3d2.de/bot/msg'.format(text)
-    os.system(cmd)
+    os.system(cmd.encode('ascii', 'replace'))
