@@ -228,10 +228,17 @@ def entry_to_json(entry):
     elif isinstance(entry, Comment): return comment_to_json(entry)
 
 
+def clean_category(category):
+    if category.startswith("file/"):
+        category = "datenspuren" + category[9:] # file/dsXX/…
+    return category
+
+
 def template_episodes_atom(**kwargs):
     header('Content-Type', "application/atom+xml")
     return template("episodes_atom.tpl",
                     remove_html = remove_html,
+                    clean_category = clean_category,
                     pentamediaportal = pentamediaportal, **kwargs)
 
 
