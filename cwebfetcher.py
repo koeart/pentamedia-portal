@@ -3,6 +3,7 @@
 import re
 import os
 import os.path as ospath
+from sys import stdout
 from copy import deepcopy
 from optparse import OptionParser
 from subprocess import getoutput, getstatusoutput
@@ -28,6 +29,7 @@ gitcmd = "git --git-dir=cweb.git --work-tree=. "
 
 
 def git(options, verbose=0):
+    stdout.flush()
     if   verbose == 0: # state
         return os.system(gitcmd + options)
     elif verbose == 1: # output
