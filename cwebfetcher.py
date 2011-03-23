@@ -44,6 +44,7 @@ def check_git_version():
     git_test = getoutput("git log --format=%n")
     if "fatal" in git_test or "--format" in git_test:
         print("ERROR: your git version is to old.")
+        stdout.flush()
         os.system("git --version")
         exit(1)
 
