@@ -90,7 +90,7 @@ def main(web, site, errors=[]):
         episodes.reverse()
         comments_count = [ Comment.find().filter_by(episode = e.id).count()
                         for e in episodes ]
-        ratings = [ do_the_ratings(0, 0, Rating.find().\
+        ratings = [ do_the_ratings(web, "", Rating.find().\
                     filter_by(episode = e.id).all())['rating']
                     for e in episodes ]
     except Exception as e: return notfound(str(e))
@@ -110,7 +110,7 @@ def datenspur(web, id, mode, errors=[]):
         episodes.reverse()
         comments_count = [ Comment.find().filter_by(episode = e.id).count()
                         for e in episodes ]
-        ratings = [ do_the_ratings(0, 0, Rating.find().\
+        ratings = [ do_the_ratings(web, "", Rating.find().\
                     filter_by(episode = e.id).all())['rating']
                     for e in episodes ]
         episode = Episode.find().filter_by(link = id).one()
@@ -190,7 +190,7 @@ def datenspuren(web, errors=[]):
                 format(episode.category, episode.link)).all()))
             f_rts = Rating.find().filter(Rating.episode.in_(ids)).all()
             e_rts = Rating.find().filter_by(episode = episode.id).all()
-            ratings += [ do_the_ratings(0, 0, e_rts + f_rts)['rating'] ]
+            ratings += [ do_the_ratings(web, "", e_rts + f_rts)['rating'] ]
             comments_count += [
                 Comment.find().filter(Comment.episode.in_(ids)).count() +
                 Comment.find().filter_by( episode = episode.id).count() ]

@@ -89,21 +89,23 @@ def do_the_comments(_, mode, comments = [], **kwargs):
     return {'comments' : comments , 'comment_form' : mode not in ["", "rate"] }
 
 
-def do_the_ratings(_, mode, ratings = [], **kwargs):
+def do_the_ratings(web, mode, ratings = [], **kwargs):
     score = 0
     for r in ratings:
         score += r.score
     if ratings:
         score /= len(ratings)
     s = round(score + 0.00000001) # python fuck up
-    return {'rating'      : { 'score' : score,
-                              'round'  : s,
-                              'black_star': "★",
-                              'white_star' : "☆",
-                              'count' : len(ratings),
-                              'stars' : "★" * s + "☆" * (5 - s) },
-            'rating_form' : mode == "rate",
-            'enumerate'   : enumerate }
+    print(">"*10,web.input('score'))
+    return {'rating'       : { 'score' : score,
+                               'round'  : s,
+                               'black_star': "★",
+                               'white_star' : "☆",
+                               'count' : len(ratings),
+                               'stars' : "★" * s + "☆" * (5 - s) },
+            'selected_star': web.input('score') or 0,
+            'rating_form'  : mode == "rate",
+            'enumerate'    : enumerate }
 
 
 def remove_html(text):

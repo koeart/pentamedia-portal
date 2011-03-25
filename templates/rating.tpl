@@ -51,7 +51,7 @@
 {{captchas_begin(action())}}
 <p class="scores">
 {% for n, star in enumerate(rating.stars) %}
-<input type="radio" name="score" value="{{n+1}}" id="score{{n+1}}"/>{{rating.black_star*(n+1)}}{{rating.white_star*(4-n)}}
+<input type="radio" name="score" value="{{n+1}}" id="score{{n+1}}"{% if selected_star|d(0) == (n+1)|string %} checked="checked"{% endif %}/>{{rating.black_star*(n+1)}}{{rating.white_star*(4-n)}}
 {% endfor %}
 </p>
 {{captchas_body()}}
