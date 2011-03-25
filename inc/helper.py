@@ -60,8 +60,10 @@ def _create_session(web, mode):
     try:
         reply = int(web['QUERY_STRING'])
         author = find(Comment.author).filter_by(id = reply).one()[0]
-        author = "@{0} ".format(author)
-    except: reply, author = -1, ""
+        text = "@{0} ".format(author)
+    except: reply, text = -1, ""
+    name = web.input("author") or ""
+    if web.input("comment"): text = web.input("comment")
     a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
     hash = sha1(bytes(str(random()),'utf-8')).hexdigest()
     if mode in ["comment", "rate", "reply"]:
@@ -70,14 +72,15 @@ def _create_session(web, mode):
         elif len(cats) == 4: cats.pop(randint(0, 3))
         pics = list(range(16)); shuffle(pics); pics = pics[:4]
         comment_hashes[hash] = (now(), a + b + c, cats, pics)
-    return reply, author, hash, a, b, c
+    return reply, text, name, hash, a, b, c
 
 
 def create_session(web, mode):
-    reply, author, hash, a, b, c = _create_session(web, mode)
-    return {'reply'     : reply,
-            'at_author' : author,
-            'hash'      : hash,
+    reply, text, name, hash, a, b, c = _create_session(web, mode)
+    return {'reply'      : reply,
+            'commenttext': text,
+            'authorname' : name,
+            'hash'       : hash,
             'a' : a, 'b' : b, 'c' : c }
 
 

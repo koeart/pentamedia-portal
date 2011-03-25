@@ -1,6 +1,6 @@
 
 from juno import route, get, post, yield_file, template, redirect, find, \
-                 notfound
+                 notfound, direct
 from datetime import datetime # year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None
 from sqlalchemy import and_
 import os
@@ -263,6 +263,7 @@ def new_comment(web, site, id):
     if is_ok:
         build_and_save_comment(web, site+"/"+id, result)
         result = None
+    else: return direct(web, "/{0}/{1}/comment".format(site,id))
     return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
 
 
@@ -277,6 +278,7 @@ def new_rating(web, site, id):
         if score is not None:
             if score in range(1,6):
                 Rating(episode = episode.id, score = score).save()
+    else: return direct(web, "/{0}/{1}/rate".format(site,id))
     return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
 
 
@@ -289,6 +291,7 @@ def new_ds_file_comment(web, id, filename):
     if is_ok:
         build_and_save_comment(web, "datenspuren/{0}/{1}".format(id, filename), result)
         result = None
+    else: return direct(web, "/datenspuren/{0}/{1}/comment".format(site,id))
     return result or redirect("/datenspuren/{0}/{1}".format(id, filename)) # FIXME give error to user
 
 
@@ -304,6 +307,7 @@ def new_ds_file_rating(web, id, filename):
         if score is not None:
             if score in range(1,6):
                 Rating(episode = episode.id, score = score).save()
+    else: return direct(web, "/datenspuren/{0}/{1}/rate".format(site,id))
     return result or redirect("/datenspuren/{0}/{1}".format(id,filename)) # FIXME give error to user
 
 
@@ -315,6 +319,7 @@ def new_ds_file_comment(web, id):
     if is_ok:
         build_and_save_comment(web, "datenspuren/" + id, result)
         result = None
+    else: return direct(web, "/datenspuren/{0}/comment".format(id))
     return result or redirect("/datenspuren/" + id) # FIXME give error to user
 
 
@@ -329,6 +334,7 @@ def new_ds_file_rating(web, id):
         if score is not None:
             if score in range(1,6):
                 Rating(episode = episode.id, score = score).save()
+    else: return direct(web, "/datenspuren/{0}/rate".format(id))
     return result or redirect("/datenspuren/" + id) # FIXME give error to user
 
 

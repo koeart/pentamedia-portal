@@ -65,13 +65,13 @@
 {{captchas_begin(action())}}
     <p>
        <label for="author">Name</label> (required)<br>
-      <input type="text" name="author" id="author" class="textarea" value="" size="15" tabindex="1" />
+      <input type="text" name="author" id="author" class="textarea" value="{{authorname|d('')}}" size="15" tabindex="1" />
      </p>
 {{captchas_body()}}
     <p>
       <label for="comment">Your Comment</label>
     <br />
-      <textarea name="comment" style="border: 1px solid #000;" id="comment" cols="50" rows="6" tabindex="4">{{at_author}}</textarea>
+      <textarea name="comment" style="border: 1px solid #000;" id="comment" cols="50" rows="6" tabindex="4">{{commenttext|d("")}}</textarea>
       <br /><a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> enabled. (url autolinking included.)
 </p>
 {{captchas_end("Say It!")}}
