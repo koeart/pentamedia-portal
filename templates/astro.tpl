@@ -39,6 +39,14 @@
       <li><a href="/spenden">Spenden</a></li>
     </ul>
     <div class="content">
+{% set errors = errors|default([]) %}
+{% if error is defined %}
+  {% do errors.append(error) %}
+{% endif %}
+{% for errormessage in errors %}
+<div style="color:red;font-weight:bold;">Error: {{errormessage}}</div>
+{% endfor %}
+{% if errors %}<hr style="border:white solid 0.5em"/>{% endif %}
 {% block body %}
 {{lipsum()}}
 {% endblock %}

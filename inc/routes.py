@@ -49,7 +49,7 @@ def cat_image(web, typ):
 
 
 @route("/(?P<site>penta(radio|cast|music))/(?P<id>([^/](?!(atom|json)))*)(?P<mode>/(comment|rate|reply))?")
-def episode(web, site, id, mode):
+def episode(web, site, id, mode, errors=[]):
     try: # FIXME wrap db queries into one
         episode  = Episode.find().filter_by(link = id).one()
         files    = File.find().filter_by(episode = episode.id).all()
@@ -67,6 +67,7 @@ def episode(web, site, id, mode):
     opts.update(do_the_comments(web, mode, comments))
     opts.update(do_the_ratings(web, mode, ratings))
     return template("episode.tpl",
+                    errors     = errors,
                     css        = "episode",
                     episode    = episode,
                     episodes   = {episode.id: episode},
@@ -82,7 +83,7 @@ def episode(web, site, id, mode):
 
 
 @route("/(?P<site>penta(radio|cast|music))(?!.*/(comment(s|/new)|rating(s)?))")
-def main(web, site):
+def main(web, site, errors=[]):
     try: # FIXME wrap db queries into one
         episodes = Episode.find().filter_by(category=site).\
                 order_by(Episode.date).all()
@@ -94,6 +95,7 @@ def main(web, site):
                     for e in episodes ]
     except Exception as e: return notfound(str(e))
     return template("episodes.tpl",
+                    errors      = errors,
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
                     site        = site
@@ -101,7 +103,7 @@ def main(web, site):
 
 
 @route("/datenspuren/(?P<id>([^/](?!(atom|json)))+)(?P<mode>/(comment|rate|reply))?")
-def datenspur(web, id, mode):
+def datenspur(web, id, mode, errors=[]):
     try: # FIXME wrap db queries into one
         episodes = Episode.find().filter(Episode.category.endswith(id)).\
                 order_by(Episode.date).all()
@@ -127,6 +129,7 @@ def datenspur(web, id, mode):
     opts.update(do_the_comments(web, mode, comments))
     opts.update(do_the_ratings(web, mode, rating))
     return template("datenspuren.tpl",
+                    errors      = errors,
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
                     site        = "datenspuren",
@@ -137,7 +140,7 @@ def datenspur(web, id, mode):
 
 
 @route("/datenspuren/(?P<id>[^/]+)/(?P<filename>([^/](?!(atom|json)))+)(?P<mode>/(comment|rate|reply))?")
-def datenspur_file(web, id, filename, mode):
+def datenspur_file(web, id, filename, mode, errors=[]):
     try: # FIXME wrap db queries into one
         episode = Episode.find().filter_by(link = filename).\
                 filter(Episode.category.endswith(id)).\
@@ -161,6 +164,7 @@ def datenspur_file(web, id, filename, mode):
     if episode.isaudio():
         csss = list(map(lambda s:s.replace("video", "audio"), csss))
     return template("datenspur.tpl",
+                    errors     = errors,
                     css        = "episode",
                     episode    = episode,
                     episodes   = {episode.id: episode},
@@ -174,7 +178,7 @@ def datenspur_file(web, id, filename, mode):
 
 
 @route("/datenspuren(?!.*/(comment(s|/new)|rating(s)?))")
-def datenspuren(web):
+def datenspuren(web, errors=[]):
     try: # FIXME wrap db queries into one
         episodes = Episode.find().filter(Episode.category.startswith("ds")).\
                 order_by(Episode.date).all()
@@ -195,6 +199,7 @@ def datenspuren(web):
                 count != 1 and "s" or "")
     except Exception as e: return notfound(str(e))
     return template("episodes.tpl",
+                    errors      = errors,
                     css         = "episode",
                     episodepage = zip(episodes, comments_count, ratings),
                     site        = "datenspuren"
@@ -202,29 +207,33 @@ def datenspuren(web):
 
 
 @route("/(?P<site>penta(radio|cast|music))/(?P<id>[^/]*)/comments(?P<mode>[/.](comment|reply))?")
-def comments(web, site, id, mode):
+def comments(web, site, id, mode, errors=[]):
     try: # FIXME wrap db queries into one
         episode  = Episode.find().filter_by(link = id).one()
         comments = Comment.find().filter_by(episode = episode.id).\
                    order_by(Comment.date).all()
     except: return notfound("Episode not found.")
-    return template_mode(web, site, episode, mode, comments = comments)
+    return template_mode(web, site, episode, mode,
+                         errors   = errors,
+                         comments = comments
+                        )
 
 
 @route("/(?P<site>penta(radio|cast|music))/(?P<id>[^/]*)/rating(s)?(?P<mode>[/.]rate)?")
-def ratings(web, site, id, mode):
+def ratings(web, site, id, mode, errors=[]):
     try: # FIXME wrap db queries into one
         episode  = Episode.find().filter_by(link = id).one()
         ratings = Rating.find().filter_by(episode = episode.id).all()
     except: return notfound("Episode not found.")
     return template_mode(web, site, episode,
                          (mode == '/' or mode is None) and "/rating" or mode,
+                         errors             = errors,
                          hide_rating_detail = True,
                          ratings = ratings)
 
 
 @route("/(?P<filename>(penta(radio24|cast|music))-.*)/comments(?P<mode>[/.](comment|reply))?")
-def comments_by_filename(web, filename, mode):
+def comments_by_filename(web, filename, mode, errors=[]):
     filename = "content/news/{0}.xml".format(filename)
     try: # FIXME wrap db queries into one
         episode  = Episode.find().filter_by(filename = filename).one()
@@ -235,11 +244,14 @@ def comments_by_filename(web, filename, mode):
         elif "music" in filename: site = "pentamusic"
         else: site = 42 / 0
     except Exception as e: return notfound(str(e))
-    return template_mode(web, site, episode, mode, comments = comments)
+    return template_mode(web, site, episode, mode,
+                         errors   = errors,
+                         comments = comments
+                        )
 
 
 @route("/(?P<filename>(penta(radio24|cast|music))-.*)/rating(s)?(?P<mode>[/.]rate)?")
-def ratings_by_filename(web, filename, mode):
+def ratings_by_filename(web, filename, mode, errors=[]):
     filename = "content/news/{0}.xml".format(filename)
     try: # FIXME wrap db queries into one
         episode  = Episode.find().filter_by(filename = filename).one()
@@ -251,6 +263,7 @@ def ratings_by_filename(web, filename, mode):
     except Exception as e: return notfound(str(e))
     return template_mode(web, site, episode,
                          (mode == '/' or mode is None) and "/rating" or mode,
+                         errors             = errors,
                          hide_rating_detail = True,
                          ratings = ratings)
 
@@ -263,8 +276,9 @@ def new_comment(web, site, id):
     if is_ok:
         build_and_save_comment(web, site+"/"+id, result)
         result = None
-    else: return direct(web, "/{0}/{1}/comment".format(site,id))
-    return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
+    else: return direct(web, "/{0}/{1}/comment".format(site,id),
+            errors = [result or "Captcha wrong"])
+    return result or redirect("/{0}/{1}".format(site,id))
 
 
 @post("(?P<site>penta(radio|cast|music))/:id/rating/new")
@@ -278,8 +292,9 @@ def new_rating(web, site, id):
         if score is not None:
             if score in range(1,6):
                 Rating(episode = episode.id, score = score).save()
-    else: return direct(web, "/{0}/{1}/rate".format(site,id))
-    return result or redirect("/{0}/{1}".format(site,id)) # FIXME give error to user
+    else: return direct(web, "/{0}/{1}/rate".format(site,id),
+            errors = [result or "Captcha wrong"])
+    return result or redirect("/{0}/{1}".format(site,id))
 
 
 @post("/datenspuren/:id/:filename/comment/new") # FIXME impl error
@@ -291,8 +306,9 @@ def new_ds_file_comment(web, id, filename):
     if is_ok:
         build_and_save_comment(web, "datenspuren/{0}/{1}".format(id, filename), result)
         result = None
-    else: return direct(web, "/datenspuren/{0}/{1}/comment".format(site,id))
-    return result or redirect("/datenspuren/{0}/{1}".format(id, filename)) # FIXME give error to user
+    else: return direct(web, "/datenspuren/{0}/{1}/comment".format(site,id),
+            errors = [result or "Captcha wrong"])
+    return result or redirect("/datenspuren/{0}/{1}".format(id, filename))
 
 
 @post("datenspuren/:id/:filename/rating/new")
@@ -307,8 +323,9 @@ def new_ds_file_rating(web, id, filename):
         if score is not None:
             if score in range(1,6):
                 Rating(episode = episode.id, score = score).save()
-    else: return direct(web, "/datenspuren/{0}/{1}/rate".format(site,id))
-    return result or redirect("/datenspuren/{0}/{1}".format(id,filename)) # FIXME give error to user
+    else: return direct(web, "/datenspuren/{0}/{1}/rate".format(site,id),
+            errors = [result or "Captcha wrong"])
+    return result or redirect("/datenspuren/{0}/{1}".format(id,filename))
 
 
 @post("/datenspuren/:id/comment/new") # FIXME impl error
@@ -319,8 +336,9 @@ def new_ds_file_comment(web, id):
     if is_ok:
         build_and_save_comment(web, "datenspuren/" + id, result)
         result = None
-    else: return direct(web, "/datenspuren/{0}/comment".format(id))
-    return result or redirect("/datenspuren/" + id) # FIXME give error to user
+    else: return direct(web, "/datenspuren/{0}/comment".format(id),
+            errors = [result or "Captcha wrong"])
+    return result or redirect("/datenspuren/" + id)
 
 
 @post("datenspuren/:id/rating/new")
@@ -334,8 +352,9 @@ def new_ds_file_rating(web, id):
         if score is not None:
             if score in range(1,6):
                 Rating(episode = episode.id, score = score).save()
-    else: return direct(web, "/datenspuren/{0}/rate".format(id))
-    return result or redirect("/datenspuren/" + id) # FIXME give error to user
+    else: return direct(web, "/datenspuren/{0}/rate".format(id),
+            errors = [result or "Captcha wrong"])
+    return result or redirect("/datenspuren/" + id)
 
 
 @route("/spenden")
@@ -370,7 +389,7 @@ def get_episode_if_input_is_ok(web, filtr, exists = [], notempty = []):
       all([ web.input(k) is not None for k in exists   ]) and \
       all([ web.input(k) != ""       for k in notempty ]):
         try:    return True, Episode.find().filter(filtr).one()
-        except Exception as e: return False, notfound(str(e))
+        except Exception as e: return False, str(e)
     return False, None
 
 
