@@ -96,7 +96,6 @@ def do_the_ratings(web, mode, ratings = [], **kwargs):
     if ratings:
         score /= len(ratings)
     s = round(score + 0.00000001) # python fuck up
-    print(">"*10,web.input('score'))
     return {'rating'       : { 'score' : score,
                                'round'  : s,
                                'black_star': "★",
