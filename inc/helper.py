@@ -58,10 +58,12 @@ def build_comment_tree(comments):
 
 def _create_session(web, mode):
     try:
-        reply = int(web['QUERY_STRING'])
+        reply = int(web.input('reply') or web['QUERY_STRING'])
         author = find(Comment.author).filter_by(id = reply).one()[0]
         text = "@{0} ".format(author)
-    except: reply, text = -1, ""
+    except: text = ""
+    try: reply = int(web.input('reply') or -1)
+    except: reply = -1
     name = web.input("author") or ""
     if web.input("comment"): text = web.input("comment")
     a, b, c = randint(1, 10), randint(1, 10), randint(1, 10)
