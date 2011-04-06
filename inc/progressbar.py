@@ -2,9 +2,11 @@ import sys
 from inc.console import getTerminalSize
 
 class Progressbar:
-    def __init__(self, minValue = 0, maxValue = 10, totalWidth=12, show_numbers=False):
+    def __init__(self, minValue = 0, maxValue = 10, totalWidth=12,
+            show_numbers=False, show_progressbar=True):
         self._old_payload = ""
         self.show_numbers = show_numbers
+        self.show_progressbar = show_progressbar
         self.progBar = "[]"   # This holds the progress bar string
         self.min = minValue
         self.max = maxValue
@@ -56,6 +58,13 @@ class Progressbar:
                 self.progBar += " " * len(self._old_payload)
                 self._old_payload = ""
 
+        if not self.show_progressbar:
+            self.progBar = ""
+            if self.show_numbers:
+                self.progBar = "[{0}]".format(percentString)
+            if payload:
+                self.progBar +=  " " + payload
+
         self.pbar_str = str(self)
         self._changed = True
 
@@ -66,11 +75,17 @@ class Progressbar:
         # draw progress bar - but only if it has changed
         if self._changed:
             self._changed = False
-            w, _ = getTerminalSize()
+            if self.show_progressbar:
+                w, _ = getTerminalSize()
+            else:
+                w = len(self.pbar_str)
             sys.stdout.write(self.pbar_str[:w] + '\r')
             sys.stdout.flush()      # force updating of screen
 
     def clear(self):
-        w, _ = getTerminalSize()
+        if self.show_progressbar:
+            w, _ = getTerminalSize()
+        else:
+            w = len(self.pbar_str)
         sys.stdout.write(" " * len(self.pbar_str[:w]) + '\r')
         sys.stdout.flush()      # force updating of screen

@@ -135,9 +135,10 @@ def get_filenames_from_gitlog(log, update_all=False):
 
 
 class Trackbacker():
-    def __init__(self, enabled):
+    def __init__(self, enabled, progressbar=True):
         self.count = drug(links = 0, tb = 0, skip = 0, error = 0, ign = 0)
         self.disabled = not enabled
+        self.progressbar = progressbar
 
     def send(self, filename, episode, link):
         response = trackback_client(link,
@@ -161,7 +162,7 @@ class Trackbacker():
     def check_all(self, filename, episode, links):
         if self.disabled or not links: return
         self.count.links += len(links)
-        pb = Progressbar(0, len(links), 42, True)
+        pb = Progressbar(0, len(links), 42, True, self.progressbar)
         for n, linkdata in enumerate(links):
             link = linkdata['url']
             blacklisted = False
@@ -278,8 +279,8 @@ def save_recording_in_database(filename, data, tracker, debug=False):
         session().commit()
 
 
-def fill_database(files, debug=False, trackback=False):
-    tracker = Trackbacker(trackback)
+def fill_database(files, debug=False, trackback=False, progressbar=True):
+    tracker = Trackbacker(trackback, progressbar)
     for filename in files:
         category = get_category(filename)
         if not category or ("penta" not in category and "ds" not in category):
@@ -322,11 +323,11 @@ def fill_database(files, debug=False, trackback=False):
     tracker.print_stats()
 
 
-def main(update_all, debug, trackback, do_fetch):
+def main(update_all, debug, trackback, do_fetch, progressbar):
     check_git_version()
     log = fetch_log_from_git(update_all, do_fetch)
     files = get_filenames_from_gitlog(log, update_all)
-    fill_database(files, debug, trackback)
+    fill_database(files, debug, trackback, progressbar)
     print("done.")
 
 
@@ -344,6 +345,10 @@ if __name__ == "__main__":
     parser.add_option("-f", "--no-fetch",
         dest="no_fetch", action="store_true", default = False,
         help ="disable git fetch [default: %default]")
+    parser.add_option("--no-progressbar",
+        dest="no_progressbar", action="store_true", default = False,
+        help="disable progressbar [default: %default]")
 
     opts, _ = parser.parse_args()
-    main(opts.update_all, opts.debug, not opts.no_trackback, not opts.no_fetch)
+    main(opts.update_all, opts.debug, not opts.no_trackback,
+        not opts.no_fetch, not opts.no_progressbar)
