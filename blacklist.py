@@ -1,3 +1,4 @@
 sites = [
-        ".wikipedia.org"
+        ".wikipedia.org",
+        ".wikimedia.org",
         ]
