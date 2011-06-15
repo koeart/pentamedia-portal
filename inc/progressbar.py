@@ -79,10 +79,15 @@ class Progressbar:
                 w, _ = getTerminalSize()
             else:
                 w = len(self.pbar_str)
+            if self.show_numbers:
+                print(self.pbar_str[:w])
+                return
             sys.stdout.write(self.pbar_str[:w] + '\r')
             sys.stdout.flush()      # force updating of screen
 
     def clear(self):
+        if self.show_numbers:
+            return
         if self.show_progressbar:
             w, _ = getTerminalSize()
         else:
