@@ -158,12 +158,12 @@ def get_media(resource):
 
 
 def get_files(root):
-    resources = root.findall('resource')
+    resources = root.findall('.//resource')
     return list(map(get_media,resources))
 
 
 def get_previews(root):
-    resources = root.findall('resource')
+    resources = root.findall('.//resource')
     return list(map(get_preview, filter(has_preview, resources)))
 
 
