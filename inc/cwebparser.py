@@ -13,6 +13,7 @@ re_recording = re.compile(r".*(?P<episode>(?P<type>d(s|atenspuren20)[^-]*)-[^.]*
 FILETYPE = {'application/x-bittorrent': "BitTorrent-Metainformationen",
             'application/pdf': "Portable Document Format",
             'multipart/x-zip': "Zip-Archiv",
+            'video/avi': "Audio Video Interleave",
             'video/mp4': "MP4-Video",
             'video/webm': "WebM Video",
             'video/x-flv': "Flash Video",
