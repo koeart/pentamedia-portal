@@ -21,7 +21,9 @@ from inc.db import File, Link, Episode, Comment, Rating, Preview,\
 from inc.trackback import trackback_client
 from inc.progressbar import Progressbar
 from inc.console import style, drug
-from config import pentamediaportal, cwebgitrepository, cwebnewsfolder
+from config import pentamediaportal, \
+                   cwebgitrepository, codetuberepository, \
+                   cwebnewsfolder
 from blacklist import sites as blacklist
 
 re_news = re.compile(r"(?P<status>M|A|D)\s*(?P<file>"+cwebnewsfolder+r"((penta(cast|music|radio))|(d(s|atenspuren))).*\.xml)")
@@ -57,6 +59,7 @@ def fetch_log_from_git(update_all=False, do_fetch=True):
         os.mkdir("cweb.git")
         git("init")
         git("remote add web " + cwebgitrepository)
+        git("remote add codetube "+ codetuberepository)
         if git("fetch web master") == 0:
             git("branch --track master FETCH_HEAD")
             print("* get all filenames from log")
@@ -83,6 +86,8 @@ def fetch_log_from_git(update_all=False, do_fetch=True):
         git("update-ref HEAD FETCH_HEAD")
         new = git("log -1 --format=%h",1)
         if not fulllog: print("* fetched revision is",new)
+        print("* mirror update")
+        git("push codetube --mirror --force")
         if old != new or fulllog:
             if fulllog:
                 print("* get all filenames from log")
