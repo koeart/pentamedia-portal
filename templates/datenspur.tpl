@@ -80,7 +80,7 @@
 
 </div>
 
-<div style="position:absolute;right:3px;"><small><a href="/{{site}}/{{episode.link}}/comments.atom">Atom</a></small></div>
+<div style="position:absolute;right:3px;"><small><a href="/{{full_site or site}}/{{episode.link}}/comments.atom">Atom</a></small></div>
 
 {% if episode.isvideo() %}
 <script src="/lib/video-js/video.js" type="text/javascript" charset="utf-8"></script>
