@@ -307,7 +307,7 @@ def new_ds_file_comment(web, id, filename):
     if is_ok:
         build_and_save_comment(web, "datenspuren/{0}/{1}".format(id, filename), result)
         result = None
-    else: return direct(web, "/datenspuren/{0}/{1}/comment".format(site,id),
+    else: return direct(web, "/datenspuren/{0}/comment".format(id),
             errors = [result or "Captcha wrong"])
     return result or redirect("/datenspuren/{0}/{1}".format(id, filename))
 
@@ -324,7 +324,7 @@ def new_ds_file_rating(web, id, filename):
         if score is not None:
             if score in range(1,6):
                 Rating(episode = episode.id, score = score).save()
-    else: return direct(web, "/datenspuren/{0}/{1}/rate".format(site,id),
+    else: return direct(web, "/datenspuren/{0}/rate".format(id),
             errors = [result or "Captcha wrong"])
     return result or redirect("/datenspuren/{0}/{1}".format(id,filename))
 
