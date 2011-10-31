@@ -169,6 +169,7 @@ def datenspur_file(web, id, filename, mode, errors=[]):
                     episode    = episode,
                     episodes   = {episode.id: episode},
                     site       = "datenspuren",
+                    full_site  = "datenspuren/" + id,
                     trackbacks = trackbacks,
                     files      = files,
                     preview    = preview,

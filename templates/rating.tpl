@@ -4,7 +4,7 @@
   <head>
     <title>pentamedia{{title|default("")}}</title>
     {% if not fail|d(False) %}
-    <link href="/{{site}}/{{episode.link}}/comments.atom" type="application/atom+xml" rel="alternate" title="Comments Feed" />
+    <link href="/{{full_site or site}}/{{episode.link}}/comments.atom" type="application/atom+xml" rel="alternate" title="Comments Feed" />
     {% endif %}
     <link rel="SHORTCUT ICON" href="/img/c3d2.ico" type="image/x-icon">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -45,7 +45,7 @@
 {% if rating_form|d(False) %}
 
 {% macro action() -%}
-/{{site}}/{{episode.link}}/rating/new{{''|d('.json',isjson|d(False))}}
+/{{full_site or site}}/{{episode.link}}/rating/new{{''|d('.json',isjson|d(False))}}
 {%- endmacro %}
 
 {{captchas_begin(action())}}
@@ -59,7 +59,7 @@
 
 {% else %}
 {% if isjson is not defined
-%}<p>✰ <a href="/{{site}}/{{episode.link}}/rate#new" class="add_comment add_rating">new Rating…</a></p>{% endif %}
+%}<p>✰ <a href="/{{full_site or site}}/{{episode.link}}/rate#new" class="add_comment add_rating">new Rating…</a></p>{% endif %}
 {% endif %}
 {% endif %}
 </div>

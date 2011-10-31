@@ -4,7 +4,7 @@
   <head>
     <title>pentamedia{{title|default("")}}</title>
     {% if not fail|d(False) %}
-    <link href="/{{site}}/{{episode.link}}/comments.atom" type="application/atom+xml" rel="alternate" title="Comments Feed" />
+    <link href="/{{full_site or site}}/{{episode.link}}/comments.atom" type="application/atom+xml" rel="alternate" title="Comments Feed" />
     {% endif %}
     <link rel="SHORTCUT ICON" href="/img/c3d2.ico" type="image/x-icon">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -52,14 +52,14 @@
 {% if not fail|d(False) %}
 {% for comment in comments %}
   <div class="comment" style="border:none;background:none{% if comment.reply != -1 %};margin-left:{{comment.level}}em;border-left:4px solid #ddd{% endif %};">{{comment.text}}
-    <small class="author"><a href="/{{site}}/{{episode.link}}{{''|d('/comments',isjson|d(False))}}/reply?{{comment.id}}#new" class="line">{{comment.author|trim|e}}</a></small>
+    <small class="author"><a href="/{{full_site or site}}/{{episode.link}}{{''|d('/comments',isjson|d(False))}}/reply?{{comment.id}}#new" class="line">{{comment.author|trim|e}}</a></small>
     <small> added these pithy words on {{comment.fdate()}}</small>
   </div>
 {% endfor %}
 {% if comment_form|d(False) %}
 
 {% macro action() -%}
-/{{site}}/{{episode.link}}/comment/new{{''|d('.json',isjson|d(False))}}
+/{{full_site or site}}/{{episode.link}}/comment/new{{''|d('.json',isjson|d(False))}}
 {%- endmacro %}
 
 {{captchas_begin(action())}}
